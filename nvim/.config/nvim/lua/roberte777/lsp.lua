@@ -15,7 +15,7 @@ local config = {
   signs = {
     active = signs,
   },
-  underline = false,
+  underline = true,
   severity_sort = true,
   float = {
     focusable = true,
@@ -25,6 +25,7 @@ local config = {
     header = "",
     prefix = "",
   },
+  update_in_insert = false 
 }
 
 vim.diagnostic.config(config)
