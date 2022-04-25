@@ -1,3 +1,4 @@
+set path+=**
 set guicursor =
 set relativenumber
 " set number, turns on line number for current row
@@ -24,7 +25,6 @@ let mapleader = " "
 nnoremap <Leader><CR> :so ~/.config/nvim/init.vim<CR>
 nnoremap <leader>pv :Ex<CR>
 call plug#begin('~/.vim/plugged')
-Plug 'sainnhe/everforest'
 " lsp
 Plug 'neovim/nvim-lspconfig'
 Plug 'hrsh7th/cmp-nvim-lsp'
@@ -40,7 +40,23 @@ Plug 'rafamadriz/friendly-snippets'
 Plug 'simrat39/symbols-outline.nvim'
 " tree shitter
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+Plug 'morhetz/gruvbox'
 call plug#end()
 lua require('roberte777')
-set background=dark
-colorscheme everforest
+set wildignore+=*.pyc
+set wildignore+=*_build/*
+set wildignore+=**/coverage/*
+set wildignore+=**/node_modules/*
+set wildignore+=**/android/*
+set wildignore+=**/ios/*
+set wildignore+=**/.git/*
+augroup THE_PRIMEAGEN
+    autocmd!
+    " autocmd BufWritePre *.lua Neoformat
+    autocmd BufWritePre * %s/\s\+$//e
+    autocmd BufEnter,BufWinEnter,TabEnter *.rs :lua require'lsp_extensions'.inlay_hints{}
+augroup END
+
+for f in glob('~/.config/nvim/plugin/*.vim', 0, 1)
+    execute 'source' f
+endfor
