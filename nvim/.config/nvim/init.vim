@@ -1,3 +1,25 @@
+set guicursor =
+set relativenumber
+" set number, turns on line number for current row
+set nu
+set nohlsearch
+set hidden
+set noerrorbells
+set expandtab
+set tabstop=4 softtabstop=4
+set shiftwidth=4
+set smartindent
+set nowrap
+set noswapfile
+set scrolloff=8
+set signcolumn=yes
+set cmdheight=1
+set updatetime=50
+set colorcolumn=80
+" start searching while typing
+set incsearch
+set termguicolors
+
 let mapleader = " "
 nnoremap <Leader><CR> :so ~/.config/nvim/init.vim<CR>
 nnoremap <leader>pv :Ex<CR>
@@ -20,8 +42,5 @@ Plug 'simrat39/symbols-outline.nvim'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 call plug#end()
 lua require('roberte777')
-if has('termguicolors')
-	set termguicolors
-endif
 set background=dark
 colorscheme everforest
