@@ -41,7 +41,7 @@ Plug 'simrat39/symbols-outline.nvim'
 " tree shitter
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'morhetz/gruvbox'
-Plug 'sbdchd/neoformat'
+Plug 'prettier/vim-prettier', { 'do': 'npm install --frozen-lockfile --production' }
 call plug#end()
 lua require('roberte777')
 set wildignore+=*.pyc
@@ -65,3 +65,6 @@ set autochdir
 
 "enable different settings for different languages (in ftplugins folder)
 filetype plugin on
+let g:prettier#autoformat = 0
+autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.graphql,*.md,*.vue PrettierAsync
+
