@@ -62,3 +62,6 @@ for f in glob('~/.config/nvim/plugin/*.vim', 0, 1)
     execute 'source' f
 endfor
 set autochdir
+
+"enable different settings for different languages (in ftplugins folder)
+filetype plugin on
