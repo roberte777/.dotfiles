@@ -25,7 +25,7 @@ local config = {
     header = "",
     prefix = "",
   },
-  update_in_insert = false 
+  update_in_insert = false
 }
 
 vim.diagnostic.config(config)
@@ -125,7 +125,7 @@ local function config(_config)
 end
 
 require("lspconfig").tsserver.setup(config())
-require("lspconfig").pyright.setup(config())
+--require("lspconfig").pyright.setup(config())
 --[[  I cannot seem to get this woring on new computer..
 require("lspconfig").clangd.setup(config({
 	cmd = { "clangd", "--background-index", "--log=verbose" },
