@@ -41,6 +41,7 @@ Plug 'simrat39/symbols-outline.nvim'
 " tree shitter
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'morhetz/gruvbox'
+Plug 'sbdchd/neoformat'
 call plug#end()
 lua require('roberte777')
 set wildignore+=*.pyc
@@ -60,3 +61,4 @@ augroup END
 for f in glob('~/.config/nvim/plugin/*.vim', 0, 1)
     execute 'source' f
 endfor
+set autochdir
