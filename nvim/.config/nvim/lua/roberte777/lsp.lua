@@ -1,44 +1,15 @@
-
-local signs = {
-  { name = "DiagnosticSignError", text = "E" },
-  { name = "DiagnosticSignWarn", text = "W"},
-  { name = "DiagnosticSignHint", text = "H"},
-  { name = "DiagnosticSignInfo", text = "I"},
-}
-
-for _, sign in ipairs(signs) do
-  vim.fn.sign_define(sign.name, { texthl = sign.name, text = sign.text, numhl = "" })
-end
-
-local config = {
-  -- show signs
-  signs = {
-    active = signs,
-  },
-  underline = true,
-  severity_sort = true,
-  float = {
-    focusable = true,
-    style = "minimal",
-    border = "rounded",
-    source = "always",
-    header = "",
-    prefix = "",
-  },
-  update_in_insert = false
-}
-
-vim.diagnostic.config(config)
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities.textDocument.completion.completionItem.snippetSupport = true
 
 -- Setup nvim-cmp.
 local cmp = require("cmp")
+-- source mapping dictates how the source of the autocomplete is shown
+-- by cmp, ex autocomplete suggestions that come from lsp will have
+-- [LSP] at the end of the row
 local source_mapping = {
 	buffer = "[Buffer]",
 	nvim_lsp = "[LSP]",
 	nvim_lua = "[Lua]",
-	cmp_tabnine = "[TN]",
 	path = "[Path]",
 }
 local lspkind = require("lspkind")
@@ -56,31 +27,29 @@ cmp.setup({
 			-- vim.fn["UltiSnips#Anon"](args.body)
 		end,
 	},
-	mapping = {
+	mapping = cmp.mapping.preset.insert({
 		["<C-u>"] = cmp.mapping.scroll_docs(-4),
 		["<C-d>"] = cmp.mapping.scroll_docs(4),
 		["<C-Space>"] = cmp.mapping.complete(),
-	},
+        ['<Tab>'] = function(fallback)
+            if cmp.visible() then
+                cmp.select_next_item()
+            else
+                fallback()
+            end
+        end
+	}),
 
 	formatting = {
 		format = function(entry, vim_item)
 			vim_item.kind = lspkind.presets.default[vim_item.kind]
 			local menu = source_mapping[entry.source.name]
-			if entry.source.name == "cmp_tabnine" then
-				if entry.completion_item.data ~= nil and entry.completion_item.data.detail ~= nil then
-					menu = entry.completion_item.data.detail .. " " .. menu
-				end
-				vim_item.kind = ""
-			end
-			vim_item.menu = menu
+
 			return vim_item
 		end,
 	},
 
 	sources = {
-		-- tabnine completion? yayaya
-
-		{ name = "cmp_tabnine" },
 
 		{ name = "nvim_lsp" },
 
@@ -97,14 +66,6 @@ cmp.setup({
 	},
 })
 
-local tabnine = require("cmp_tabnine.config")
-tabnine:setup({
-	max_lines = 1000,
-	max_num_results = 20,
-	sort = true,
-	run_on_every_keystroke = true,
-	snippet_placeholder = "..",
-})
 
 local function config(_config)
 	return vim.tbl_deep_extend("force", {
