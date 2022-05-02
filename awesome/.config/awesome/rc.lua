@@ -46,7 +46,7 @@ do
     end)
 end
 
-awful.spawn.with_shell("picom --experimental-backends -b")
+awful.spawn.with_shell("picom -b")
 
 -- }}}
 
