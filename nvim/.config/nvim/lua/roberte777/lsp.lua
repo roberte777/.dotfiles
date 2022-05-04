@@ -31,6 +31,7 @@ cmp.setup({
 		["<C-u>"] = cmp.mapping.scroll_docs(-4),
 		["<C-d>"] = cmp.mapping.scroll_docs(4),
 		["<C-Space>"] = cmp.mapping.complete(),
+              ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
         ['<Tab>'] = function(fallback)
             if cmp.visible() then
                 cmp.select_next_item()
@@ -40,16 +41,16 @@ cmp.setup({
         end
 	}),
 
-	formatting = {
-		format = function(entry, vim_item)
-			vim_item.kind = lspkind.presets.default[vim_item.kind]
-			local menu = source_mapping[entry.source.name]
+	--formatting = {
+	--	format = function(entry, vim_item)
+	--		vim_item.kind = lspkind.presets.default[vim_item.kind]
+	--		local menu = source_mapping[entry.source.name]
 
-			return vim_item
-		end,
-	},
+	--		return vim_item
+	--	end,
+	--},
 
-	sources = {
+	sources = cmp.config.sources({
 
 		{ name = "nvim_lsp" },
 
@@ -63,7 +64,7 @@ cmp.setup({
 		-- { name = 'ultisnips' },
 
 		{ name = "buffer" },
-	},
+	}),
 })
 
 
