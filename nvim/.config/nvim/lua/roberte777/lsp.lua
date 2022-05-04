@@ -41,14 +41,12 @@ cmp.setup({
         end
 	}),
 
-	--formatting = {
-	--	format = function(entry, vim_item)
-	--		vim_item.kind = lspkind.presets.default[vim_item.kind]
-	--		local menu = source_mapping[entry.source.name]
-
-	--		return vim_item
-	--	end,
-	--},
+	formatting = {
+		format = function(entry, vim_item)
+            vim_item.menu = source_mapping[entry.source.name]
+			return vim_item
+		end,
+	},
 
 	sources = cmp.config.sources({
 
