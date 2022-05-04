@@ -6,12 +6,6 @@ local cmp = require("cmp")
 -- source mapping dictates how the source of the autocomplete is shown
 -- by cmp, ex autocomplete suggestions that come from lsp will have
 -- [LSP] at the end of the row
-local source_mapping = {
-	buffer = "[Buffer]",
-	nvim_lsp = "[LSP]",
-	nvim_lua = "[Lua]",
-	path = "[Path]",
-}
 local lspkind = require("lspkind")
 
 cmp.setup({
@@ -31,7 +25,8 @@ cmp.setup({
 		["<C-u>"] = cmp.mapping.scroll_docs(-4),
 		["<C-d>"] = cmp.mapping.scroll_docs(4),
 		["<C-Space>"] = cmp.mapping.complete(),
-              ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+        ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+        ['<C-e>'] = cmp.mapping.abort(),
         ['<Tab>'] = function(fallback)
             if cmp.visible() then
                 cmp.select_next_item()
@@ -41,14 +36,20 @@ cmp.setup({
         end
 	}),
 
-	formatting = {
-		format = function(entry, vim_item)
-            vim_item.menu = source_mapping[entry.source.name]
-			return vim_item
-		end,
-	},
+ formatting = {
+    format = lspkind.cmp_format({
+      mode = 'symbol', -- show only symbol annotations
+      maxwidth = 50, -- prevent the popup from showing more than provided characters (e.g 50 will not show more than 50 characters)
+      menu = {
+        buffer = "[Buffer]",
+        nvim_lsp = "[LSP]",
+        nvim_lua = "[API]",
+        path = "[PATH]"
+      },
 
-	sources = cmp.config.sources({
+    }),
+  },
+  sources = cmp.config.sources({
 
 		{ name = "nvim_lsp" },
 
@@ -70,6 +71,7 @@ local function config(_config)
 	return vim.tbl_deep_extend("force", {
 		capabilities = require("cmp_nvim_lsp").update_capabilities(vim.lsp.protocol.make_client_capabilities()),
 		on_attach = function()
+            Nnoremap("<leader>vtd",":lua vim.lsp.buf.type_definition()<CR>")
 			Nnoremap("gd", ":lua vim.lsp.buf.definition()<CR>")
 			Nnoremap("K", ":lua vim.lsp.buf.hover()<CR>")
 			Nnoremap("<leader>vws", ":lua vim.lsp.buf.workspace_symbol()<CR>")
@@ -130,36 +132,3 @@ require("lspconfig").rust_analyzer.setup(config({
     }
     --]]
 }))
-local opts = {
-	-- whether to highlight the currently hovered symbol
-	-- disable if your cpu usage is higher than you want it
-	-- or you just hate the highlight
-	-- default: true
-	highlight_hovered_item = true,
-
-	-- whether to show outline guides
-	-- default: true
-	show_guides = true,
-}
-
-require("symbols-outline").setup(opts)
-
-local snippets_paths = function()
-	local plugins = { "friendly-snippets" }
-	local paths = {}
-	local path
-	local root_path = vim.env.HOME .. "/.vim/plugged/"
-	for _, plug in ipairs(plugins) do
-		path = root_path .. plug
-		if vim.fn.isdirectory(path) ~= 0 then
-			table.insert(paths, path)
-		end
-	end
-	return paths
-end
-
-require("luasnip.loaders.from_vscode").lazy_load({
-	paths = snippets_paths(),
-	include = nil, -- Load all languages
-	exclude = {},
-})
