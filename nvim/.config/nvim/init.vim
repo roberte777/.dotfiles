@@ -15,7 +15,7 @@ set noswapfile
 set scrolloff=8
 set signcolumn=yes
 set cmdheight=1
-set updatetime=50
+set updatetime=750
 set colorcolumn=80
 " start searching while typing
 set incsearch
