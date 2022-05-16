@@ -53,9 +53,11 @@ augroup THE_PRIMEAGEN
     autocmd!
     " autocmd BufWritePre *.lua Neoformat
     autocmd BufWritePre * %s/\s\+$//e
-    autocmd BufEnter,BufWinEnter,TabEnter *.rs :lua require'lsp_extensions'.inlay_hints{}
+    " below is something prime had, research this!
+    "autocmd BufEnter,BufWinEnter,TabEnter *.rs :lua require'lsp_extensions'.inlay_hints{}
 augroup END
 
+" source nvim settings file in plugin dir
 for f in glob('~/.config/nvim/plugin/*.vim', 0, 1)
     execute 'source' f
 endfor
