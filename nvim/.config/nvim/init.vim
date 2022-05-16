@@ -20,6 +20,8 @@ set colorcolumn=80
 " start searching while typing
 set incsearch
 set termguicolors
+" make nvim and system clipboard sync
+set clipboard+=unnamedplus
 
 let mapleader = " "
 nnoremap <Leader><CR> :so ~/.config/nvim/init.vim<CR>
