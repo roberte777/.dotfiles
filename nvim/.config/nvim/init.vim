@@ -24,6 +24,7 @@ set termguicolors
 let mapleader = " "
 nnoremap <Leader><CR> :so ~/.config/nvim/init.vim<CR>
 nnoremap <leader>pv :Ex<CR>
+inoremap <C-c> <esc>
 call plug#begin('~/.vim/plugged')
 " lsp
 Plug 'neovim/nvim-lspconfig'
@@ -66,3 +67,7 @@ let g:prettier#autoformat = 1
 let g:prettier#autoformat_require_pragma = 0
 "autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.graphql,*.md,*.vue PrettierAsync
 
+augroup highlight_yank
+    autocmd!
+    autocmd TextYankPost * silent! lua require'vim.highlight'.on_yank({timeout = 40})
+augroup END
