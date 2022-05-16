@@ -25,7 +25,7 @@ cmp.setup({
 		["<C-u>"] = cmp.mapping.scroll_docs(-4),
 		["<C-d>"] = cmp.mapping.scroll_docs(4),
 		["<C-Space>"] = cmp.mapping.complete(),
-        ['<CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
+        ['<C-CR>'] = cmp.mapping.confirm({ select = true }), -- Accept currently selected item. Set `select` to `false` to only confirm explicitly selected items.
         ['<C-e>'] = cmp.mapping.abort(),
         ['<Tab>'] = function(fallback)
             if cmp.visible() then
@@ -119,16 +119,18 @@ require("lspconfig").gopls.setup(config({
 	},
 }))
 
--- who even uses this?
-require("lspconfig").rust_analyzer.setup(config({
-	cmd = { "rustup", "run", "nightly", "rust-analyzer" },
-	--[[
-    settings = {
-        rust = {
-            unstable_features = true,
-            build_on_save = false,
-            all_features = true,
-        },
-    }
-    --]]
-}))
+-- I dont know what this stuff does, dis how prime had it
+--require("lspconfig").rust_analyzer.setup(config({
+--	cmd = { "rustup", "run", "nightly", "rust-analyzer" },
+--	--[[
+--    settings = {
+--        rust = {
+--            unstable_features = true,
+--            build_on_save = false,
+--            all_features = true,
+--        },
+--    }
+--    --]]
+--}))
+--basic rust setup
+require("lspconfig").rust_analyzer.setup(config())
