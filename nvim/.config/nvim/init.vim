@@ -40,6 +40,8 @@ Plug 'L3MON4D3/LuaSnip'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'morhetz/gruvbox'
 Plug 'prettier/vim-prettier', { 'do': 'yarn install --frozen-lockfile --production' }
+" comment toggling :D
+Plug 'tpope/vim-commentary'
 call plug#end()
 lua require('roberte777')
 set wildignore+=*.pyc
