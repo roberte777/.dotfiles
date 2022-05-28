@@ -41,7 +41,7 @@ Plug 'L3MON4D3/LuaSnip'
 " tree shitter
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'morhetz/gruvbox'
-Plug 'prettier/vim-prettier', { 'do': 'yarn install --frozen-lockfile --production' }
+Plug 'sbdchd/neoformat'
 " comment toggling :D
 Plug 'tpope/vim-commentary'
 call plug#end()
@@ -67,12 +67,6 @@ for f in glob('~/.config/nvim/plugin/*.vim', 0, 1)
     execute 'source' f
 endfor
 set autochdir
-
-"enable different settings for different languages (in ftplugins folder)
-filetype plugin on
-let g:prettier#autoformat = 1
-let g:prettier#autoformat_require_pragma = 0
-"autocmd BufWritePre *.js,*.jsx,*.mjs,*.ts,*.tsx,*.css,*.less,*.scss,*.json,*.graphql,*.md,*.vue PrettierAsync
 
 augroup highlight_yank
     autocmd!
