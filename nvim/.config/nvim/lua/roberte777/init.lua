@@ -7,3 +7,5 @@ end
 Nnoremap = CreateNoremap("n", { noremap = true })
 Inoremap = CreateNoremap("i", { noremap = true })
 require("roberte777.lsp")
+require("roberte777.tree")
+require("roberte777._barbar")
