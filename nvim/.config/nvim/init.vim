@@ -22,6 +22,7 @@ set incsearch
 set termguicolors
 " make nvim and system clipboard sync
 set clipboard+=unnamedplus
+set mouse+=a
 
 let mapleader = " "
 nnoremap <Leader><CR> :so ~/.config/nvim/init.vim<CR>
@@ -42,6 +43,10 @@ Plug 'L3MON4D3/LuaSnip'
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'morhetz/gruvbox'
 Plug 'sbdchd/neoformat'
+" file exploration
+Plug 'kyazdani42/nvim-web-devicons' " for file icons
+Plug 'kyazdani42/nvim-tree.lua'
+Plug 'romgrk/barbar.nvim'
 " comment toggling :D
 Plug 'tpope/vim-commentary'
 call plug#end()
