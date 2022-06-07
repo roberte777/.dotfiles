@@ -23,6 +23,7 @@ set termguicolors
 " make nvim and system clipboard sync
 set clipboard+=unnamedplus
 set mouse+=a
+set splitright
 
 let mapleader = " "
 nnoremap <Leader><CR> :so ~/.config/nvim/init.vim<CR>
