@@ -3,8 +3,8 @@ local opts = { noremap = true, silent = true }
 
 --regular keybinds
 -- Move to previous/next
-map('n', '<C-j>', ':BufferPrevious<CR>', opts)
-map('n', '<C-k>', ':BufferNext<CR>', opts)
+map('n', '<C-k>', ':BufferPrevious<CR>', opts)
+map('n', '<C-j>', ':BufferNext<CR>', opts)
 -- Re-order to previous/next
 map('n', '<C-<>', ':BufferMovePrevious<CR>', opts)
 map('n', '<C->>', ' :BufferMoveNext<CR>', opts)
