@@ -60,6 +60,8 @@ Plug 'lewis6991/gitsigns.nvim'
 "telescope dependency
 Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build' }
 Plug 'nvim-telescope/telescope.nvim'
+" adds an indent line to make indents easier to see
+Plug 'lukas-reineke/indent-blankline.nvim'
 call plug#end()
 lua require('roberte777')
 lua require'nvim-treesitter.configs'.setup { highlight = { enable = true }, incremental_selection = { enable = true }, textobjects = { enable = true }}
