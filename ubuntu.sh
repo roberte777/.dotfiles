@@ -4,6 +4,7 @@ echo "https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Monoki.zi
 wget https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/Mononoki.zip
 unzip Mononoki.zip -d ~/.local/share/fonts
 fc-cache -fv
+sudo apt-get install ripgrep
 echo "done!"
 if [[ -z $STOW_FOLDERS ]]; then
     STOW_FOLDERS="nvim, kitty, awesome"
