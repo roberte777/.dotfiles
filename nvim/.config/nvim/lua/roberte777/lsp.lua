@@ -79,7 +79,7 @@ local function config(_config)
 			Nnoremap("dn", ":lua vim.lsp.diagnostic.goto_next()<CR>")
 			Nnoremap("dp", ":lua vim.lsp.diagnostic.goto_prev()<CR>")
 			Nnoremap("<leader>vca", ":lua vim.lsp.buf.code_action()<CR>")
-			Nnoremap("<leader>vrr", ":lua vim.lsp.buf.references()<CR>")
+			-- Nnoremap("<leader>vrr", ":lua vim.lsp.buf.references()<CR>")
 			Nnoremap("<leader>vrn", ":lua vim.lsp.buf.rename()<CR>")
 			Inoremap("<C-h>", "<cmd>lua vim.lsp.buf.signature_help()<CR>")
 		end,
