@@ -19,6 +19,7 @@ set updatetime=750
 set colorcolumn=80
 " start searching while typing
 set incsearch
+" turns the background color of nvim to be whatever your terminals is
 set termguicolors
 " make nvim and system clipboard sync
 set clipboard+=unnamedplus
@@ -30,6 +31,8 @@ nnoremap <Leader><CR> :so ~/.config/nvim/init.vim<CR>
 nnoremap <leader>pv :Ex<CR>
 inoremap <C-c> <esc>
 call plug#begin('~/.vim/plugged')
+" dependency for a lot of stuff
+Plug 'nvim-lua/plenary.nvim'
 " lsp
 Plug 'neovim/nvim-lspconfig'
 Plug 'hrsh7th/cmp-nvim-lsp'
@@ -50,6 +53,13 @@ Plug 'kyazdani42/nvim-tree.lua'
 Plug 'romgrk/barbar.nvim'
 " comment toggling :D
 Plug 'tpope/vim-commentary'
+" statusline
+Plug 'feline-nvim/feline.nvim'
+" git stuffs
+Plug 'lewis6991/gitsigns.nvim'
+"telescope dependency
+Plug 'nvim-telescope/telescope-fzf-native.nvim', { 'do': 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build' }
+Plug 'nvim-telescope/telescope.nvim'
 call plug#end()
 lua require('roberte777')
 lua require'nvim-treesitter.configs'.setup { highlight = { enable = true }, incremental_selection = { enable = true }, textobjects = { enable = true }}
