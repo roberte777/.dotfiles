@@ -1,4 +1,13 @@
 #!/usr/bin/env zsh
+if [[ -z $STOW_FOLDERS ]]; then
+    STOW_FOLDERS="nvim, kitty, awesome, rofi, picom"
+fi
+
+if [[ -z $DOTFILES ]]; then
+    DOTFILES=$HOME/.dotfiles
+fi
+STOW_FOLDERS=$STOW_FOLDERS DOTFILES=$DOTFILES $DOTFILES/install.sh
+
 #install things I am using right off the bat
 sudo apt install stow
 sudo apt install zsh
@@ -29,16 +38,6 @@ fc-cache -fv
 rm Mononoki.zip
 #install grep for telescope nvim
 sudo apt-get install ripgrep
-echo "done!"
-if [[ -z $STOW_FOLDERS ]]; then
-    STOW_FOLDERS="nvim, kitty, awesome"
-fi
-
-if [[ -z $DOTFILES ]]; then
-    DOTFILES=$HOME/.dotfiles
-fi
-
-STOW_FOLDERS=$STOW_FOLDERS DOTFILES=$DOTFILES $DOTFILES/install.sh
 
 #install rofi, the things that lets you run stuff
 sudo apt install rofi
