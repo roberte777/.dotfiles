@@ -1,21 +1,16 @@
 #!/usr/bin/env zsh
-if [[ -z $STOW_FOLDERS ]]; then
-    STOW_FOLDERS="nvim, kitty, awesome, rofi, picom"
-fi
-
-if [[ -z $DOTFILES ]]; then
-    DOTFILES=$HOME/.dotfiles
-fi
-STOW_FOLDERS=$STOW_FOLDERS DOTFILES=$DOTFILES $DOTFILES/install.sh
 
 #install things I am using right off the bat
 sudo apt install stow
 sudo apt install zsh
+sudo apt install curl
 # install oh my zsh
 sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 #set default terminal to zsh
 chsh -s $(which zsh)
-sudo apt install curl
+# stow config files
+chmod a+x ./stow.sh
+./stow.sh
 #install kitty terminal
 curl -L https://sw.kovidgoyal.net/kitty/installer.sh | sh /dev/stdin
 #set up bin folder for kitty
