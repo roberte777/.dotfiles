@@ -2,16 +2,14 @@
 
 # Terminate already running bar instances
 # If all your bars have ipc enabled, you can use
-polybar-msg cmd quit
 killall -q polybar
 while pgrep -u $UID -x polybar >/dev/null; do sleep 1; done
-#this shows the bar on every monitor instead of just one
+polybar awesome &
+
 if type "xrandr"; then
   for m in $(xrandr --query | grep " connected" | cut -d" " -f1); do
-    MONITOR=$m polybar --reload example &
+    MONITOR=$m polybar --reload awesome &
   done
 else
-  polybar --reload example &
+  polybar --reload awesome &
 fi
-
-echo "Bars launched..."
