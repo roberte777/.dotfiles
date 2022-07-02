@@ -4,6 +4,7 @@
 sudo apt install stow
 sudo apt install zsh
 sudo apt install curl
+sudo apt install pavucontrol
 # install oh my zsh
 sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 #set default terminal to zsh
