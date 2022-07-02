@@ -24,7 +24,7 @@ alert = #bd2c40
 
 [bar/awesome]
 #paired with the code in the launch.sh, this shows the bar on every monitor
-monitor = ${env:MONITOR:}
+;monitor = ${env:MONITOR}
 width = 100%
 height = 40
 radius = 0.0
@@ -49,7 +49,7 @@ font-0 = mononoki Nerd Font:pixelsize=14;0
 font-1 = unifont:fontformat=truetype:size=8:antialias=false;0
 font-2 = siji:pixelsize=10;1
 
-modules-left = term xwindow
+modules-left = term
 modules-center = date
 modules-right = shot audio battery  powermenu
 
@@ -67,25 +67,3 @@ screenchange-reload = true
 ;compositing-foreground = source
 ;compositing-border = over
 ;pseudo-transparency = false
-[module/workspaces]
-    type = internal/xworkspaces
-    pin-workspaces = false
-    enable-click = true
-    enable-scroll = false
-    format-padding = 1
-    format = <label-state>
-    label-monitor = %name%
-    icon-default = ""
-    label-active = ""
-    label-active-foreground = ${colors.blue}
-    label-active-padding = 1
-    label-occupied = ""
-    label-occupied-foreground = ${colors.fg}
-    label-occupied-padding = 1
-    label-urgent = ""
-    label-urgent-foreground = ${colors.cyan}
-    label-urgent-padding = 1
-    label-empty = ""
-    label-empty-foreground = ${colors.gray}
-    label-empty-padding = 1
-
