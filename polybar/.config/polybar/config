@@ -24,7 +24,7 @@ alert = #bd2c40
 
 [bar/awesome]
 #paired with the code in the launch.sh, this shows the bar on every monitor
-;monitor = ${env:MONITOR}
+monitor = ${env:MONITOR}
 width = 100%
 height = 40
 radius = 0.0
