@@ -46,6 +46,7 @@ Plug 'L3MON4D3/LuaSnip'
 " tree shitter
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'morhetz/gruvbox'
+Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
 Plug 'sbdchd/neoformat'
 " file exploration
 Plug 'kyazdani42/nvim-web-devicons' " for file icons
