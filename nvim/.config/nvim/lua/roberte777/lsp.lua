@@ -86,7 +86,10 @@ local function config(_config)
 	}, _config or {})
 end
 
-require("lspconfig").tsserver.setup(config())
+require("lspconfig").tsserver.setup(config({
+        root_dir = require("lspconfig").util.root_pattern("package.json", "tsconfig.json", "jsconfig.json")
+    })
+)
 --require("lspconfig").pyright.setup(config())
 --[[  I cannot seem to get this woring on new computer..
 require("lspconfig").clangd.setup(config({
@@ -119,18 +122,10 @@ require("lspconfig").gopls.setup(config({
 	},
 }))
 
--- I dont know what this stuff does, dis how prime had it
---require("lspconfig").rust_analyzer.setup(config({
---	cmd = { "rustup", "run", "nightly", "rust-analyzer" },
---	--[[
---    settings = {
---        rust = {
---            unstable_features = true,
---            build_on_save = false,
---            all_features = true,
---        },
---    }
---    --]]
---}))
+--deno, alternate to node, setup
+require("lspconfig").denols.setup(config({
+  root_dir = require("lspconfig").util.root_pattern("deno.json", "deno.jsonc"),
+}))
+
 --basic rust setup
 require("lspconfig").rust_analyzer.setup(config())
