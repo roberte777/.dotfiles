@@ -136,3 +136,10 @@ command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
 cbonsai -p -m "Happy Coding!"
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# bun completions
+[ -s "/Users/ethan/.bun/_bun" ] && source "/Users/ethan/.bun/_bun"
+
+# Bun
+export BUN_INSTALL="/Users/ethan/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
