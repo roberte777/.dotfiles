@@ -1,4 +1,5 @@
 #!/usr/bin/env zsh
+sudo apt-get install cmake
 sudo apt-get install ninja-build gettext libtool libtool-bin autoconf automake cmake g++ pkg-config unzip curl doxygen
 cd $HOME
 mkdir install_repos
