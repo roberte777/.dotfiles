@@ -126,6 +126,7 @@ alias exal="exa --all --icons --long"
 alias exat="exa --tree --level=2"
 path+="/usr/local/go/bin"
 path+="$HOME/go/bin"
+path+="/usr/local/java/jdk-18.0.2/bin"
 export PATH
 
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
