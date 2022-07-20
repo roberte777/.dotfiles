@@ -129,3 +129,11 @@ require("lspconfig").denols.setup(config({
 
 --basic rust setup
 require("lspconfig").rust_analyzer.setup(config())
+
+-- hope you never need this, but if you do:
+-- this is to get the lsp:
+--https://github.com/eruizc-dev/jdtls-launcher#installation
+--this is to get java:
+--https://www.oracle.com/java/technologies/downloads/
+--make sure your machine is pointing to the right java
+require'lspconfig'.jdtls.setup(config({cmd = { 'jdtls' } }))
