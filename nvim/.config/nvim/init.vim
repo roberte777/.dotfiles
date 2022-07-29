@@ -46,6 +46,8 @@ Plug 'onsails/lspkind-nvim'
 Plug 'L3MON4D3/LuaSnip'
 " tree shitter
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+" colorschemes
+Plug 'ellisonleao/gruvbox.nvim'
 Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
 Plug 'sbdchd/neoformat'
 " file exploration
