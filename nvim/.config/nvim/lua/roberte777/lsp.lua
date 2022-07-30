@@ -1,3 +1,5 @@
+local Remap = require("roberte777.keymap")
+local nnoremap = Remap.nnoremap
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities.textDocument.completion.completionItem.snippetSupport = true
 
@@ -71,15 +73,25 @@ local function config(_config)
 	return vim.tbl_deep_extend("force", {
 		capabilities = require("cmp_nvim_lsp").update_capabilities(vim.lsp.protocol.make_client_capabilities()),
 		on_attach = function()
-            Nnoremap("<leader>vtd",":lua vim.lsp.buf.type_definition()<CR>")
-			Nnoremap("gd", ":lua vim.lsp.buf.definition()<CR>")
+            nnoremap("<leader>gtd",function()
+                require("telescope.builtin").lsp_type_definitions()
+            end)
+			nnoremap("gd", function()
+                require("telescope.builtin").lsp_definition()
+            end)
 			Nnoremap("K", ":lua vim.lsp.buf.hover()<CR>")
-			Nnoremap("<leader>vws", ":lua vim.lsp.buf.workspace_symbol()<CR>")
-			Nnoremap("<leader>vd", ":lua vim.diagnostic.open_float()<CR>")
+			nnoremap("<leader>vws", function()
+                require("telescope.builtin").lsp_workspace_symbols()
+            end)
+			nnoremap("<leader>vd", function()
+                require("telescope.builtin").diagnostics()
+            end)
 			Nnoremap("dn", ":lua vim.lsp.diagnostic.goto_next()<CR>")
 			Nnoremap("dp", ":lua vim.lsp.diagnostic.goto_prev()<CR>")
 			Nnoremap("<leader>vca", ":lua vim.lsp.buf.code_action()<CR>")
-			-- Nnoremap("<leader>vrr", ":lua vim.lsp.buf.references()<CR>")
+			nnoremap("<leader>vrr", function()
+                require("telescope.builtin").lsp_references()
+            end)
 			Nnoremap("<leader>vrn", ":lua vim.lsp.buf.rename()<CR>")
 			Inoremap("<C-h>", "<cmd>lua vim.lsp.buf.signature_help()<CR>")
 		end,
