@@ -1,6 +1,10 @@
 local Remap = require("roberte777.keymap")
 local nnoremap = Remap.nnoremap
 
+-- currently, my mappings with telescope are in lsp and here. v is the start
+-- when I want to view something, f for finding. I plan to use g for git. Ex.
+-- vws = view workspace symbols. ff = find files.
+
 nnoremap("<leader>ff", "<cmd> lua require('roberte777._telescope').project_files()<CR>")
 nnoremap("<leader>fg", "<cmd>lua require('telescope.builtin').live_grep()<cr>")
 nnoremap("<leader>fb","<cmd>lua require('telescope.builtin').buffers()<cr>")
