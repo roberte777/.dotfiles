@@ -5,4 +5,6 @@ nnoremap("<leader>ff", "<cmd> lua require('roberte777._telescope').project_files
 nnoremap("<leader>fg", "<cmd>lua require('telescope.builtin').live_grep()<cr>")
 nnoremap("<leader>fb","<cmd>lua require('telescope.builtin').buffers()<cr>")
 nnoremap("<leader>fh", "<cmd>lua require('telescope.builtin').help_tags()<cr>")
-nnoremap("<leader>vrr", "<cmd> lua require('telescope.builtin').lsp_references()<CR>")
+nnoremap("<C-h>",function()
+    require("telescope.builtin").keymaps()
+end)
