@@ -58,7 +58,7 @@ Plug 'romgrk/barbar.nvim'
 " comment toggling :D
 Plug 'tpope/vim-commentary'
 " statusline
-Plug 'feline-nvim/feline.nvim'
+Plug 'nvim-lualine/lualine.nvim'
 " git stuffs
 Plug 'lewis6991/gitsigns.nvim'
 "telescope dependency
