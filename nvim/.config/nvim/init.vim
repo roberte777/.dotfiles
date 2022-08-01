@@ -47,7 +47,7 @@ Plug 'L3MON4D3/LuaSnip'
 " tree shitter
 Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 " colorschemes
-Plug 'ellisonleao/gruvbox.nvim'
+Plug 'morhetz/gruvbox'
 Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
 Plug 'sbdchd/neoformat'
 Plug 'sainnhe/everforest'
