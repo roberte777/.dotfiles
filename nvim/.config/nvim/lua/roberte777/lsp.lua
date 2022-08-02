@@ -102,7 +102,7 @@ local function config(_config)
                 require("telescope.builtin").lsp_references()
             end)
 			Nnoremap("<leader>vrn", ":lua vim.lsp.buf.rename()<CR>")
-			Inoremap("<C-h>", "<cmd>lua vim.lsp.buf.signature_help()<CR>")
+			Inoremap("<C-k>", "<cmd>lua vim.lsp.buf.signature_help()<CR>")
 		end,
 	}, _config or {})
 end
