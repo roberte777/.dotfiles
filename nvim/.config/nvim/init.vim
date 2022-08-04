@@ -34,6 +34,8 @@ call plug#begin('~/.vim/plugged')
 " dependency for a lot of stuff
 Plug 'nvim-lua/plenary.nvim'
 Plug 'mfussenegger/nvim-jdtls'
+"terminal
+Plug 'akinsho/toggleterm.nvim', {'tag' : 'v2.*'}
 " lsp
 Plug 'neovim/nvim-lspconfig'
 Plug 'hrsh7th/cmp-nvim-lsp'
