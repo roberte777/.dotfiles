@@ -1,7 +1,8 @@
 require("toggleterm").setup{
     size=20,
     open_mapping = [[<C-t>]],
-    hide_numbers = true
+    hide_numbers = true,
+    close_on_exit = true
 }
 function _G.set_terminal_keymaps()
   local opts = {buffer = 0}
