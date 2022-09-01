@@ -123,7 +123,9 @@ require("lspconfig").clangd.setup(config({
 --]]
 require("lspconfig").ccls.setup(config())
 
-require("lspconfig").jedi_language_server.setup(config())
+-- require("lspconfig").jedi_language_server.setup(config())
+
+require("lspconfig").pyright.setup(config())
 
 require("lspconfig").svelte.setup(config())
 

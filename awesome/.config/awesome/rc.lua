@@ -48,7 +48,7 @@ do
     end)
 end
 
-awful.spawn.with_shell("picom -b --experimental-backends")
+awful.spawn.with_shell("picom -b")
 -- awful.spawn.with_shell("$HOME/.config/polybar/launch.sh")
 
 -- }}}
