@@ -126,7 +126,6 @@ alias exal="exa --all --icons --long"
 alias exat="exa --tree --level=2"
 path+="/usr/local/go/bin"
 path+="$HOME/go/bin"
-path+="/usr/local/java/jdk-18.0.2/bin"
 path+="$HOME/.local/bin"
 export PATH
 
@@ -141,10 +140,18 @@ export PIPENV_VENV_IN_PROJECT=1
 
 cbonsai -p -m "Happy Coding!"
 
+# >>> conda initialize >>>
+# !! Contents within this block are managed by 'conda init' !!
+# __conda_setup="$('/home/roberte777/anaconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+# if [ $? -eq 0 ]; then
+#     eval "$__conda_setup"
+# else
+#     if [ -f "/home/roberte777/anaconda3/etc/profile.d/conda.sh" ]; then
+#         . "/home/roberte777/anaconda3/etc/profile.d/conda.sh"
+#     else
+#         export PATH="/home/roberte777/anaconda3/bin:$PATH"
+#     fi
+# fi
+# unset __conda_setup
+# <<< conda initialize <<<
 
-# bun completions
-[ -s "/Users/ethan/.bun/_bun" ] && source "/Users/ethan/.bun/_bun"
-
-# Bun
-export BUN_INSTALL="/Users/ethan/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
