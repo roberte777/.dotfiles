@@ -42,6 +42,8 @@ Plug 'hrsh7th/cmp-nvim-lsp'
 Plug 'hrsh7th/cmp-buffer'
 Plug 'hrsh7th/cmp-path'
 Plug 'hrsh7th/cmp-cmdline'
+" coc in case I ever want to use it
+" Plug 'neoclide/coc.nvim', {'branch': 'release'}
 " autocomplete stuffs
 Plug 'hrsh7th/nvim-cmp'
 Plug 'onsails/lspkind-nvim'
