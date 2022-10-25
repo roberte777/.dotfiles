@@ -142,6 +142,7 @@ cbonsai -p -m "Happy Coding!"
 
 # >>> conda initialize >>>
 # !! Contents within this block are managed by 'conda init' !!
+<<<<<<< Updated upstream
 __conda_setup="$('/Users/ethan/opt/anaconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
 if [ $? -eq 0 ]; then
     eval "$__conda_setup"
@@ -150,6 +151,16 @@ else
         . "/Users/ethan/opt/anaconda3/etc/profile.d/conda.sh"
     else
         export PATH="/Users/ethan/opt/anaconda3/bin:$PATH"
+=======
+__conda_setup="$('/home/roberte777/anaconda3/bin/conda' 'shell.zsh' 'hook' 2> /dev/null)"
+if [ $? -eq 0 ]; then
+    eval "$__conda_setup"
+else
+    if [ -f "/home/roberte777/anaconda3/etc/profile.d/conda.sh" ]; then
+        . "/home/roberte777/anaconda3/etc/profile.d/conda.sh"
+    else
+        export PATH="/home/roberte777/anaconda3/bin:$PATH"
+>>>>>>> Stashed changes
     fi
 fi
 unset __conda_setup
