@@ -55,6 +55,7 @@ Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'sainnhe/gruvbox-material'
 Plug 'folke/tokyonight.nvim', { 'branch': 'main' }
 Plug 'sbdchd/neoformat'
+Plug 'jose-elias-alvarez/null-ls.nvim'
 Plug 'sainnhe/everforest'
 " file exploration
 Plug 'kyazdani42/nvim-web-devicons' " for file icons
