@@ -6,7 +6,7 @@ mkdir install_repos
 cd install_repos
 git clone https://github.com/neovim/neovim
 cd neovim
-git checkout v0.7.0
+git checkout v0.8.0
 make CMAKE_BUILD_TYPE=Release
 sudo make install
 sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
