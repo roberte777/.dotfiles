@@ -54,11 +54,7 @@ Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 Plug 'sainnhe/gruvbox-material'
 Plug 'catppuccin/nvim', { 'as': 'catppuccin' }
 Plug 'sbdchd/neoformat'
-<<<<<<< HEAD
-=======
 Plug 'jose-elias-alvarez/null-ls.nvim'
-Plug 'sainnhe/everforest'
->>>>>>> 916738a6156c040467bc2b3a63b782bf1fc2c689
 " file exploration
 Plug 'kyazdani42/nvim-web-devicons' " for file icons
 Plug 'kyazdani42/nvim-tree.lua'

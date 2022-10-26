@@ -60,7 +60,7 @@ function ColorMyPencils()
             neogit = false,
             vim_sneak = false,
             fern = false,
-            barbar = false,
+            barbar = true,
             bufferline = false,
             markdown = true
         }
