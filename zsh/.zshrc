@@ -100,27 +100,29 @@ source $ZSH/oh-my-zsh.sh
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 #
-if command -v theme.sh > /dev/null; then
-	[ -e ~/.theme_history ] && theme.sh "$(theme.sh -l|tail -n1)"
+#theme.sh section
+# if command -v theme.sh > /dev/null; then
+# 	[ -e ~/.theme_history ] && theme.sh "$(theme.sh -l|tail -n1)"
 
-	# Optional
+# 	# Optional
 
-	# Bind C-o to the last theme.
-	last_theme() {
-		theme.sh "$(theme.sh -l|tail -n2|head -n1)"
-	}
+# 	# Bind C-o to the last theme.
+# 	last_theme() {
+# 		theme.sh "$(theme.sh -l|tail -n2|head -n1)"
+# 	}
 
-	zle -N last_theme
-	bindkey '^O' last_theme
+# 	zle -N last_theme
+# 	bindkey '^O' last_theme
 
-	alias th='theme.sh -i'
+# 	alias th='theme.sh -i'
 
-	# Interactively load a light theme
-	alias thl='theme.sh --light -i'
+# 	# Interactively load a light theme
+# 	alias thl='theme.sh --light -i'
 
-	# Interactively load a dark theme
-	alias thd='theme.sh --dark -i'
-fi
+# 	# Interactively load a dark theme
+# 	alias thd='theme.sh --dark -i'
+# fi
+
 alias exa="exa --all --icons"
 alias exal="exa --all --icons --long"
 alias exat="exa --tree --level=2"
