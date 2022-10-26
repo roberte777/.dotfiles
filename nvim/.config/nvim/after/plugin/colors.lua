@@ -30,6 +30,7 @@ function ColorMyPencils()
     require("catppuccin").setup {
         -- mocha, macchiato, frappe, latte
         flavour = "macchiato",
+        transparent_background = false,
         integrations = {
             treesitter = true,
             native_lsp = {
@@ -47,10 +48,7 @@ function ColorMyPencils()
             gitgutter = false,
             gitsigns = true,
             telescope = true,
-            nvimtree = {
-                enabled = true,
-                show_root = true
-            },
+            nvimtree=true,
             which_key = true,
             indent_blankline = {
                 enabled = true,
