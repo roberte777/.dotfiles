@@ -31,7 +31,7 @@ function ColorMyPencils()
     require("catppuccin").setup {
         -- mocha, macchiato, frappe, latte
         flavour = "macchiato",
-        transparent_background = false,
+        transparent_background = true,
         integrations = {
             treesitter = true,
             native_lsp = {
