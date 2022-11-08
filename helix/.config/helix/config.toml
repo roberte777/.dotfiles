@@ -1,0 +1,12 @@
+theme="catppuccin_macchiato"
+
+[editor]
+line-number = "relative"
+
+[keys.normal]
+g = {c = "toggle_comments"}
+C-c = "no_op"
+
+[keys.insert]
+"C-c" = "normal_mode"
+
