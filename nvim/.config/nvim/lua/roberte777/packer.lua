@@ -17,9 +17,14 @@ return require('packer').startup(function(use)
  use 'hrsh7th/cmp-path'
  use 'hrsh7th/cmp-cmdline'
  use {'williamboman/mason.nvim', tag = '*', config = function()
-    require('mason').setup()
+        require('mason').setup()
+    end 
+ }
+ use {'williamboman/mason-lspconfig.nvim', config = function()
+        require('mason-lspconfig').setup()
     end
  }
+
  -- coc in case I ever want to use it
  -- use {'neoclide/coc.nvim', branch = 'release'}
  -- autocmp
