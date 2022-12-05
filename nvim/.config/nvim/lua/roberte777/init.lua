@@ -1,5 +1,5 @@
 local augroup = vim.api.nvim_create_augroup
-ethan = augroup('ethan', {})
+local ethan = augroup('ethan', {})
 
 local autocmd = vim.api.nvim_create_autocmd
 local yank_group = augroup('HighlightYank', {})
@@ -18,11 +18,11 @@ autocmd('TextYankPost', {
         })
     end,
 })
---autocmd({"BufWritePre"}, {
- --   group = ethan,
-  --  pattern = "*",
-   -- command = "%s/\\s\\+$//e",
---})
+autocmd({"BufWritePre"}, {
+    group = ethan,
+    pattern = "*",
+    command = "%s/\\s\\+$//e",
+})
 require("roberte777.set")
 require("roberte777.packer")
 require("roberte777.lsp")
