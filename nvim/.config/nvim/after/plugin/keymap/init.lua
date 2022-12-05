@@ -1,4 +1,5 @@
 local Remap  = require("roberte777.keymap")
-local nnoremap = Remap.nnoremap
+local inoremap = Remap.inoremap
+inoremap("<C-c>", "<Esc>")
 
 
