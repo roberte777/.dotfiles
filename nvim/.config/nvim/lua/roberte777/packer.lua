@@ -18,7 +18,7 @@ return require('packer').startup(function(use)
  use 'hrsh7th/cmp-cmdline'
  use {'williamboman/mason.nvim', tag = '*', config = function()
         require('mason').setup()
-    end 
+    end
  }
  use {'williamboman/mason-lspconfig.nvim', config = function()
         require('mason-lspconfig').setup()
@@ -47,7 +47,7 @@ return require('packer').startup(function(use)
  use 'tpope/vim-commentary'
  -- statusline
  use 'nvim-lualine/lualine.nvim'
- -- git 
+ -- git
  use 'lewis6991/gitsigns.nvim'
  -- telescope
  use {'nvim-telescope/telescope-fzf-native.nvim', run = 'cmake -S. -Bbuild -DCMAKE_BUILD_TYPE=Release && cmake --build build --config Release && cmake --install build --prefix build' }
@@ -56,6 +56,5 @@ return require('packer').startup(function(use)
  use 'lukas-reineke/indent-blankline.nvim'
  --copilot
  use 'github/copilot.vim'
- 
 
 end)
