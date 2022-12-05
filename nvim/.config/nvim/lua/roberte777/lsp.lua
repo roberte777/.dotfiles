@@ -112,19 +112,7 @@ require("lspconfig").tsserver.setup(config({
         root_dir = require("lspconfig").util.root_pattern("package.json", "tsconfig.json", "jsconfig.json")
     })
 )
---require("lspconfig").pyright.setup(config())
---[[  I cannot seem to get this woring on new computer..
-require("lspconfig").clangd.setup(config({
-	cmd = { "clangd", "--background-index", "--log=verbose" },
-    root_dir = function()
-        print("clangd-Rootdir", vim.loop.cwd())
-		return vim.loop.cwd()
-	end,
-}))
---]]
 require("lspconfig").ccls.setup(config())
-
--- require("lspconfig").jedi_language_server.setup(config())
 
 require("lspconfig").pyright.setup(config())
 
@@ -147,9 +135,9 @@ require("lspconfig").gopls.setup(config({
 }))
 
 --deno, alternate to node, setup
-require("lspconfig").denols.setup(config({
-  root_dir = require("lspconfig").util.root_pattern("deno.json", "deno.jsonc"),
-}))
+-- require("lspconfig").denols.setup(config({
+--   root_dir = require("lspconfig").util.root_pattern("deno.json", "deno.jsonc"),
+-- }))
 
 --basic rust setup
 require("lspconfig").rust_analyzer.setup(config())
@@ -180,4 +168,4 @@ require("lspconfig").sumneko_lua.setup(config({settings = {
 --this is to get java:
 --https://www.oracle.com/java/technologies/downloads/
 --make sure your machine is pointing to the right java
-require'lspconfig'.jdtls.setup(config({cmd = { 'jdtls' } }))
+-- require'lspconfig'.jdtls.setup(config({cmd = { 'jdtls' } }))
