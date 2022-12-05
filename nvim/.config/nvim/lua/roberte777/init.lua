@@ -1,11 +1,30 @@
-function CreateNoremap(type, opts)
-	return function(lhs, rhs, bufnr)
-		bufnr = bufnr or 0
-		vim.api.nvim_buf_set_keymap(bufnr, type, lhs, rhs, opts)
-	end
+local augroup = vim.api.nvim_create_augroup
+ethan = augroup('ethan', {})
+
+local autocmd = vim.api.nvim_create_autocmd
+local yank_group = augroup('HighlightYank', {})
+
+function R(name)
+    require("plenary.reload").reload_module(name)
 end
-Nnoremap = CreateNoremap("n", { noremap = true })
-Inoremap = CreateNoremap("i", { noremap = true })
+
+autocmd('TextYankPost', {
+    group = yank_group,
+    pattern = '*',
+    callback = function()
+        vim.highlight.on_yank({
+            higroup = 'IncSearch',
+            timeout = 40,
+        })
+    end,
+})
+--autocmd({"BufWritePre"}, {
+ --   group = ethan,
+  --  pattern = "*",
+   -- command = "%s/\\s\\+$//e",
+--})
+require("roberte777.set")
+require("roberte777.packer")
 require("roberte777.lsp")
 require("roberte777.tree")
 require("roberte777._barbar")
