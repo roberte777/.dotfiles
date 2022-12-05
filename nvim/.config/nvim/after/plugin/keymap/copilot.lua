@@ -1,2 +1,1 @@
-vim.cmd[[imap <silent><script><expr> <C-l> copilot#Accept("\<CR>")]] -- accept the copilot suggestion
--- vim.cmd[[let g:copilot_no_tab_map = true]] -- disable tab mapping
+vim.api.nvim_set_keymap('i', '<C-l>', 'copilot#Accept("<CR>")', {silent = true, noremap = false, expr = true})
