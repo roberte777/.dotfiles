@@ -56,6 +56,5 @@ return require('packer').startup(function(use)
     use 'lukas-reineke/indent-blankline.nvim'
     --copilot
     use 'github/copilot.vim'
-    use 'jparise/vim-graphql'
 
 end)
