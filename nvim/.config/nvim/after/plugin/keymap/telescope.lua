@@ -5,20 +5,27 @@ local nnoremap = Remap.nnoremap
 -- when I want to view something, f for finding. I plan to use g for git. Ex.
 -- vws = view workspace symbols. ff = find files.
 
-nnoremap("<leader>ff", "<cmd> lua require('roberte777._telescope').project_files()<CR>")
-nnoremap("<leader>fg", "<cmd>lua require('telescope.builtin').live_grep()<cr>")
-nnoremap("<leader>fs",function()
+--going to try normal find files for a while, move back to this if it goes
+--poorly
+-- nnoremap("<leader>ff", "<cmd> lua require('roberte777._telescope').project_files()<CR>",
+--     { desc = "Find files in project. Tries git files, then based on lsp if " ..
+--         " not git project,then just regular telescope find files then just" ..
+--         " regular telescope find files" })
+
+nnoremap("<leader>ff", function()
+    require("telescope.builtin").find_files()
+end, { desc = "Find files in project. Tries git files, then based on lsp if " ..
+    " not git project,then just regular telescope find files then just" ..
+    " regular telescope find files" })
+nnoremap("<leader>fg", "<cmd>lua require('telescope.builtin').live_grep()<cr>", { desc = "live grep" })
+nnoremap("<leader>fs", function()
     require('telescope.builtin').grep_string()
-end)
-nnoremap("<leader>fb","<cmd>lua require('telescope.builtin').buffers()<cr>")
-nnoremap("<leader>fh", "<cmd>lua require('telescope.builtin').help_tags()<cr>")
-nnoremap("<C-h>",function()
+end, { desc = "grep string" })
+nnoremap("<leader>fb", "<cmd>lua require('telescope.builtin').buffers()<cr>", { desc = "buffers" })
+nnoremap("<leader>fh", "<cmd>lua require('telescope.builtin').help_tags()<cr>", { desc = "help tags" })
+nnoremap("<C-h>", function()
     require("telescope.builtin").keymaps()
-end)
-nnoremap("<leader>gs",function()
+end, { desc = "list keymaps" })
+nnoremap("<leader>gs", function()
     require("telescope.builtin").git_status()
-end)
-nnoremap("<C-_>", function()
-    print("test")
-    require("telescope.builtin").current_buffer_fuzzy_find()
-end)
+end, { desc = "view git status" })
