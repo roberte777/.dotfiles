@@ -67,17 +67,31 @@ cmp.setup({
 
         { name = "buffer" },
     }),
+    window = {
+        completion = cmp.config.window.bordered(),
+        documentation = cmp.config.window.bordered(),
+    }
 })
+local border = {
+    { "╭", "FloatBorder" },
+    { "─", "FloatBorder" },
+    { "╮", "FloatBorder" },
+    { "│", "FloatBorder" },
+    { "╯", "FloatBorder" },
+    { "─", "FloatBorder" },
+    { "╰", "FloatBorder" },
+    { "│", "FloatBorder" },
+}
 
+local orig_util_open_floating_preview = vim.lsp.util.open_floating_preview
+function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
+    opts = opts or {}
+    opts.border = opts.border or border
+    return orig_util_open_floating_preview(contents, syntax, opts, ...)
+end
 
 local function config(_config)
     return vim.tbl_deep_extend("force", {
-        diagnostics = {
-            float = {
-                border = "rounded",
-                source = "always",
-            },
-        },
         capabilities = require("cmp_nvim_lsp").default_capabilities(),
         on_attach = function()
             nnoremap("<leader>gtd", function()
@@ -142,11 +156,6 @@ require("lspconfig").gopls.setup(config({
         },
     },
 }))
-
---deno, alternate to node, setup
--- require("lspconfig").denols.setup(config({
---   root_dir = require("lspconfig").util.root_pattern("deno.json", "deno.jsonc"),
--- }))
 
 --basic rust setup
 require("lspconfig").rust_analyzer.setup(config())
