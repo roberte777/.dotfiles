@@ -10,3 +10,7 @@ g = {c = { c = "toggle_comments"}}
 
 [keys.insert]
 "C-c" = "normal_mode"
+
+[keys.select]
+g = {c = { c = "toggle_comments"}}
+"C-c" = "normal_mode"
