@@ -1,12 +1,12 @@
-theme="catppuccin_macchiato"
+theme="gruvbox"
 
 [editor]
+true-color=true 
 line-number = "relative"
 
 [keys.normal]
-g = {c = "toggle_comments"}
-C-c = "no_op"
+"C-c" = "no_op"
+g = {c = { c = "toggle_comments"}}
 
 [keys.insert]
 "C-c" = "normal_mode"
-
