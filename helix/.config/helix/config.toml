@@ -7,6 +7,8 @@ line-number = "relative"
 [keys.normal]
 "C-c" = "no_op"
 g = {c = { c = "toggle_comments"}}
+i = ["insert_mode", "collapse_selection"]
+a = ["append_mode", "collapse_selection"]
 
 [keys.insert]
 "C-c" = "normal_mode"
