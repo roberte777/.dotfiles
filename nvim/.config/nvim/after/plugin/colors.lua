@@ -1,8 +1,7 @@
 function ColorMyPencils()
-	-- vim.g.gruvbox_material_foreground = "original"
-	-- vim.g.gruvbox_material_background = 'hard'
-	-- vim.g.gruvbox_material_transparent_background = 0
-	-- -- vim.cmd("colorscheme gruvbox-material")
+	vim.g.gruvbox_material_foreground = "original"
+	vim.g.gruvbox_material_background = "hard"
+	vim.g.gruvbox_material_transparent_background = false
 
 	-- local hl = function(thing, opts)
 	--     vim.api.nvim_set_hl(0, thing, opts)
@@ -64,7 +63,8 @@ function ColorMyPencils()
 			markdown = true,
 		},
 	})
-	vim.cmd("colorscheme catppuccin")
+	-- vim.cmd("colorscheme catppuccin")
+	vim.cmd("colorscheme gruvbox-material")
 end
 
 ColorMyPencils()
