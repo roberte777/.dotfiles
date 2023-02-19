@@ -14,7 +14,7 @@ local cmp_select = { behavior = cmp.SelectBehavior.Select }
 lsp.setup_nvim_cmp({
     preselect = 'none',
     completion = {
-        completeopt = 'menu,menuone,noinsert',
+        completeopt = 'menu,menuone,noinsert,noselect'
     },
 })
 local cmp_mappings = lsp.defaults.cmp_mappings({
