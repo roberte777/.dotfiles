@@ -1,29 +1,14 @@
 vim.cmd([[packadd packer.nvim]])
 
 return require("packer").startup(function(use)
-    -- use {
-    --     "folke/twilight.nvim",
-    --     config = function()
-    --         require("twilight").setup {
-    --             -- your configuration comes here
-    --             -- or leave it empty to use the default settings
-    --             -- refer to the configuration section below
-    --         }
-    --     end
-    -- }
+    -- Packer can manage itself
+    use("wbthomason/packer.nvim")
     use {
         "folke/zen-mode.nvim",
         config = function()
-            require("zen-mode").setup {
-                -- your configuration comes here
-                -- or leave it empty to use the default settings
-                -- refer to the configuration section below
-                -- starts twilight by default when zen start
-            }
+            require("zen-mode").setup {}
         end
     }
-    -- Packer can manage itself
-    use("wbthomason/packer.nvim")
     -- common deps
     use("nvim-lua/plenary.nvim")
     -- terminal
@@ -35,30 +20,31 @@ return require("packer").startup(function(use)
         end,
     })
     -- lsp
-    use("neovim/nvim-lspconfig")
-    use("hrsh7th/cmp-nvim-lsp")
-    use("hrsh7th/cmp-buffer")
-    use("hrsh7th/cmp-path")
-    use("hrsh7th/cmp-cmdline")
-    use({
-        "williamboman/mason.nvim",
-        tag = "*",
-        config = function()
-            require("mason").setup()
-        end,
-    })
-    use({
-        "williamboman/mason-lspconfig.nvim",
-        config = function()
-            require("mason-lspconfig").setup()
-        end,
-    })
+    use ({
+  'VonHeikemen/lsp-zero.nvim',
+  branch = 'v1.x',
+  requires = {
+    -- LSP Support
+    {'neovim/nvim-lspconfig'},             -- Required
+    {'williamboman/mason.nvim'},           -- Optional
+    {'williamboman/mason-lspconfig.nvim'}, -- Optional
+
+    -- Autocompletion
+    {'hrsh7th/nvim-cmp'},         -- Required
+    {'hrsh7th/cmp-nvim-lsp'},     -- Required
+    {'hrsh7th/cmp-buffer'},       -- Optional
+    {'hrsh7th/cmp-path'},         -- Optional
+    {'saadparwaiz1/cmp_luasnip'}, -- Optional
+    {'hrsh7th/cmp-nvim-lua'},     -- Optional
+
+    -- Snippets
+    {'L3MON4D3/LuaSnip'},             -- Required
+    {'rafamadriz/friendly-snippets'}, -- Optional
+  }
+})
     -- coc in case I ever want to use it
     -- use {'neoclide/coc.nvim', branch = 'release'}
     -- autocmp
-    use("hrsh7th/nvim-cmp")
-    use("onsails/lspkind-nvim")
-    use("L3MON4D3/LuaSnip")
     use("nvim-treesitter/nvim-treesitter", {
         run = ":TSUpdate",
     })
