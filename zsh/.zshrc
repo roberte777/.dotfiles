@@ -142,5 +142,4 @@ export PIPENV_VENV_IN_PROJECT=1
 
 cbonsai -p -m "Happy Coding!"
 
-export TERM=screen-256color
 
