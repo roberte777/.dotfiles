@@ -75,5 +75,10 @@ lsp.configure("lua_ls", {
 		},
 	},
 })
+local lsp_capabilities = require("cmp_nvim_lsp").default_capabilities()
+lsp_capabilities.offsetEncoding = { "utf-16" }
+lsp.configure("clangd", {
+	capabilities = lsp_capabilities,
+})
 
 lsp.setup()
