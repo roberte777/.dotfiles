@@ -24,10 +24,7 @@ autocmd({ "BufWritePre" }, {
 	command = "%s/\\s\\+$//e",
 })
 require("roberte777.set")
-require("roberte777.packer")
 require("roberte777.lsp")
-require("roberte777.tree")
-require("roberte777._barbar")
 require("roberte777._lualine")
 require("roberte777._gitsigns")
 require("roberte777._telescope")

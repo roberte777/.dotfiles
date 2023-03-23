@@ -72,19 +72,12 @@ lsp.on_attach(function(client, bufnr)
 	-- vim.keymap.set("i", "<C-h>", function() vim.lsp.buf.signature_help() end, opts)
 end)
 
-lsp.configure("lua_ls", {
-	settings = {
-		Lua = {
-			diagnostics = {
-				globals = { "vim" },
-			},
-		},
-	},
-})
 local lsp_capabilities = require("cmp_nvim_lsp").default_capabilities()
 lsp_capabilities.offsetEncoding = { "utf-16" }
 lsp.configure("clangd", {
 	capabilities = lsp_capabilities,
 })
+
+lsp.nvim_workspace()
 
 lsp.setup()
