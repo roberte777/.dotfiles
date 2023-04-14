@@ -9,25 +9,8 @@ lsp.ensure_installed({
 	"rust_analyzer",
 })
 
-local cmp = require("cmp")
-local cmp_select = { behavior = cmp.SelectBehavior.Select }
-local cmp_mappings = lsp.defaults.cmp_mappings({
-	["<C-p>"] = cmp.mapping.select_prev_item(cmp_select),
-	["<C-n>"] = cmp.mapping.select_next_item(cmp_select),
-	["<C-y>"] = cmp.mapping.confirm({ select = true }),
-	["<C-Space>"] = cmp.mapping.complete(),
-})
-
 lsp.set_preferences({
 	sign_icons = {},
-})
-
-lsp.setup_nvim_cmp({
-	preselect = "none",
-	completion = {
-		completeopt = "menu,menuone,noinsert,noselect",
-	},
-	mapping = cmp_mappings,
 })
 local function add_to_table(add_to, to_add)
 	for k, v in pairs(to_add) do
@@ -72,6 +55,7 @@ lsp.on_attach(function(client, bufnr)
 	-- vim.keymap.set("i", "<C-h>", function() vim.lsp.buf.signature_help() end, opts)
 end)
 
+-- setup CPP
 local lsp_capabilities = require("cmp_nvim_lsp").default_capabilities()
 lsp_capabilities.offsetEncoding = { "utf-16" }
 lsp.configure("clangd", {
@@ -81,3 +65,19 @@ lsp.configure("clangd", {
 lsp.nvim_workspace()
 
 lsp.setup()
+
+-- setup completions
+local cmp = require("cmp")
+local cmp_select = { behavior = cmp.SelectBehavior.Select }
+cmp.setup({
+	preset = "none",
+	completion = {
+		completeopt = "menu,menuone,noinsert,noselect",
+	},
+	mapping = {
+		["<C-p>"] = cmp.mapping.select_prev_item(cmp_select),
+		["<C-n>"] = cmp.mapping.select_next_item(cmp_select),
+		["<C-y>"] = cmp.mapping.confirm({ select = true }),
+		["<C-Space>"] = cmp.mapping.complete(),
+	},
+})
