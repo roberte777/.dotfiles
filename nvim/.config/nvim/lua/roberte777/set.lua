@@ -39,3 +39,4 @@ vim.opt.updatetime = 50
 vim.opt.shortmess:append("c")
 
 vim.opt.colorcolumn = "80"
+vim.opt.pumheight = 20
