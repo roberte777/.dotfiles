@@ -31,6 +31,13 @@ local plugins = {
 		end,
 	},
 	{
+		"hrsh7th/nvim-cmp",
+		config = function()
+			require("plugins.configs.cmp")
+			require("custom.configs.cmp")
+		end,
+	},
+	{
 		"github/copilot.vim",
 		lazy = false,
 	},
