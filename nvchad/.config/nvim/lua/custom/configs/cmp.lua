@@ -7,12 +7,15 @@ local mapping = {
 	["<C-f>"] = cmp.mapping.scroll_docs(4),
 	["<C-Space>"] = cmp.mapping.complete(),
 	["<C-e>"] = cmp.mapping.close(),
-	["<C-y>"] = cmp.mapping.confirm({
+	["<CR>"] = cmp.mapping.confirm({
 		behavior = cmp.ConfirmBehavior.Replace,
 		select = false,
 	}),
 }
 
 default_opts.mapping = mapping
-
+default_opts.preselect = cmp.PreselectMode.None
+default_opts.completion = {
+	completeopt = "menu,menuone, noselect",
+}
 cmp.setup(default_opts)
