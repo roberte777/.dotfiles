@@ -10,6 +10,13 @@ local plugins = {
 		end,
 	},
 	{
+		"mfussenegger/nvim-dap",
+		config = function()
+			require("custom.configs.dap")
+		end,
+	},
+	{ "rcarriga/nvim-dap-ui", dependencies = { "mfussenegger/nvim-dap" } },
+	{
 		"williamboman/mason.nvim",
 		opts = {
 			ensure_installed = {
