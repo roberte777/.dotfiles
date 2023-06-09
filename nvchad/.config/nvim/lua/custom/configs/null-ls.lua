@@ -1,4 +1,7 @@
 -- custom/configs/null-ls.lua
+require("mason-null-ls").setup({
+	ensure_installed = { "stylelua", "rustfmt" },
+})
 
 local null_ls = require("null-ls")
 
