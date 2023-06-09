@@ -4,7 +4,10 @@ local plugins = {
 		dependencies = {
 			"jose-elias-alvarez/null-ls.nvim",
 		},
-		config = function() end,
+		config = function()
+			require("plugins.configs.lspconfig")
+			require("custom.configs.lspconfig")
+		end,
 	},
 	{
 		"mfussenegger/nvim-dap",
@@ -27,24 +30,9 @@ local plugins = {
 				"stylua",
 			},
 		},
-		lazy = false,
 	},
 	{
-		"williamboman/mason-lspconfig.nvim",
-		dependencies = { "williamboman/mason.nvim", "jose-elias-alvarez/null-ls.nvim" },
-		config = function()
-			require("plugins.configs.lspconfig")
-			require("custom.configs.lspconfig")
-		end,
-		lazy = false,
-	},
-	{
-		"jay-babu/mason-null-ls.nvim",
-		event = { "BufReadPre", "BufNewFile" },
-		dependencies = {
-			"williamboman/mason.nvim",
-			"jose-elias-alvarez/null-ls.nvim",
-		},
+		"jose-elias-alvarez/null-ls.nvim",
 		config = function()
 			require("custom.configs.null-ls")
 		end,
