@@ -18,19 +18,9 @@ local plugins = {
 	{ "rcarriga/nvim-dap-ui", dependencies = { "mfussenegger/nvim-dap" } },
 	{
 		"williamboman/mason.nvim",
-		opts = {
-			ensure_installed = {
-				"lua-language-server",
-				"html-lsp",
-				"prettier",
-				"stylua",
-				"pyright",
-				"typescript-language-server",
-				"rust-analyzer",
-				"stylua",
-			},
-		},
+		build = ":MasonUpdate",
 	},
+	"williamboman/mason-lspconfig.nvim",
 	{
 		"jose-elias-alvarez/null-ls.nvim",
 		config = function()

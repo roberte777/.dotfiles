@@ -1,3 +1,7 @@
+require("mason").setup()
+require("mason-lspconfig").setup({
+	ensure_installed = { "lua_ls", "rust_analyzer", "pyright", "tsserver" },
+})
 local on_attach = require("plugins.configs.lspconfig").on_attach
 local capabilities = require("plugins.configs.lspconfig").capabilities
 
