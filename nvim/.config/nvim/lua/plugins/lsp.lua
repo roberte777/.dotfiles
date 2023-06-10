@@ -32,7 +32,13 @@
 -- }
 return {
 	{
+		-- LSP Configuration & Plugins
 		"neovim/nvim-lspconfig",
+		dependencies = {
+			-- Automatically install LSPs to stdpath for neovim
+			{ "williamboman/mason.nvim", config = true, build = ":MasonUpdate" },
+			{ "williamboman/mason-lspconfig.nvim", config = true },
+		},
 		config = function()
 			require("roberte777.lsp")
 		end,
@@ -43,9 +49,4 @@ return {
 	"hrsh7th/cmp-path",
 	"saadparwaiz1/cmp_luasnip",
 	"L3MON4D3/LuaSnip",
-	{
-		"williamboman/mason.nvim",
-		build = ":MasonUpdate",
-	},
-	"williamboman/mason-lspconfig.nvim",
 }
