@@ -1,18 +1,12 @@
-require("mason").setup()
-require("mason-lspconfig").setup({
-	ensure_installed = { "lua_ls", "rust_analyzer", "pyright", "tsserver" },
-})
 local on_attach = require("plugins.configs.lspconfig").on_attach
 local capabilities = require("plugins.configs.lspconfig").capabilities
-
-local lspconfig = require("lspconfig")
+local mason_lspconfig = require 'mason-lspconfig'
 local servers = {
 	html = {},
 	cssls = {},
 	clangd = {},
 	pyright = {},
 	lua_ls = {
-		settings = {
 			Lua = {
 				diagnostics = { globals = "vim" },
 				workspace = {
@@ -21,17 +15,23 @@ local servers = {
 				},
 			},
 		},
-	},
 	rust_analyzer = {},
 	tsserver = {},
 }
 
-for lsp, opts in pairs(servers) do
-	local default_settings = { on_attach = on_attach, capabilities = capabilities }
-	local settings = vim.tbl_deep_extend("force", default_settings, opts)
+mason_lspconfig.setup {
+  ensure_installed = vim.tbl_keys(servers),
+}
 
-	lspconfig[lsp].setup(settings)
-end
+mason_lspconfig.setup_handlers {
+  function(server_name)
+    require('lspconfig')[server_name].setup {
+      capabilities = capabilities,
+      on_attach = on_attach,
+      settings = servers[server_name],
+    }
+  end,
+}
 
 local function add_to_table(add_to, to_add)
 	for k, v in pairs(to_add) do
