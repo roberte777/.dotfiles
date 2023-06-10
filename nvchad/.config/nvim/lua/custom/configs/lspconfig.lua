@@ -1,37 +1,37 @@
 local on_attach = require("plugins.configs.lspconfig").on_attach
 local capabilities = require("plugins.configs.lspconfig").capabilities
-local mason_lspconfig = require 'mason-lspconfig'
+local mason_lspconfig = require("mason-lspconfig")
 local servers = {
 	html = {},
 	cssls = {},
 	clangd = {},
 	pyright = {},
 	lua_ls = {
-			Lua = {
-				diagnostics = { globals = "vim" },
-				workspace = {
-					checkThirdParty = false,
-					library = vim.api.nvim_get_runtime_file("", true),
-				},
+		Lua = {
+			diagnostics = { globals = "vim" },
+			workspace = {
+				checkThirdParty = false,
+				library = vim.api.nvim_get_runtime_file("", true),
 			},
 		},
+	},
 	rust_analyzer = {},
 	tsserver = {},
 }
 
-mason_lspconfig.setup {
-  ensure_installed = vim.tbl_keys(servers),
-}
+mason_lspconfig.setup({
+	ensure_installed = vim.tbl_keys(servers),
+})
 
-mason_lspconfig.setup_handlers {
-  function(server_name)
-    require('lspconfig')[server_name].setup {
-      capabilities = capabilities,
-      on_attach = on_attach,
-      settings = servers[server_name],
-    }
-  end,
-}
+mason_lspconfig.setup_handlers({
+	function(server_name)
+		require("lspconfig")[server_name].setup({
+			capabilities = capabilities,
+			on_attach = on_attach,
+			settings = servers[server_name],
+		})
+	end,
+})
 
 local function add_to_table(add_to, to_add)
 	for k, v in pairs(to_add) do
