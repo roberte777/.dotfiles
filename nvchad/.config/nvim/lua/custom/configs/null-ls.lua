@@ -7,6 +7,7 @@ local lint = null_ls.builtins.diagnostics
 local sources = {
 	formatting.prettier,
 	formatting.stylua,
+	formatting.gofmt,
 	formatting.rustfmt.with({
 		extra_args = function(params)
 			local Path = require("plenary.path")
