@@ -124,8 +124,9 @@ local kind_icons = {
 local cmp = require("cmp")
 local cmp_select = { behavior = cmp.SelectBehavior.Select }
 cmp.setup({
+	preselect = cmp.PreselectMode.None,
 	completion = {
-		completeopt = "menu,menuone",
+		completeopt = "menu,menuone,noselect",
 	},
 	snippet = {
 		expand = function(args)
@@ -135,7 +136,10 @@ cmp.setup({
 	mapping = {
 		["<C-p>"] = cmp.mapping.select_prev_item(cmp_select),
 		["<C-n>"] = cmp.mapping.select_next_item(cmp_select),
-		["<C-y>"] = cmp.mapping.confirm({ select = true }),
+		["<CR>"] = cmp.mapping.confirm({
+			behavior = cmp.ConfirmBehavior.Replace,
+			select = false,
+		}),
 		["<C-Space>"] = cmp.mapping.complete(),
 	},
 	sources = cmp.config.sources({
