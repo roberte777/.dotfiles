@@ -1,4 +1,6 @@
 vim.g.mapleader = " "
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
 
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -15,3 +17,6 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup("plugins")
 
 require("roberte777.set")
+if vim.api.nvim_buf_get_name(0) == "" then
+	vim.cmd("intro")
+end
