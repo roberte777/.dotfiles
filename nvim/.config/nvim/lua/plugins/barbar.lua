@@ -1,55 +1,19 @@
 return {
 	{
 		"romgrk/barbar.nvim",
-		dependencies = "kyazdani42/nvim-web-devicons",
-		version = "^1.0.0",
-		config = function()
-			require("bufferline").setup({})
-			local map = vim.api.nvim_set_keymap
-			local opts = { noremap = true, silent = true }
-
-			--regular keybinds
-			-- Move to previous/next
-			map("n", "<C-k>", ":BufferPrevious<CR>", opts)
-			map("n", "<C-j>", ":BufferNext<CR>", opts)
-			-- Re-order to previous/next
-			map("n", "<C-<>", ":BufferMovePrevious<CR>", opts)
-			map("n", "<C->>", " :BufferMoveNext<CR>", opts)
-			-- Goto buffer in position...
-			map("n", "<C-1>", ":BufferGoto 1<CR>", opts)
-			map("n", "<C-2>", ":BufferGoto 2<CR>", opts)
-			map("n", "<C-3>", ":BufferGoto 3<CR>", opts)
-			map("n", "<C-4>", ":BufferGoto 4<CR>", opts)
-			map("n", "<C-5>", ":BufferGoto 5<CR>", opts)
-			map("n", "<C-6>", ":BufferGoto 6<CR>", opts)
-			map("n", "<C-7>", ":BufferGoto 7<CR>", opts)
-			map("n", "<C-8>", ":BufferGoto 8<CR>", opts)
-			map("n", "<C-9>", ":BufferGoto 9<CR>", opts)
-			map("n", "<C-0>", ":BufferLast<CR>", opts)
-			-- Pin/unpin buffer
-			map("n", "<leader>bp", ":BufferPin<CR>", opts)
-			-- Close buffer
-			map("n", "<C-x>", ":BufferClose<CR>", opts)
-			-- Wipeout buffer
-			--                 :BufferWipeout<CR>
-			-- Close commands
-			--                 :BufferCloseAllButCurrent<CR>
-			--                 :BufferCloseAllButPinned<CR>
-			--                 :BufferCloseAllButCurrentOrPinned<CR>
-			--                 :BufferCloseBuffersLeft<CR>
-			--                 :BufferCloseBuffersRight<CR>
-			-- Magic buffer-picking mode
-			map("n", "<C-p>", ":BufferPick<CR>", opts)
-			-- Sort automatically by...
-			map("n", "<Space>bb", ":BufferOrderByBufferNumber<CR>", opts)
-			map("n", "<Space>bd", ":BufferOrderByDirectory<CR>", opts)
-			map("n", "<Space>bl", ":BufferOrderByLanguage<CR>", opts)
-			map("n", "<Space>bw", ":BufferOrderByWindowNumber<CR>", opts)
-
-			-- Other:
-			-- :BarbarEnable - enables barbar (enabled by default)
-			-- :BarbarDisable - very bad command, should never be used
-			-- Set barbar's options
+		dependencies = {
+			"lewis6991/gitsigns.nvim", -- OPTIONAL: for git status
+			"nvim-tree/nvim-web-devicons", -- OPTIONAL: for file icons
+		},
+		init = function()
+			vim.g.barbar_auto_setup = false
 		end,
+		opts = {
+			-- lazy.nvim will automatically call setup for you. put your options here, anything missing will use the default:
+			-- animation = true,
+			-- insert_at_start = true,
+			-- …etc.
+		},
+		version = "^1.0.0", -- optional: only update when a new 1.x version is released
 	},
 }
