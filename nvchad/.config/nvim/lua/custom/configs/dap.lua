@@ -24,6 +24,7 @@ dap.adapters.codelldb = {
 		-- detached = false,
 	},
 }
+
 dap.configurations.cpp = {
 	{
 		name = "Launch file",
@@ -31,6 +32,16 @@ dap.configurations.cpp = {
 		request = "launch",
 		program = function()
 			return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")
+		end,
+		cwd = "${workspaceFolder}",
+		stopOnEntry = false,
+	},
+	{
+		name = "Attach to process",
+		type = "codelldb",
+		request = "attach",
+		pid = function()
+			return vim.fn.input("Process ID: ")
 		end,
 		cwd = "${workspaceFolder}",
 		stopOnEntry = false,

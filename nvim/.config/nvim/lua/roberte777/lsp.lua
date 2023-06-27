@@ -1,8 +1,44 @@
-require("mason").setup()
-require("mason-lspconfig").setup({
-	ensure_installed = { "lua_ls", "rust_analyzer", "pyright", "tsserver" },
+--------------------------------------------------
+-- Language servers
+--------------------------------------------------
+local capabilities = require("cmp_nvim_lsp").default_capabilities()
+local mason_lspconfig = require("mason-lspconfig")
+local servers = {
+	html = {},
+	cssls = {},
+	clangd = {},
+	pyright = {},
+	lua_ls = {
+		Lua = {
+			diagnostics = { globals = "vim" },
+			workspace = {
+				checkThirdParty = false,
+				library = vim.api.nvim_get_runtime_file("", true),
+			},
+		},
+	},
+	rust_analyzer = {},
+	tsserver = {},
+}
+
+mason_lspconfig.setup({
+	ensure_installed = vim.tbl_keys(servers),
 })
-local lsp = require("lspconfig")
+
+mason_lspconfig.setup_handlers({
+	function(server_name)
+		local cpb = capabilities
+		if server_name == "clangd" then
+			local clang_capabilities = require("cmp_nvim_lsp").default_capabilities()
+			clang_capabilities.offsetEncoding = { "utf-16" }
+			cpb = clang_capabilities
+		end
+		require("lspconfig")[server_name].setup({
+			capabilities = cpb,
+			settings = servers[server_name],
+		})
+	end,
+})
 
 --------------------------------------------------
 -- Keymaps
@@ -129,48 +165,3 @@ cmp.setup({
 		documentation = cmp.config.window.bordered(),
 	},
 })
-
---------------------------------------------------
--- Language servers
---------------------------------------------------
-
-local default_capabilities = require("cmp_nvim_lsp").default_capabilities()
-local function setup_lsp(name, opts)
-	lsp[name].setup(opts)
-end
-local clang_capabilities = require("cmp_nvim_lsp").default_capabilities()
-clang_capabilities.offsetEncoding = { "utf-16" }
-
-local servers = {
-	lua_ls = {
-		capabilities = default_capabilities,
-		settings = {
-			Lua = {
-				diagnostics = {
-					globals = { "vim" },
-				},
-				workspace = {
-					checkThirdParty = false,
-					library = vim.api.nvim_get_runtime_file("", true),
-				},
-			},
-		},
-	},
-	pyright = {
-		capabilities = default_capabilities,
-	},
-	rust_analyzer = {
-		capabilities = default_capabilities,
-	},
-	tsserver = {
-		capabilities = default_capabilities,
-	},
-	clangd = {
-		capabilities = clang_capabilities,
-	},
-}
-
--- setup servers
-for name, opts in pairs(servers) do
-	setup_lsp(name, opts)
-end

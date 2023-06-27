@@ -40,3 +40,6 @@ vim.opt.shortmess:append("c")
 
 vim.opt.colorcolumn = "80"
 vim.opt.pumheight = 20
+
+vim.opt.clipboard = "unnamedplus"
+vim.opt.cursorline = true
