@@ -6,6 +6,7 @@ local servers = {
 	cssls = {},
 	clangd = {},
 	pyright = {},
+	-- rust_analyzer = {},
 	lua_ls = {
 		Lua = {
 			diagnostics = { globals = "vim" },
@@ -15,7 +16,6 @@ local servers = {
 			},
 		},
 	},
-	rust_analyzer = {},
 	tsserver = {},
 	gopls = {},
 }
