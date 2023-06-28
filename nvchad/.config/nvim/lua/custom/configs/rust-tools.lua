@@ -25,9 +25,6 @@ rt.setup({
 	},
 	server = {
 		on_attach = function(client, bufnr)
-			--run default on attach
-			-- require("lsp").on_attach(client, bufnr)
-
 			local map = function(mode, lhs, rhs, desc)
 				if desc then
 					desc = desc
