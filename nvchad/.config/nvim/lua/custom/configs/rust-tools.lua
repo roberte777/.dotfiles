@@ -45,6 +45,9 @@ rt.setup({
 			map("n", "<leader>lt", ":!cargo test<CR>", "Cargo test")
 			map("n", "<leader>lR", ":!cargo run<CR>", "Cargo run")
 			map("n", "<leader>lb", ":!cargo build<CR>", "Cargo build")
+			map("n", "<leader>f", function()
+				vim.diagnostic.open_float({ border = "rounded" })
+			end, "Open diagnostics")
 		end,
 		standalone = true,
 		settings = {
