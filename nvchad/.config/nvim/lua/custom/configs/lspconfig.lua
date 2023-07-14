@@ -6,7 +6,6 @@ local servers = {
 	cssls = {},
 	clangd = {},
 	pyright = {},
-	-- rust_analyzer = {},
 	lua_ls = {
 		Lua = {
 			diagnostics = { globals = "vim" },
@@ -16,6 +15,18 @@ local servers = {
 			},
 		},
 	},
+  --[[
+	rust_analyzer = {
+		["rust-analyzer"] = {
+			checkOnSave = {
+				command = "clippy",
+			},
+			procMacro = {
+				enable = true,
+			},
+		},
+	},
+  --]]
 	tsserver = {},
 	gopls = {},
 }
