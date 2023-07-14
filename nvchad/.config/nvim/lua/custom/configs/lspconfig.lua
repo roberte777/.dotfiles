@@ -15,6 +15,7 @@ local servers = {
 			},
 		},
 	},
+  --[[
 	rust_analyzer = {
 		["rust-analyzer"] = {
 			checkOnSave = {
@@ -25,6 +26,7 @@ local servers = {
 			},
 		},
 	},
+  --]]
 	tsserver = {},
 	gopls = {},
 }
