@@ -19,37 +19,12 @@ return {
 			-- load_extension, somewhere after setup function:
 			require("telescope").load_extension("fzf")
 
-			local find_files = function(opts)
-				opts = opts or {}
-				local clients = vim.lsp.get_active_clients()
-				local length = table.getn(clients)
-				if length > 0 then
-					opts.cwd = clients[1].config.root_dir
-				end
-				require("telescope.builtin").find_files(opts)
-			end
-
-			local project_files = function()
-				local opts = {} -- define here if you want to define something
-				local ok = pcall(require("telescope.builtin").git_files, opts)
-				if not ok then
-					require("roberte777._telescope").find_files(opts)
-				end
-			end
-
 			local Remap = require("roberte777.keymap")
 			local nnoremap = Remap.nnoremap
 
 			-- currently, my mappings with telescope are in lsp and here. v is the start
 			-- when I want to view something, f for finding. I plan to use g for git. Ex.
 			-- vws = view workspace symbols. ff = find files.
-
-			--going to try normal find files for a while, move back to this if it goes
-			--poorly
-			-- nnoremap("<leader>ff", "<cmd> lua require('roberte777._telescope').project_files()<CR>",
-			--     { desc = "Find files in project. Tries git files, then based on lsp if " ..
-			--         " not git project,then just regular telescope find files then just" ..
-			--         " regular telescope find files" })
 
 			nnoremap("<leader>ff", function()
 				require("telescope.builtin").find_files()
