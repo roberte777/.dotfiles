@@ -5,7 +5,6 @@ return {
     ---@param opts cmp.ConfigSchema
     opts = function(_, opts)
       local cmp = require("cmp")
-      local defaults = require("cmp.config.default")
       opts.sources = cmp.config.sources(vim.list_extend(opts.sources, { { name = "emoji" } }))
       opts.preselect = "None"
       opts.completion.completeopt = "menu,menuone,noinsert,noselect"
