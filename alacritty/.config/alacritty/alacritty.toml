@@ -1,0 +1,13 @@
+import = ["~/.config/alacritty/themes/Gruvbox-Dark.toml"]
+
+[font.bold]
+family = "JetBrains Mono Nerd Font"
+style = "Bold"
+
+[font.italic]
+family = "JetBrains Mono Nerd Font"
+style = "MediumItalic"
+
+[font.normal]
+family = "JetBrains Mono Nerd Font"
+style = "Medium"
