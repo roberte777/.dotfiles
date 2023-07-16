@@ -1,5 +1,5 @@
 return {
-  { "ellisonleao/gruvbox.nvim" },
+  { "Mofiqul/dracula.nvim" },
   {
     "https://github.com/sainnhe/gruvbox-material",
     config = function()
