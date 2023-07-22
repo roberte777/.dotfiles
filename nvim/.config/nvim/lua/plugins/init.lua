@@ -3,6 +3,13 @@ return {
 	{
 		"folke/zen-mode.nvim",
 		lazy = true,
+		keys = {
+			{
+				"<leader>tz",
+				"<cmd>ZenMode<cr>",
+				{ desc = "Toggle zen mode" },
+			},
+		},
 		config = function()
 			require("zen-mode").setup({})
 		end,
@@ -65,14 +72,6 @@ return {
 	},
 	-- comment toggling
 	{ "tpope/vim-commentary" },
-	-- git
-	{ "lewis6991/gitsigns.nvim", config = true },
-	-- indent line
-	{ "lukas-reineke/indent-blankline.nvim", config = true },
-	{
-		"nvim-lualine/lualine.nvim",
-		config = true,
-	},
 	{
 		"roberte777/keep-it-secret.nvim",
 		config = function()

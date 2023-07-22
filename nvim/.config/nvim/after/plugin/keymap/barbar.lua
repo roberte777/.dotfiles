@@ -2,11 +2,11 @@ local map = vim.api.nvim_set_keymap
 local opts = { noremap = true, silent = true }
 --regular keybinds
 -- Move to previous/next
-map("n", "<C-k>", ":BufferPrevious<CR>", opts)
-map("n", "<C-j>", ":BufferNext<CR>", opts)
+map("n", "<C-,", ":BufferPrevious<CR>", opts)
+map("n", "<C-.>", ":BufferNext<CR>", opts)
 -- Re-order to previous/next
-map("n", "<C-<>", ":BufferMovePrevious<CR>", opts)
-map("n", "<C->>", " :BufferMoveNext<CR>", opts)
+map("n", "<leader>bn", ":BufferMovePrevious<CR>", opts)
+map("n", "<leader>bp", " :BufferMoveNext<CR>", opts)
 -- Goto buffer in position...
 map("n", "<C-1>", ":BufferGoto 1<CR>", opts)
 map("n", "<C-2>", ":BufferGoto 2<CR>", opts)
@@ -25,13 +25,13 @@ map("n", "<C-x>", ":BufferClose<CR>", opts)
 -- Wipeout buffer
 --                 :BufferWipeout<CR>
 -- Close commands
---                 :BufferCloseAllButCurrent<CR>
---                 :BufferCloseAllButPinned<CR>
+map("n", "<leader>bc", ":BufferCloseAllButCurrent<CR>", opts)
+map("n", "<leader>bP", ":BufferCloseAllButPinned<CR>", opts)
 --                 :BufferCloseAllButCurrentOrPinned<CR>
 --                 :BufferCloseBuffersLeft<CR>
 --                 :BufferCloseBuffersRight<CR>
 -- Magic buffer-picking mode
-map("n", "<C-p>", ":BufferPick<CR>", opts)
+map("n", "<leader>bi", ":BufferPick<CR>", opts)
 -- Sort automatically by...
 map("n", "<Space>bb", ":BufferOrderByBufferNumber<CR>", opts)
 map("n", "<Space>bd", ":BufferOrderByDirectory<CR>", opts)

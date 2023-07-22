@@ -17,7 +17,7 @@ local servers = {
 			},
 		},
 	},
-	rust_analyzer = {},
+	-- rust_analyzer = {},
 	tsserver = {},
 }
 
@@ -93,33 +93,91 @@ vim.api.nvim_create_autocmd("LspAttach", {
 --------------------------------------------------
 -- Completion
 --------------------------------------------------
-local kind_icons = {
-	Text = "",
-	Method = "",
-	Function = "",
-	Constructor = "",
-	Field = "",
-	Variable = "",
-	Class = "ﴯ",
-	Interface = "",
-	Module = "",
-	Property = "ﰠ",
-	Unit = "",
-	Value = "",
-	Enum = "",
-	Keyword = "",
-	Snippet = "",
-	Color = "",
-	File = "",
-	Reference = "",
-	Folder = "",
-	EnumMember = "",
-	Constant = "",
-	Struct = "",
-	Event = "",
-	Operator = "",
-	TypeParameter = "",
+local icons = {
+	dap = {
+		Stopped = { "󰁕 ", "DiagnosticWarn", "DapStoppedLine" },
+		Breakpoint = " ",
+		BreakpointCondition = " ",
+		BreakpointRejected = { " ", "DiagnosticError" },
+		LogPoint = ".>",
+	},
+	diagnostics = {
+		Error = " ",
+		Warn = " ",
+		Hint = " ",
+		Info = " ",
+	},
+	git = {
+		added = " ",
+		modified = " ",
+		removed = " ",
+	},
+	kinds = {
+		Array = " ",
+		Boolean = " ",
+		Class = " ",
+		Color = " ",
+		Constant = " ",
+		Constructor = " ",
+		Copilot = " ",
+		Enum = " ",
+		EnumMember = " ",
+		Event = " ",
+		Field = " ",
+		File = " ",
+		Folder = " ",
+		Function = " ",
+		Interface = " ",
+		Key = " ",
+		Keyword = " ",
+		Method = " ",
+		Module = " ",
+		Namespace = " ",
+		Null = " ",
+		Number = " ",
+		Object = " ",
+		Operator = " ",
+		Package = " ",
+		Property = " ",
+		Reference = " ",
+		Snippet = " ",
+		String = " ",
+		Struct = " ",
+		Text = " ",
+		TypeParameter = " ",
+		Unit = " ",
+		Value = " ",
+		Variable = " ",
+	},
 }
+
+-- local kind_icons = {
+-- 	Text = "",
+-- 	Method = "",
+-- 	Function = "",
+-- 	Constructor = "",
+-- 	Field = "",
+-- 	Variable = "",
+-- 	Class = "ﴯ",
+-- 	Interface = "",
+-- 	Module = "",
+-- 	Property = "ﰠ",
+-- 	Unit = "",
+-- 	Value = "",
+-- 	Enum = "",
+-- 	Keyword = "",
+-- 	Snippet = "",
+-- 	Color = "",
+-- 	File = "",
+-- 	Reference = "",
+-- 	Folder = "",
+-- 	EnumMember = "",
+-- 	Constant = "",
+-- 	Struct = "",
+-- 	Event = "",
+-- 	Operator = "",
+-- 	TypeParameter = "",
+-- }
 
 local cmp = require("cmp")
 local cmp_select = { behavior = cmp.SelectBehavior.Select }
@@ -147,19 +205,23 @@ cmp.setup({
 		{ name = "luasnip" },
 		{ name = "buffer" },
 		{ name = "path" },
+		{ name = "crates" },
 	}),
 	formatting = {
 		format = function(entry, vim_item)
 			-- Kind icons
-			vim_item.kind = string.format("%s %s", kind_icons[vim_item.kind], vim_item.kind) -- This concatonates the icons with the name of the item kind
+			local kind_icons = icons.kinds
+			if kind_icons[vim_item.kind] then
+				vim_item.kind = kind_icons[vim_item.kind] .. vim_item.kind
+			end
 			-- Source
-			vim_item.menu = ({
-				buffer = "[Buffer]",
-				nvim_lsp = "[LSP]",
-				luasnip = "[LuaSnip]",
-				nvim_lua = "[Lua]",
-				latex_symbols = "[LaTeX]",
-			})[entry.source.name]
+			-- vim_item.menu = ({
+			-- 	buffer = "[Buffer]",
+			-- 	nvim_lsp = "[LSP]",
+			-- 	luasnip = "[LuaSnip]",
+			-- 	nvim_lua = "[Lua]",
+			-- 	latex_symbols = "[LaTeX]",
+			-- })[entry.source.name]
 			return vim_item
 		end,
 	},
