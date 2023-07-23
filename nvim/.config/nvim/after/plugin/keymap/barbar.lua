@@ -2,11 +2,11 @@ local map = vim.api.nvim_set_keymap
 local opts = { noremap = true, silent = true }
 --regular keybinds
 -- Move to previous/next
-map("n", "<C-,", ":BufferPrevious<CR>", opts)
-map("n", "<C-.>", ":BufferNext<CR>", opts)
+map("n", "<TAB>", ":BufferPrevious<CR>", opts)
+map("n", "<S-TAB>", ":BufferNext<CR>", opts)
 -- Re-order to previous/next
-map("n", "<leader>bn", ":BufferMovePrevious<CR>", opts)
-map("n", "<leader>bp", " :BufferMoveNext<CR>", opts)
+map("n", "<leader>bn", ":BufferMoveNext<CR>", opts)
+map("n", "<leader>bp", " :BufferMovePrevious<CR>", opts)
 -- Goto buffer in position...
 map("n", "<C-1>", ":BufferGoto 1<CR>", opts)
 map("n", "<C-2>", ":BufferGoto 2<CR>", opts)
