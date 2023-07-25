@@ -1,7 +1,7 @@
 return {
   { "Mofiqul/dracula.nvim" },
   {
-    "https://github.com/sainnhe/gruvbox-material",
+    "sainnhe/gruvbox-material",
     config = function()
       -- vim.g.gruvbox_material_background = "hard"
       -- vim.g.gruvbox_material_foreground = "mix"
