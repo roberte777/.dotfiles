@@ -17,3 +17,4 @@ formatters.setup {
   { name = "black" },
   { name = "rustfmt" }
 }
+lvim.transparent_window = true
