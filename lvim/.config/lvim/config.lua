@@ -84,5 +84,6 @@ lvim.format_on_save.enabled = true
 local formatters = require "lvim.lsp.null-ls.formatters"
 formatters.setup {
   { name = "black" },
+  { name = "prettier" },
 }
 lvim.transparent_window = true
