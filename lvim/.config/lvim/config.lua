@@ -38,8 +38,9 @@ lvim.plugins = {
       -- add any options here
       views = {
         mini = {
-          winblend = 100,
-          winhighlight = {},
+          win_options = {
+            winblend = 0
+          }
         },
       },
     },
