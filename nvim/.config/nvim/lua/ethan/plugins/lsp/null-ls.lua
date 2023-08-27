@@ -23,6 +23,7 @@ return {
 				formatting.stylua, -- lua formatter
 				formatting.rustfmt,
 				formatting.gofumpt,
+				formatting.black,
 			},
 			-- configure format on save
 			on_attach = function(current_client, bufnr)
