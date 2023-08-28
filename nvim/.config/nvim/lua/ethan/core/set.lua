@@ -36,7 +36,7 @@ opt.clipboard:append("unnamedplus") -- use system clipboard as default register
 -- turn off swapfile
 opt.swapfile = false
 opt.backup = false
-opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
+opt.undodir = os.getenv("HOME") or os.getenv("USERPROFILE") .. "/.vim/undodir"
 opt.undofile = true
 
 vim.opt.scrolloff = 8
