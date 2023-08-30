@@ -50,6 +50,10 @@ return {
 		keymap.set("n", "<leader>fs", "<cmd>Telescope live_grep<cr>", { desc = "Find string in cwd" }) -- find string in current working directory as you type
 		keymap.set("n", "<leader>fc", "<cmd>Telescope grep_string<cr>", { desc = "Find string under cursor in cwd" }) -- find string under cursor in current working directory
 		keymap.set("n", "<leader>fb", "<cmd>Telescope buffers<cr>", { desc = "Show open buffers" }) -- list open buffers in current neovim instance
+		keymap.set("n", "<leader>fw", "<cmd>Telescope diagnostics<cr>", { desc = "Show workspace diagnostics" }) -- list open buffers in current neovim instance
+		keymap.set("n", "<leader>fd", function()
+			require("telescope.builtin").diagnostics({ bufnr = 0 })
+		end, { desc = "Show document diagnostics" }) -- list open buffers in current neovim instance
 		keymap.set("n", "<leader>hf", "<cmd>Telescope harpoon marks<cr>", { desc = "Show harpoon marks" }) -- show harpoon marks
 		keymap.set("n", "<leader>gc", "<cmd>Telescope git_commits<cr>", { desc = "Show git commits" }) -- list all git commits (use <cr> to checkout) ["gc" for git commits]
 		keymap.set(
