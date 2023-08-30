@@ -43,34 +43,41 @@ return {
 			opts.desc = "See available code actions"
 			keymap.set({ "n", "v" }, "<leader>la", vim.lsp.buf.code_action, opts) -- see available code actions, in visual mode will apply to selection
 
-			opts.desc = "Show buffer diagnostics"
-			keymap.set("n", "<leader>gb", "<cmd>Telescope diagnostics bufnr=0<CR>", opts) -- show  diagnostics for file
-
 			opts.desc = "Show line diagnostics"
-			keymap.set("n", "<leader>gl", vim.diagnostic.open_float, opts) -- show diagnostics for line
+			keymap.set("n", "gl", vim.diagnostic.open_float, opts) -- show diagnostics for line
 
 			opts.desc = "Go to previous diagnostic"
-			keymap.set("n", "[d", vim.diagnostic.goto_prev, opts) -- jump to previous diagnostic in buffer
+			keymap.set("n", "<leader>lk", vim.diagnostic.goto_prev, opts) -- jump to previous diagnostic in buffer
 
 			opts.desc = "Go to next diagnostic"
-			keymap.set("n", "]d", vim.diagnostic.goto_next, opts) -- jump to next diagnostic in buffer
+			keymap.set("n", "<leader>lj", vim.diagnostic.goto_next, opts) -- jump to next diagnostic in buffer
 
 			opts.desc = "Show documentation for what is under cursor"
 			keymap.set("n", "K", vim.lsp.buf.hover, opts) -- show documentation for what is under cursor
 
-			opts.desc = "Restart LSP"
-			keymap.set("n", "<leader>lrs", ":LspRestart<CR>", opts) -- mapping to restart lsp if necessary
+			opts.desc = "Rename"
+			keymap.set("n", "<space>lr", vim.lsp.buf.rename, opts) -- show documentation for what is under cursor
+
+			opts.desc = "Workspace diagnostics"
+			keymap.set("n", "<space>lw", function()
+				require("trouble").open("workspace_diagnostics")
+			end, opts) -- show documentation for what is under cursor
+
+			opts.desc = "Document diagnostics"
+			keymap.set("n", "<space>ld", function()
+				require("trouble").open("document_diagnostics")
+			end, opts) -- show documentation for what is under cursor
 
 			-- typescript specific keymaps (e.g. rename file and update imports)
 			if client.name == "tsserver" then
 				opts.desc = "Rename file and update file imports"
-				keymap.set("n", "<leader>lrf", ":TypescriptRenameFile<CR>") -- rename file and update imports
+				keymap.set("n", "<leader>lf", ":TypescriptRenameFile<CR>") -- rename file and update imports
 
 				opts.desc = "Rename file and update file imports"
-				keymap.set("n", "<leader>loi", ":TypescriptOrganizeImports<CR>", opts) -- organize imports (not in youtube nvim video)
+				keymap.set("n", "<leader>lo", ":TypescriptOrganizeImports<CR>", opts) -- organize imports (not in youtube nvim video)
 
 				opts.desc = "Remove unused imports"
-				keymap.set("n", "<leader>lru", ":TypescriptRemoveUnused<CR>", opts) -- remove unused variables (not in youtube nvim video)
+				keymap.set("n", "<leader>lu", ":TypescriptRemoveUnused<CR>", opts) -- remove unused variables (not in youtube nvim video)
 			end
 
 			if client.name == "clangd" then
@@ -79,7 +86,7 @@ return {
 			end
 
 			if client.name == "rust_analyzer" then
-				local rt = require("rust-tools")
+				-- local rt = require("rust-tools")
 				-- hover
 				opts.desc = "Show documentation for what is under cursor"
 				keymap.set("n", "K", "<cmd>RustHoverActions<cr>", opts) -- show documentation for what is under cursor
