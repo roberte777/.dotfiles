@@ -129,6 +129,7 @@ alias exat="exa --tree --level=2"
 path+="/usr/local/go/bin"
 path+="$HOME/go/bin"
 path+="$HOME/.local/bin"
+path+="/usr/local/cuda/bin"
 export PATH
 
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
