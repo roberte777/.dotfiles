@@ -24,6 +24,7 @@ return {
 				formatting.rustfmt,
 				formatting.gofumpt,
 				formatting.black,
+				formatting.prettier,
 			},
 			-- configure format on save
 			on_attach = function(current_client, bufnr)
