@@ -88,3 +88,4 @@ formatters.setup {
   { name = "prettier" },
 }
 lvim.transparent_window = true
+vim.keymap.set("i", "<C-c>", "<Esc>")
