@@ -93,7 +93,7 @@ return {
 
 				-- runnables
 				opts.desc = "Rust Runnables"
-				keymap.set("n", "<leader>lr", "<cmd>RustRunnables<cr>", opts)
+				keymap.set("n", "<leader>le", "<cmd>RustRunnables<cr>", opts)
 
 				-- code lens
 				opts.desc = "Code Lens"
@@ -137,13 +137,12 @@ return {
 				},
 			},
 			server = {
+				cmd = { "rustup", "run", "nightly", "rust-analyzer" },
 				on_attach = on_attach,
 				settings = {
 					["rust-analyzer"] = {
 						cargo = {
 							allFeatures = true,
-							loadOutDirsFromCheck = true,
-							runBuildScripts = true,
 						},
 						-- Add clippy lints for Rust.
 						checkOnSave = {
