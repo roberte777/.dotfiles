@@ -9,4 +9,11 @@ return {
 			vim.cmd([[colorscheme dracula]])
 		end,
 	},
+	{
+		"sainnhe/gruvbox-material",
+		priority = 1000,
+		config = function()
+			-- vim.cmd([[colorscheme dracula]])
+		end,
+	},
 }
