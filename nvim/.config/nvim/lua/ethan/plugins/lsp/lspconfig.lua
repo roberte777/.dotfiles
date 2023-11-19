@@ -137,7 +137,7 @@ return {
 				},
 			},
 			server = {
-				cmd = { "rustup", "run", "nightly", "rust-analyzer" },
+				-- cmd = { "rustup", "run", "nightly", "rust-analyzer" },
 				on_attach = on_attach,
 				settings = {
 					["rust-analyzer"] = {
