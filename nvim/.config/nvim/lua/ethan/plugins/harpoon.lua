@@ -3,9 +3,10 @@ return {
 	dependencies = {
 		"nvim-lua/plenary.nvim",
 	},
+	branch = "harpoon2",
 	config = function()
 		-- set keymaps
-		local ui = require("harpoon.ui")
+		local harpoon = require("harpoon")
 		local wk = require("which-key")
 
 		wk.register({
@@ -13,56 +14,51 @@ return {
 				name = "Harpoon",
 				g = {
 					function()
-						ui.toggle_quick_menu()
+						harpoon.ui:toggle_quick_menu(harpoon:list())
 					end,
 					"Open Harpoon menu",
 				},
 
-				a = { "<cmd>lua require('harpoon.mark').add_file()<cr>", "Add file to harpoon menu" },
+				a = {
+					function()
+						harpoon:list():append()
+					end,
+					"Add file to harpoon menu",
+				},
 
 				h = {
 					function()
-						ui.nav_file(1)
+						harpoon:list():select(1)
 					end,
 					"Go to first marked file",
 				},
 
 				j = {
 					function()
-						ui.nav_file(2)
+						harpoon:list():select(2)
 					end,
 					"Go to second marked file",
 				},
 
 				k = {
 					function()
-						ui.nav_file(3)
+						harpoon:list():select(3)
 					end,
 					"Go to third marked file",
 				},
 
 				l = {
 					function()
-						ui.nav_file(4)
+						harpoon:list():select(4)
 					end,
 					"Go to fourth marked file",
 				},
 
 				[";"] = {
 					function()
-						ui.nav_file(5)
+						harpoon:list():select(5)
 					end,
 					"Go to fifth marked file",
-				},
-
-				n = {
-					"<cmd>lua require('harpoon.ui').nav_next()<cr>",
-					"Next Harpoon mark",
-				},
-
-				p = {
-					"<cmd>lua require('harpoon.ui').nav_prev()<cr>",
-					"Previous Harpoon mark",
 				},
 			},
 		}, { prefix = "<leader>" })
