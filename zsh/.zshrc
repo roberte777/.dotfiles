@@ -142,6 +142,8 @@ eval "$(pyenv init -)"
 export PIPENV_VENV_IN_PROJECT=1
 export POETRY_VIRTUALENVS_IN_PROJECT=1
 
+eval "$(zoxide init zsh)"
+
 cbonsai -p -m "Happy Coding!"
 
 unsetopt PROMPT_SP
