@@ -1,14 +1,12 @@
 return {
 	{
 		"echasnovski/mini.pairs",
-		version = false,
 		config = function()
 			require("mini.pairs").setup({})
 		end,
 	},
 	{
 		"echasnovski/mini.completion",
-		version = false,
 	},
 	{
 		"echasnovski/mini.indentscope",
@@ -115,5 +113,8 @@ return {
 				a = a,
 			})
 		end,
+	},
+	{
+		"echasnovski/mini.surround",
 	},
 }
