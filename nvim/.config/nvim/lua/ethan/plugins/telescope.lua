@@ -45,15 +45,30 @@ return {
 		-- set keymaps
 		local keymap = vim.keymap -- for conciseness
 
-		keymap.set("n", "<leader>ff", "<cmd>Telescope find_files<cr>", { desc = "Fuzzy find files in cwd" }) -- find files within current working directory, respects .gitignore
-		keymap.set("n", "<leader>fr", "<cmd>Telescope oldfiles<cr>", { desc = "Fuzzy find recent files" }) -- find previously opened files
-		keymap.set("n", "<leader>fs", "<cmd>Telescope live_grep<cr>", { desc = "Find string in cwd" }) -- find string in current working directory as you type
-		keymap.set("n", "<leader>fc", "<cmd>Telescope grep_string<cr>", { desc = "Find string under cursor in cwd" }) -- find string under cursor in current working directory
-		keymap.set("n", "<leader>fb", "<cmd>Telescope buffers<cr>", { desc = "Show open buffers" }) -- list open buffers in current neovim instance
-		keymap.set("n", "<leader>fw", "<cmd>Telescope diagnostics<cr>", { desc = "Show workspace diagnostics" }) -- list open buffers in current neovim instance
+		local builtin = require("telescope.builtin")
+		keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "[F]ind [H]elp tags" })
+		keymap.set("n", "<leader>fk", builtin.keymaps, { desc = "[F]ind [K]eymaps" })
+		keymap.set("n", "<leader>ff", builtin.find_files, { desc = "[F]ind [F]iles" }) -- find files within current working directory, respects .gitignore
+		keymap.set("n", "<leader>ft", builtin.builtin, { desc = "[F]ind [T]elescope builtins" })
+		keymap.set("n", "<leader>fs", builtin.live_grep, { desc = "[F]ind with [G]rep" }) -- find string in current working directory as you type
+		keymap.set("n", "<leader>fc", builtin.grep_string, { desc = "[F]ind string under [C]ursor in cwd" }) -- find string under cursor in current working directory
+		keymap.set("n", "<leader>fw", builtin.diagnostics, { desc = "[F]ind [W]orkspace diagnostics" }) -- list open buffers in current neovim instance
 		keymap.set("n", "<leader>fd", function()
 			require("telescope.builtin").diagnostics({ bufnr = 0 })
-		end, { desc = "Show document diagnostics" }) -- list open buffers in current neovim instance
+		end, { desc = "[F]ind file [D]iagnostics" }) -- list open buffers in current neovim instance
+		keymap.set("n", "<leader>fb", builtin.buffers, { desc = "[F]ind [B]uffers" }) -- list open buffers in current neovim instance
+		keymap.set("n", "<leader>fr", builtin.oldfiles, { desc = "[F]ind recent files" }) -- find previously opened files
+		vim.keymap.set("n", "<leader>f/", function()
+			-- You can pass additional configuration to Telescope to change the theme, layout, etc.
+			builtin.current_buffer_fuzzy_find(require("telescope.themes").get_dropdown({
+				winblend = 10,
+				previewer = false,
+			}))
+		end, { desc = "[/] [F]uzzily search in current buffer" })
+		-- Shortcut for searching your Neovim configuration files
+		vim.keymap.set("n", "<leader>fn", function()
+			builtin.find_files({ cwd = vim.fn.stdpath("config") })
+		end, { desc = "[F]ind [N]eovim files" })
 		keymap.set("n", "<leader>hf", "<cmd>Telescope harpoon marks<cr>", { desc = "Show harpoon marks" }) -- show harpoon marks
 		keymap.set("n", "<leader>gc", "<cmd>Telescope git_commits<cr>", { desc = "Show git commits" }) -- list all git commits (use <cr> to checkout) ["gc" for git commits]
 		keymap.set(
