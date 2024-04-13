@@ -45,6 +45,7 @@ return {
 				typescriptreact = { { "prettierd", "prettier" } },
 				javascriptreact = { { "prettierd", "prettier" } },
 				rust = { "rustfmt" },
+				go = { "gofumpt" },
 			},
 			format_on_save = {
 				-- These options will be passed to conform.format()
