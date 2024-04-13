@@ -5,7 +5,7 @@ return {
 		build = ":Copilot auth",
 		event = "InsertEnter",
 		config = function()
-			require("copilot").setup({ suggestion = { auto_trigger = true, keymap = { accept = "<C-i>" } } })
+			require("copilot").setup({ suggestion = { auto_trigger = true, keymap = { accept = "<M-l>" } } })
 		end,
 	},
 }
