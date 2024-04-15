@@ -44,6 +44,8 @@ return {
 				typescript = { { "prettierd", "prettier" } },
 				typescriptreact = { { "prettierd", "prettier" } },
 				javascriptreact = { { "prettierd", "prettier" } },
+				json = { { "prettierd", "prettier" } },
+				jsonc = { { "prettierd", "prettier" } },
 				rust = { "rustfmt" },
 				go = { "gofumpt" },
 			},
