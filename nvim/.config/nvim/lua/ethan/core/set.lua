@@ -30,16 +30,50 @@ opt.signcolumn = "yes" -- show sign column so that text doesn't shift
 -- backspace
 opt.backspace = "indent,eol,start" -- allow backspace on indent, end of line or insert mode start position
 
--- clipboard
-opt.clipboard:append("unnamedplus") -- use system clipboard as default register
+-- Sync clipboard between OS and Neovim.
+--  Remove this option if you want your OS clipboard to remain independent.
+--  See `:help 'clipboard'`
+vim.opt.clipboard = "unnamedplus"
 
 -- turn off swapfile
 opt.swapfile = false
 opt.backup = false
-opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
+
+-- undo dir
+local os_name = vim.loop.os_uname().sysname
+if os_name == "Windows_NT" then
+	opt.undodir = os.getenv("USERPROFILE") .. "\\.vim\\undodir"
+else
+	opt.undodir = os.getenv("HOME") .. "/.vim/undodir"
+end
 opt.undofile = true
 
 vim.opt.scrolloff = 8
 
 -- faster completion
-vim.opt.updatetime = 100
+vim.opt.updatetime = 250
+vim.opt.timeoutlen = 300
+
+-- Sets how neovim will display certain whitespace characters in the editor.
+--  See `:help 'list'`
+--  and `:help 'listchars'`
+vim.opt.list = true
+vim.opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
+
+-- Configure how new splits should be opened
+vim.opt.splitright = true
+vim.opt.splitbelow = true
+
+-- Preview substitutions live, as you type!
+vim.opt.inccommand = "split"
+
+-- Highlight when yanking (copying) text
+--  Try it with `yap` in normal mode
+--  See `:help vim.highlight.on_yank()`
+vim.api.nvim_create_autocmd("TextYankPost", {
+	desc = "Highlight when yanking (copying) text",
+	group = vim.api.nvim_create_augroup("kickstart-highlight-yank", { clear = true }),
+	callback = function()
+		vim.highlight.on_yank()
+	end,
+})
