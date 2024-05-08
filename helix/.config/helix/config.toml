@@ -1,4 +1,4 @@
-theme="gruvbox"
+theme="dracula"
 
 [editor]
 true-color=true 
