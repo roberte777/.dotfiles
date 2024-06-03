@@ -44,7 +44,7 @@ return {
 				typescript = { { "prettierd", "prettier" } },
 				typescriptreact = { { "prettierd", "prettier" } },
 				javascriptreact = { { "prettierd", "prettier" } },
-				json = { { "prettierd", "prettier" } },
+				-- json = { { "prettierd", "prettier" } },
 				jsonc = { { "prettierd", "prettier" } },
 				rust = { "rustfmt" },
 				go = { "gofumpt" },
@@ -57,7 +57,7 @@ return {
 		},
 		config = function(_, opts)
 			local util = require("conform.util")
-			util.add_formatter_args(require("conform.formatters.rustfmt"), { "--edition", "2021" })
+			-- util.add_formatter_args(require("conform.formatters.rustfmt"), { "--edition", "2021" })
 			require("conform").setup(opts)
 		end,
 	},
