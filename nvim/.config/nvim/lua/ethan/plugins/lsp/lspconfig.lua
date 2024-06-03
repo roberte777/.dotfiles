@@ -78,14 +78,6 @@ return {
 
 					map("<space>lr", vim.lsp.buf.rename, "[R]ename") -- show documentation for what is under cursor
 
-					map("<space>lw", function()
-						require("trouble").open("workspace_diagnostics")
-					end, "[L]ookat [W]orkspace trouble diagnostics") -- show documentation for what is under cursor
-
-					map("<space>ld", function()
-						require("trouble").open("document_diagnostics")
-					end, "[L]ookat [T]rouble diagnostics") -- show documentation for what is under cursor
-
 					-- The following two autocommands are used to highlight references of the
 					-- word under your cursor when your cursor rests there for a little while.
 					--    See `:help CursorHold` for information about when this is executed
