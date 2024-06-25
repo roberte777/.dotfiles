@@ -174,7 +174,7 @@ return {
 				-- rust_analyzer = {},
 				tsserver = {},
 				eslint = {},
-
+				json_lsp = {},
 				lua_ls = {
 					-- cmd = {...},
 					-- filetypes = { ...},
