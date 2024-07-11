@@ -1,5 +1,7 @@
 return {
 	"nvim-telescope/telescope.nvim",
+	event = "VimEnter",
+
 	branch = "0.1.x",
 	dependencies = {
 		"nvim-lua/plenary.nvim",
@@ -22,7 +24,7 @@ return {
 		telescope.setup({
 			-- configure custom mappings
 			defaults = {
-				path_display = { "truncate" },
+				-- path_display = { "truncate" },
 				mappings = {
 					i = {
 						["<C-k>"] = actions.move_selection_previous, -- move to prev result
@@ -58,7 +60,7 @@ return {
 		end, { desc = "[F]ind file [D]iagnostics" }) -- list open buffers in current neovim instance
 		keymap.set("n", "<leader>fb", builtin.buffers, { desc = "[F]ind [B]uffers" }) -- list open buffers in current neovim instance
 		keymap.set("n", "<leader>fr", builtin.oldfiles, { desc = "[F]ind recent files" }) -- find previously opened files
-		vim.keymap.set("n", "<leader>f/", function()
+		vim.keymap.set("n", "<leader>/", function()
 			-- You can pass additional configuration to Telescope to change the theme, layout, etc.
 			builtin.current_buffer_fuzzy_find(require("telescope.themes").get_dropdown({
 				winblend = 10,
