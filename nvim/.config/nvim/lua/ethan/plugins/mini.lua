@@ -1,9 +1,16 @@
 return {
+	-- {
+	-- 	"echasnovski/mini.pairs",
+	-- 	config = function()
+	-- 		require("mini.pairs").setup({})
+	-- 	end,
+	-- },
 	{
-		"echasnovski/mini.pairs",
-		config = function()
-			require("mini.pairs").setup({})
-		end,
+		"windwp/nvim-autopairs",
+		event = "InsertEnter",
+		config = true,
+		-- use opts = {} for passing setup options
+		-- this is equalent to setup({}) function
 	},
 	{
 		"echasnovski/mini.completion",
