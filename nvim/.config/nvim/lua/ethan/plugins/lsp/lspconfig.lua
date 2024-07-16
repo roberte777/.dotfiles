@@ -50,33 +50,17 @@ return {
 					--  the definition of its *type*, not where it was *defined*.
 					map("<leader>gt", require("telescope.builtin").lsp_type_definitions, "[G]oto [T]ype definition")
 
-					map("<leader>la", vim.lsp.buf.code_action, "[L]ookat [A]ctions") -- see available code actions
+					map("<leader>ca", vim.lsp.buf.code_action, "Code Actions") -- see available code actions
 
-					-- Fuzzy find all the symbols in your current document.
-					--  Symbols are things like variables, functions, types, etc.
-					map(
-						"<leader>lds",
-						require("telescope.builtin").lsp_document_symbols,
-						"[L]ookat [D]ocument [S]ymbols"
-					)
+					map("cd", vim.diagnostic.open_float, "Line Diagnostics") -- show diagnostics for line
 
-					-- Fuzzy find all the symbols in your current workspace.
-					--  Similar to document symbols, except searches over your entire project.
-					map(
-						"<leader>lws",
-						require("telescope.builtin").lsp_dynamic_workspace_symbols,
-						"[L]ookat [W]orkspace [S]ymbols"
-					)
+					map("<leader>ck", vim.diagnostic.goto_prev, "Previous diagnostic") -- jump to previous diagnostic in buffer
 
-					map("gl", vim.diagnostic.open_float, "[G]oto [L]ine diagnostics") -- show diagnostics for line
-
-					map("<leader>lk", vim.diagnostic.goto_prev, "[L]ookat previous diagnostic") -- jump to previous diagnostic in buffer
-
-					map("<leader>lj", vim.diagnostic.goto_next, "[L]ookat next diagnostic") -- jump to next diagnostic in buffer
+					map("<leader>cj", vim.diagnostic.goto_next, "Next diagnostic") -- jump to next diagnostic in buffer
 
 					map("K", vim.lsp.buf.hover, "Hover Documentation") -- show documentation for what is under cursor
 
-					map("<space>lr", vim.lsp.buf.rename, "[R]ename") -- show documentation for what is under cursor
+					map("<space>cr", vim.lsp.buf.rename, "Rename") -- show documentation for what is under cursor
 
 					-- The following two autocommands are used to highlight references of the
 					-- word under your cursor when your cursor rests there for a little while.
@@ -100,8 +84,7 @@ return {
 					--
 					-- This may be unwanted, since they displace some of your code
 					if client and client.server_capabilities.inlayHintProvider and vim.lsp.inlay_hint then
-						vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
-						map("<leader>th", function()
+						map("<leader>uh", function()
 							vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
 						end, "[T]oggle Inlay [H]ints")
 					end
@@ -109,18 +92,18 @@ return {
 					-- typescript specific keymaps (e.g. rename file and update imports)
 					if client.name == "tsserver" then
 						opts.desc = "Rename file and update file imports"
-						keymap.set("n", "<leader>lf", ":TypescriptRenameFile<CR>") -- rename file and update imports
+						keymap.set("n", "<leader>cf", ":TypescriptRenameFile<CR>") -- rename file and update imports
 
 						opts.desc = "Rename file and update file imports"
-						keymap.set("n", "<leader>lo", ":TypescriptOrganizeImports<CR>", opts) -- organize imports (not in youtube nvim video)
+						keymap.set("n", "<leader>co", ":TypescriptOrganizeImports<CR>", opts) -- organize imports (not in youtube nvim video)
 
 						opts.desc = "Remove unused imports"
-						keymap.set("n", "<leader>lu", ":TypescriptRemoveUnused<CR>", opts) -- remove unused variables (not in youtube nvim video)
+						keymap.set("n", "<leader>cu", ":TypescriptRemoveUnused<CR>", opts) -- remove unused variables (not in youtube nvim video)
 					end
 
 					if client.name == "clangd" then
 						opts.desc = "Switch Source/Header"
-						keymap.set("n", "<leader>lh", "<cmd>ClangdSwitchSourceHeader<cr>", opts)
+						keymap.set("n", "<leader>ch", "<cmd>ClangdSwitchSourceHeader<cr>", opts)
 					end
 				end,
 			})
