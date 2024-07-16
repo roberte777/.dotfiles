@@ -5,5 +5,15 @@ return {
 		event = "VimEnter",
 		dependencies = { "nvim-lua/plenary.nvim" },
 		opts = { signs = false },
+		keys = {
+			{ "<leader>xt", "<cmd>Trouble todo toggle<cr>", desc = "Todo (Trouble)" },
+			{
+				"<leader>xT",
+				"<cmd>Trouble todo toggle filter = {tag = {TODO,FIX,FIXME}}<cr>",
+				desc = "Todo/Fix/Fixme (Trouble)",
+			},
+			{ "<leader>fm", "<cmd>TodoTelescope<cr>", desc = "Todo" },
+			{ "<leader>fM", "<cmd>TodoTelescope keywords=TODO,FIX,FIXME<cr>", desc = "Todo/Fix/Fixme" },
+		},
 	},
 }

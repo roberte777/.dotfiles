@@ -50,9 +50,27 @@ return {
 		local builtin = require("telescope.builtin")
 		keymap.set("n", "<leader>fh", builtin.help_tags, { desc = "[F]ind [H]elp tags" })
 		keymap.set("n", "<leader>fk", builtin.keymaps, { desc = "[F]ind [K]eymaps" })
+
+		-- Fuzzy find all the symbols in your current document.
+		--  Symbols are things like variables, functions, types, etc.
+		keymap.set(
+			"n",
+			"<leader>fs",
+			require("telescope.builtin").lsp_document_symbols,
+			{ desc = "[L]ookat [D]ocument [S]ymbols" }
+		)
+
+		-- Fuzzy find all the symbols in your current workspace.
+		--  Similar to document symbols, except searches over your entire project.
+		keymap.set(
+			"n",
+			"<leader>fS",
+			require("telescope.builtin").lsp_dynamic_workspace_symbols,
+			{ desc = "[L]ookat [W]orkspace [S]ymbols" }
+		)
 		keymap.set("n", "<leader>ff", builtin.find_files, { desc = "[F]ind [F]iles" }) -- find files within current working directory, respects .gitignore
 		keymap.set("n", "<leader>ft", builtin.builtin, { desc = "[F]ind [T]elescope builtins" })
-		keymap.set("n", "<leader>fs", builtin.live_grep, { desc = "[F]ind with [G]rep" }) -- find string in current working directory as you type
+		keymap.set("n", "<leader>fg", builtin.live_grep, { desc = "[F]ind with [G]rep" }) -- find string in current working directory as you type
 		keymap.set("n", "<leader>fc", builtin.grep_string, { desc = "[F]ind string under [C]ursor in cwd" }) -- find string under cursor in current working directory
 		keymap.set("n", "<leader>fw", builtin.diagnostics, { desc = "[F]ind [W]orkspace diagnostics" }) -- list open buffers in current neovim instance
 		keymap.set("n", "<leader>fd", function()
@@ -79,7 +97,7 @@ return {
 			"<cmd>Telescope git_bcommits<cr>",
 			{ desc = "Show git commits for current buffer" }
 		) -- list git commits for current file/buffer (use <cr> to checkout) ["gfc" for git file commits]
-		keymap.set("n", "<leader>gb", "<cmd>Telescope git_branches<cr>", { desc = "Show git branches" }) -- list git branches (use <cr> to checkout) ["gb" for git branch]
+		keymap.set("n", "<leader>gr", "<cmd>Telescope git_branches<cr>", { desc = "Show git branches" }) -- list git branches (use <cr> to checkout) ["gb" for git branch]
 		keymap.set("n", "<leader>gs", "<cmd>Telescope git_status<cr>", { desc = "Show current git changes per file" }) -- list current changes per file with diff preview ["gs" for git status]
 	end,
 }
