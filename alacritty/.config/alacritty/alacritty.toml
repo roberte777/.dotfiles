@@ -1,4 +1,7 @@
-import = ["~/.config/alacritty/themes/Gruvbox-Dark.toml"]
+import = ["~/.config/alacritty/themes/dracula.toml"]
+
+[font]
+size = 12.0
 
 [font.bold]
 family = "JetBrains Mono Nerd Font"
@@ -11,3 +14,6 @@ style = "MediumItalic"
 [font.normal]
 family = "JetBrains Mono Nerd Font"
 style = "Medium"
+
+[window]
+decorations = "None"
