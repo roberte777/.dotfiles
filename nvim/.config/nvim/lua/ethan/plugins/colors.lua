@@ -6,7 +6,7 @@ return {
 			local transparent_bg = false
 			require("dracula").setup({ transparent_bg = transparent_bg })
 			-- load the colorscheme here
-			vim.cmd([[colorscheme dracula]])
+			-- vim.cmd([[colorscheme dracula]])
 		end,
 	},
 	{
@@ -28,6 +28,15 @@ return {
 			})
 
 			-- vim.cmd([[colorscheme gruvbox]])
+		end,
+	},
+	{
+		"catppuccin/nvim",
+		name = "catppuccin",
+		priority = 1000,
+		lazy = false,
+		config = function()
+			vim.cmd([[colorscheme catppuccin]])
 		end,
 	},
 }
