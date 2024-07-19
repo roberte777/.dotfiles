@@ -13,7 +13,7 @@ vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup({ { import = "ethan.plugins" }, { import = "ethan.plugins.lsp" } }, {
 	install = {
-		colorscheme = { "dracula" },
+		colorscheme = { "catppuccin" },
 	},
 	checker = {
 		enabled = true,

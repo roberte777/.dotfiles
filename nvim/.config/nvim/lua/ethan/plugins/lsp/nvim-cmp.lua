@@ -33,6 +33,7 @@ return {
 		--  into multiple repos for maintenance purposes.
 		"hrsh7th/cmp-nvim-lsp",
 		"hrsh7th/cmp-path",
+		"folke/lazydev.nvim",
 	},
 	config = function()
 		-- See `:help cmp`
@@ -98,6 +99,7 @@ return {
 				{ name = "nvim_lsp" },
 				{ name = "luasnip" },
 				{ name = "path" },
+				{ name = "lazydev", group_index = 0 },
 			},
 		})
 	end,
