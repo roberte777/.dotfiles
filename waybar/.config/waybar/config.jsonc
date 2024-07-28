@@ -3,12 +3,9 @@
     "position": "top",
     "height": 30,
 
-    "modules-left": ["hyprland/workspaces", "hyprland/mode"],
+    "modules-left": ["hyprland/workspaces"],
     "modules-center": ["hyprland/window"],
     "modules-right": ["tray", "custom/spotify", "backlight", "pulseaudio", "network", "idle_inhibitor", "battery", "clock"],
-    "hyprland/mode": {
-        "format": " {}"
-    },
     "hyprland/workspaces": {
         "format": "{name}",
         "disable-scroll": true,
@@ -40,9 +37,9 @@
         "format-alt": "{ipaddr}/{cidr} {icon}",
         "format-alt-click": "click-right",
         "format-icons": {
-            "wifi": ["", "" ,""],
+            "wifi": ["󰤟", "󰤢" ,""],
             "ethernet": [""],
-            "disconnected": [""]
+            "disconnected": ["󰖪"]
         },
         "on-click": "alacritty -e nmtui",
     "tooltip": false

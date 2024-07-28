@@ -1,1 +1,1 @@
-yay -S nwg-displays rofi-wayland hyprpaper waybar pavucontrol
+yay -S nwg-displays rofi-wayland hyprpaper waybar pavucontrol starship
