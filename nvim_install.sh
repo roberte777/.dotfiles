@@ -8,3 +8,4 @@ cd neovim
 git checkout v0.10.0
 make CMAKE_BUILD_TYPE=Release
 sudo make install
+
