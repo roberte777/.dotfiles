@@ -64,3 +64,9 @@ window#waybar {
 #custom-storage.critical {
     color:      rgba(238, 46, 36, 1);
 }
+
+#custom-notification {
+	border-radius: 50px 50px;
+	margin: 5px;
+	padding: 2px 15px;
+}
