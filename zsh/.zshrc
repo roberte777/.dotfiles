@@ -25,3 +25,11 @@ eval "$(zoxide init zsh)"
 rbonsai -p -m "Happy Coding!"
 
 unsetopt PROMPT_SP
+
+# pnpm
+export PNPM_HOME="/home/roberte777/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+# pnpm end
