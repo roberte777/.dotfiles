@@ -1,8 +1,9 @@
 import = [
     # uncomment the theme you want
-    "~/.config/alacritty/themes/catppuccin-mocha.toml"
+    # "~/.config/alacritty/themes/catppuccin-mocha.toml"
     # "~/.config/alacritty/themes/dracula.toml"
     # "~/.config/alacritty/themes/gruvbox-dark.toml"
+    "~/.config/alacritty/themes/gruvbox-dark-medium.toml"
 ]
 
 [env]
