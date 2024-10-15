@@ -13,21 +13,24 @@ return {
 		"sainnhe/gruvbox-material",
 		priority = 1000,
 		config = function()
-			-- vim.cmd([[colorscheme dracula]])
+			-- vim.cmd([[colorscheme gruvbox-material]])
+			vim.cmd([[let g:gruvbox_material_background = 'hard']])
 		end,
 	},
 	{
-		-- use this one I think
-		"ellisonleao/gruvbox.nvim",
-		priority = 1000,
+		"wincent/base16-nvim",
+		lazy = false, -- load at start
+		priority = 1000, -- load first
 		config = function()
+			vim.cmd([[colorscheme base16-gruvbox-dark-hard]])
 			vim.o.background = "dark"
-
-			require("gruvbox").setup({
-				transparent_mode = true,
-			})
-
-			-- vim.cmd([[colorscheme gruvbox]])
+			-- Make it clearly visible which argument we're at.
+			local marked = vim.api.nvim_get_hl(0, { name = "PMenu" })
+			vim.api.nvim_set_hl(
+				0,
+				"LspSignatureActiveParameter",
+				{ fg = marked.fg, bg = marked.bg, ctermfg = marked.ctermfg, ctermbg = marked.ctermbg, bold = true }
+			)
 		end,
 	},
 	{
@@ -40,7 +43,7 @@ return {
 				flavour = "mocha",
 				transparent_background = true,
 			})
-			vim.cmd([[colorscheme catppuccin]])
+			-- vim.cmd([[colorscheme catppuccin]])
 		end,
 	},
 }
