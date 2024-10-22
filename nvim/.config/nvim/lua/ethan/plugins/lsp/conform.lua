@@ -47,7 +47,7 @@ return {
 				json = { { "prettierd", "prettier" } },
 				jsonc = { { "prettierd", "prettier" } },
 				rust = { "rustfmt" },
-				go = { "gofumpt" },
+				go = { "gofmt" },
 			},
 			format_on_save = {
 				-- These options will be passed to conform.format()
