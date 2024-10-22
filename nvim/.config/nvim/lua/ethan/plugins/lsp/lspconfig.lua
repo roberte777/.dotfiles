@@ -87,7 +87,7 @@ return {
 					end
 
 					-- typescript specific keymaps (e.g. rename file and update imports)
-					if client.name == "tsserver" then
+					if client.name == "ts_ls" then
 						opts.desc = "Rename file and update file imports"
 						keymap.set("n", "<leader>cf", ":TypescriptRenameFile<CR>") -- rename file and update imports
 
@@ -162,7 +162,7 @@ return {
 				gopls = {},
 				pyright = {},
 				-- rust_analyzer = {},
-				tsserver = {},
+				ts_ls = {},
 				eslint = {},
 				jsonls = {},
 				lua_ls = {
@@ -203,7 +203,7 @@ return {
 						local server = servers[server_name] or {}
 						-- This handles overriding only values explicitly passed
 						-- by the server configuration above. Useful when disabling
-						-- certain features of an LSP (for example, turning off formatting for tsserver)
+						-- certain features of an LSP (for example, turning off formatting for ts_ls)
 						server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
 						require("lspconfig")[server_name].setup(server)
 					end,
