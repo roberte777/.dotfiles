@@ -18,11 +18,22 @@ return {
 		end,
 	},
 	{
+		"ellisonleao/gruvbox.nvim",
+		priority = 1000,
+		config = function()
+			require("gruvbox").setup({
+				contrast = "hard",
+				transparent_mode = true,
+			})
+			vim.cmd("colorscheme gruvbox")
+		end,
+	},
+	{
 		"wincent/base16-nvim",
 		lazy = false, -- load at start
 		priority = 1000, -- load first
 		config = function()
-			vim.cmd([[colorscheme base16-gruvbox-dark-hard]])
+			-- vim.cmd([[colorscheme base16-gruvbox-dark-hard]])
 			vim.o.background = "dark"
 			-- Make it clearly visible which argument we're at.
 			local marked = vim.api.nvim_get_hl(0, { name = "PMenu" })
