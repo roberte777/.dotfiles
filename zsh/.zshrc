@@ -1,5 +1,8 @@
 eval "$(starship init zsh)"
 plugins=(git)
+eval "$(zoxide init zsh)"
+rbonsai -p -m "Happy Coding!"
+unsetopt PROMPT_SP
 
 alias exa="exa --all --icons"
 alias exal="exa --all --icons --long"
@@ -20,12 +23,6 @@ eval "$(pyenv init -)"
 export PIPENV_VENV_IN_PROJECT=1
 export POETRY_VIRTUALENVS_IN_PROJECT=1
 
-eval "$(zoxide init zsh)"
-
-rbonsai -p -m "Happy Coding!"
-
-unsetopt PROMPT_SP
-
 # pnpm
 export PNPM_HOME="/home/roberte777/.local/share/pnpm"
 case ":$PATH:" in
@@ -40,3 +37,22 @@ esac
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+# tmux sesh
+function sesh-sessions() {
+  {
+    exec </dev/tty
+    exec <&1
+    local session
+    session=$(sesh list -t -c | fzf --height 40% --reverse --border-label ' sesh ' --border --prompt '⚡  ')
+    zle reset-prompt > /dev/null 2>&1 || true
+    [[ -z "$session" ]] && return
+    sesh connect $session
+  }
+}
+
+alias sl="sesh-sessions"
+zle     -N             sesh-sessions
+bindkey -M emacs '\es' sesh-sessions
+bindkey -M vicmd '\es' sesh-sessions
+bindkey -M viins '\es' sesh-sessions
