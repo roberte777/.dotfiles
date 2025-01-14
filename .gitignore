@@ -4,3 +4,4 @@ nvim/.config/nvim/plugin/packer_compiled.lua
 helix/.config/helix/runtime
 hypr/.config/hypr/monitors.conf
 hypr/.config/hypr/hyprpaper.conf
+hypr/.config/hypr/hyprlock.conf
