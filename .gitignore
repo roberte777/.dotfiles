@@ -5,3 +5,4 @@ helix/.config/helix/runtime
 hypr/.config/hypr/monitors.conf
 hypr/.config/hypr/hyprpaper.conf
 hypr/.config/hypr/hyprlock.conf
+hypr/.config/hypr/workspaces.conf
