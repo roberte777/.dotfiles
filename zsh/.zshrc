@@ -1,7 +1,6 @@
 eval "$(starship init zsh)"
 plugins=(git)
 eval "$(zoxide init zsh)"
-rbonsai -p -m "Happy Coding!"
 unsetopt PROMPT_SP
 
 alias exa="exa --all --icons"
@@ -9,9 +8,12 @@ alias exal="exa --all --icons --long"
 alias exat="exa --tree --level=2"
 path+="/usr/local/go/bin"
 path+="$HOME/go/bin"
+path+="$HOME/.cargo/bin"
 path+="$HOME/.local/bin"
 path+="/usr/local/cuda/bin"
 export PATH
+
+rbonsai -p -m "Happy Coding!"
 
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
