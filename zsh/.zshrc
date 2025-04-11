@@ -3,6 +3,8 @@ plugins=(git)
 eval "$(zoxide init zsh)"
 unsetopt PROMPT_SP
 
+export EDITOR="nvim"
+
 alias exa="exa --all --icons"
 alias exal="exa --all --icons --long"
 alias exat="exa --tree --level=2"
