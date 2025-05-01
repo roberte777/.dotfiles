@@ -13,6 +13,8 @@ path+="$HOME/go/bin"
 path+="$HOME/.cargo/bin"
 path+="$HOME/.local/bin"
 path+="/usr/local/cuda/bin"
+export FLYCTL_INSTALL="/home/roberte777/.fly"
+path+="/home/roberte777/.fly/bin"
 export PATH
 
 rbonsai -p -m "Happy Coding!"
