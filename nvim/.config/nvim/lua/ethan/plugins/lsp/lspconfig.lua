@@ -14,6 +14,10 @@ return {
 				version = "^4", -- Recommended
 				ft = { "rust" },
 			},
+			{
+				"ziglang/zig.vim",
+				ft = { "zig" },
+			},
 			-- Useful status updates for LSP.
 			-- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
 			{ "j-hui/fidget.nvim", opts = {} },
@@ -152,6 +156,13 @@ return {
 			--  - settings (table): Override the default settings passed when initializing the server.
 			--        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
 			local servers = {
+				zls = {
+					settings = {
+						zls = {
+							semantic_tokens = "partial",
+						},
+					},
+				},
 				clangd = {
 					capabilities = { offsetEncoding = "utf-16" },
 					cmd = {
