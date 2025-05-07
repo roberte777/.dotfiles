@@ -11,7 +11,7 @@ return {
 			"hrsh7th/cmp-nvim-lsp",
 			{
 				"mrcjkb/rustaceanvim",
-				version = "^4", -- Recommended
+				version = "^6", -- Recommended
 				ft = { "rust" },
 			},
 			{
