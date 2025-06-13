@@ -45,6 +45,8 @@ ESSENTIAL_TOOLS=(
     tmux
     swww
     sesh-bin
+    pandoc
+    texlive
 )
 
 WORK_APPS=(
