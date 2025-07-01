@@ -6,7 +6,7 @@ return {
 		---@type snacks.Config
 		opts = {
 			bigfile = { enabled = false },
-			indent = { enabled = true },
+			indent = { enabled = false },
 			input = { enabled = true },
 			quickfile = { enabled = true, exclude = { "latex" } },
 			scope = { enabled = true },

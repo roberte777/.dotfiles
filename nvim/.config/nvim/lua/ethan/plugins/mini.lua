@@ -131,6 +131,7 @@ return {
 	{
 		"echasnovski/mini.completion",
 	},
+	{ "echasnovski/mini.indentscope", version = false, setup = true },
 	{
 		"echasnovski/mini.ai",
 		-- keys = {
