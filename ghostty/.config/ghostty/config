@@ -1,2 +1,3 @@
 theme = catppuccin-mocha
 window-decoration = false
+keybind = shift+enter=text:\n

@@ -374,7 +374,7 @@
   "theme.bar.buttons.modules.worldclock.icon": "#242438",
   "theme.bar.buttons.modules.worldclock.border": "#f5c2e7",
   "bar.layouts": {
-    "*": {
+    "0": {
       "left": [
         "dashboard",
         "workspaces",
@@ -387,6 +387,38 @@
         "volume",
         "network",
         "bluetooth",
+        "battery",
+        "systray",
+        "clock",
+        "notifications"
+      ]
+    },
+    "1": {
+      "left": [
+        "dashboard",
+        "workspaces",
+        "windowtitle"
+      ],
+      "middle": [
+        "media"
+      ],
+      "right": [
+        "volume",
+        "clock",
+        "notifications"
+      ]
+    },
+    "2": {
+      "left": [
+        "dashboard",
+        "workspaces",
+        "windowtitle"
+      ],
+      "middle": [
+        "media"
+      ],
+      "right": [
+        "volume",
         "clock",
         "notifications"
       ]
