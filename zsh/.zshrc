@@ -10,9 +10,16 @@ path+="$HOME/go/bin"
 path+="$HOME/.cargo/bin"
 path+="$HOME/.local/bin"
 path+="/usr/local/cuda/bin"
+path+="$HOME/.config/emacs/bin"
 export FLYCTL_INSTALL="/home/roberte777/.fly"
 path+="/home/roberte777/.fly/bin"
 export PATH
+
+HISTSIZE=10000
+SAVEHIST=10000
+HISTFILE=~/.zsh_history
+bindkey -v
+bindkey '^R' history-incremental-search-backward
 
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
@@ -52,7 +59,13 @@ bindkey -M emacs '\es' sesh-sessions
 bindkey -M vicmd '\es' sesh-sessions
 bindkey -M viins '\es' sesh-sessions
 
+alias openfortivpn="sudo systemctl start systemd-resolved.service && sudo openfortivpn --set-dns=0 --pppd-use-peerdns=1"
+
 # java
 #THIS MUST BE AT THE END OF THE FILE FOR SDKMAN TO WORK!!!
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+. "$HOME/.local/share/../bin/env"
+
+source /home/roberte777/.config/broot/launcher/bash/br
