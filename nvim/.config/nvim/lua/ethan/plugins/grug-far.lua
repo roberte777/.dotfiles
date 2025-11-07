@@ -6,7 +6,6 @@ return {
 		config = function()
 			-- optional setup call to override plugin options
 			-- alternatively you can set options with vim.g.grug_far = { ... }
-			vim.g.maplocalleader = ","
 			require("grug-far").setup({
 				-- options, see Configuration section below
 				-- there are no required options atm

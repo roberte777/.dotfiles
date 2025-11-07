@@ -8,7 +8,7 @@ return {
 			"WhoIsSethDaniel/mason-tool-installer.nvim",
 			"jose-elias-alvarez/typescript.nvim",
 			"p00f/clangd_extensions.nvim",
-			"hrsh7th/cmp-nvim-lsp",
+			"saghen/blink.cmp",
 			{
 				"mrcjkb/rustaceanvim",
 				version = "^6", -- Recommended
@@ -32,10 +32,11 @@ return {
 				group = vim.api.nvim_create_augroup("kickstart-lsp-attach", { clear = true }),
 				callback = function(event)
 					-- keybind options
-					local map = function(keys, func, desc)
-						vim.keymap.set("n", keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
+					local map = function(keys, func, desc, mode)
+						mode = mode or "n"
+						vim.keymap.set(mode, keys, func, { buffer = event.buf, desc = "LSP: " .. desc })
 					end
-					local opts = { noremap = true, silent = true, buffer = bufnr }
+					local opts = { noremap = true, silent = true, buffer = event.bufnr }
 					local builtin = require("telescope.builtin")
 
 					-- set keybinds
@@ -52,7 +53,7 @@ return {
 					--  the definition of its *type*, not where it was *defined*.
 					map("gt", require("telescope.builtin").lsp_type_definitions, "[G]oto [T]ype definition")
 
-					map("<leader>ca", vim.lsp.buf.code_action, "Code Actions") -- see available code actions
+					map("<leader>ca", vim.lsp.buf.code_action, "Code Actions", { "n", "x" }) -- see available code actions
 
 					map("cd", vim.diagnostic.open_float, "Line Diagnostics") -- show diagnostics for line
 
@@ -70,29 +71,46 @@ return {
 					--
 					-- When you move your cursor, the highlights will be cleared (the second autocommand).
 					local client = vim.lsp.get_client_by_id(event.data.client_id)
-					if client and client.server_capabilities.documentHighlightProvider then
+					if
+						client
+						and client:supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight, event.buf)
+					then
+						local highlight_augroup =
+							vim.api.nvim_create_augroup("kickstart-lsp-highlight", { clear = false })
 						vim.api.nvim_create_autocmd({ "CursorHold", "CursorHoldI" }, {
 							buffer = event.buf,
+							group = highlight_augroup,
 							callback = vim.lsp.buf.document_highlight,
 						})
 
 						vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI" }, {
 							buffer = event.buf,
+							group = highlight_augroup,
 							callback = vim.lsp.buf.clear_references,
+						})
+
+						vim.api.nvim_create_autocmd("LspDetach", {
+							group = vim.api.nvim_create_augroup("kickstart-lsp-detach", { clear = true }),
+							callback = function(event2)
+								vim.lsp.buf.clear_references()
+								vim.api.nvim_clear_autocmds({ group = "kickstart-lsp-highlight", buffer = event2.buf })
+							end,
 						})
 					end
 					-- The following autocommand is used to enable inlay hints in your
 					-- code, if the language server you are using supports them
 					--
 					-- This may be unwanted, since they displace some of your code
-					if client and client.server_capabilities.inlayHintProvider and vim.lsp.inlay_hint then
+					if
+						client and client:supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint, event.buf)
+					then
 						map("<leader>uh", function()
-							vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled())
+							vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled({ bufnr = event.buf }))
 						end, "[T]oggle Inlay [H]ints")
 					end
 
 					-- typescript specific keymaps (e.g. rename file and update imports)
-					if client.name == "ts_ls" then
+					if client and client.name == "ts_ls" then
 						opts.desc = "Rename file and update file imports"
 						keymap.set("n", "<leader>cf", ":TypescriptRenameFile<CR>") -- rename file and update imports
 
@@ -103,44 +121,46 @@ return {
 						keymap.set("n", "<leader>cu", ":TypescriptRemoveUnused<CR>", opts) -- remove unused variables (not in youtube nvim video)
 					end
 
-					if client.name == "clangd" then
+					if client and client.name == "clangd" then
 						opts.desc = "Switch Source/Header"
 						keymap.set("n", "<leader>ch", "<cmd>ClangdSwitchSourceHeader<cr>", opts)
 					end
 				end,
 			})
+			-- Diagnostic Config
+			-- See :help vim.diagnostic.Opts
+			vim.diagnostic.config({
+				severity_sort = true,
+				float = { border = "rounded", source = "if_many" },
+				underline = { severity = vim.diagnostic.severity.ERROR },
+				signs = vim.g.have_nerd_font and {
+					text = {
+						[vim.diagnostic.severity.ERROR] = "󰅚 ",
+						[vim.diagnostic.severity.WARN] = "󰀪 ",
+						[vim.diagnostic.severity.INFO] = "󰋽 ",
+						[vim.diagnostic.severity.HINT] = "󰌶 ",
+					},
+				} or {},
+				virtual_text = {
+					source = "if_many",
+					spacing = 2,
+					format = function(diagnostic)
+						local diagnostic_message = {
+							[vim.diagnostic.severity.ERROR] = diagnostic.message,
+							[vim.diagnostic.severity.WARN] = diagnostic.message,
+							[vim.diagnostic.severity.INFO] = diagnostic.message,
+							[vim.diagnostic.severity.HINT] = diagnostic.message,
+						}
+						return diagnostic_message[diagnostic.severity]
+					end,
+				},
+			})
 
 			-- LSP servers and clients are able to communicate to each other what features they support.
 			--  By default, Neovim doesn't support everything that is in the LSP specification.
-			--  When you add nvim-cmp, luasnip, etc. Neovim now has *more* capabilities.
-			--  So, we create new capabilities with nvim cmp, and then broadcast that to the servers.
-			local capabilities = vim.lsp.protocol.make_client_capabilities()
-			capabilities = vim.tbl_deep_extend("force", capabilities, require("cmp_nvim_lsp").default_capabilities())
-
-			-- Change the Diagnostic symbols in the sign column (gutter)
-			-- (not in youtube nvim video)
-			vim.diagnostic.config({
-				signs = {
-					text = {
-						[vim.diagnostic.severity.ERROR] = " ",
-						[vim.diagnostic.severity.WARN] = " ",
-						[vim.diagnostic.severity.HINT] = "󰠠 ",
-						[vim.diagnostic.severity.INFO] = " ",
-					},
-					texthl = {
-						[vim.diagnostic.severity.ERROR] = "Error",
-						[vim.diagnostic.severity.WARN] = "Error",
-						[vim.diagnostic.severity.HINT] = "Hint",
-						[vim.diagnostic.severity.INFO] = "Info",
-					},
-					numhl = {
-						[vim.diagnostic.severity.ERROR] = "",
-						[vim.diagnostic.severity.WARN] = "",
-						[vim.diagnostic.severity.HINT] = "",
-						[vim.diagnostic.severity.INFO] = "",
-					},
-				},
-			})
+			--  When you add blink.cmp, luasnip, etc. Neovim now has *more* capabilities.
+			--  So, we create new capabilities with blink.cmp, and then broadcast that to the servers.
+			local capabilities = require("blink.cmp").get_lsp_capabilities()
 
 			-- rust
 			vim.g.rustaceanvim = {
@@ -237,7 +257,8 @@ return {
 						-- by the server configuration above. Useful when disabling
 						-- certain features of an LSP (for example, turning off formatting for ts_ls)
 						server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
-						require("lspconfig")[server_name].setup(server)
+						vim.lsp.enable(server_name)
+						vim.lsp.config(server_name, server)
 					end,
 				},
 			})
