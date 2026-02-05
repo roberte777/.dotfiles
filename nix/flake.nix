@@ -1,0 +1,55 @@
+{
+  description = "Nix configurations";
+
+  inputs = {
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+    home-manager = {
+      url = "github:nix-community/home-manager/release-25.11";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+  };
+
+  outputs =
+    {
+      self,
+      nixpkgs,
+      home-manager,
+      llm-agents,
+    }:
+    let
+      # system = "x86_64-linux";
+      # hosts = [ "xos" ];
+    in
+    {
+
+        homeConfigurations = {
+            "work" = home-manager.lib.homeManagerConfiguration {
+                pkgs = nixpkgs.legacyPackages.${systems.darwin};
+                extraSpecialArgs = {inherit inputs};
+                modules = [
+                    ./hosts/work/home.nix
+                ]
+            }
+      }
+    
+      # use mr Jon as an example: https://github.com/jonhoo/configs/blob/master/nix/flake.nix
+      # nixosConfigurations = nixpkgs.lib.genAttrs hosts (
+      #   name:
+      #   nixpkgs.lib.nixosSystem {
+      #     inherit system;
+      #     specialArgs = {
+      #       llm-agents = llm-agents.packages.${system};
+      #     };
+      #     modules = [
+      #       ./hosts/${name}
+      #       home-manager.nixosModules.home-manager
+      #       {
+      #         home-manager.extraSpecialArgs = {
+      #           llm-agents = llm-agents.packages.${system};
+      #         };
+      #       }
+      #     ];
+      #   }
+      # );
+    };
+}
