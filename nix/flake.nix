@@ -16,6 +16,7 @@
   } @ inputs: let
     systems = {
       darwin = "aarch64-darwin";
+      linux = "x86_64-linux";
     };
     # hosts = [ "xos" ];
   in {
@@ -27,6 +28,20 @@
         extraSpecialArgs = {inherit inputs;};
         modules = [
           ./hosts/work/home.nix
+        ];
+      };
+    };
+
+    nixosConfigurations = {
+      theater = nixpkgs.lib.nixosSystem {
+        system = systems.linux;
+        modules = [
+          ./hosts/theater
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+          }
         ];
       };
     };

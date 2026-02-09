@@ -1,0 +1,82 @@
+services:
+  gluetun:
+    image: qmcgaw/gluetun:latest
+    container_name: gluetun
+    cap_add:
+      NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    environment:
+      - TZ=${TZ}
+      - VPN_SERVICE_PROVIDER=nordvpn
+      - VPN_TYPE=wireguard
+      - WIREGUARD_PRIVATE_KEY=${NORD_WG_PRIVATE_KEY}
+      - WIREGUARD_ADDRESSES=${NORD_WG_ADDRESS}
+      - SERVER_COUNTRIES=${SERVER_COUNTRIES}
+    ports:
+      # qBittorrent WebUI (qbit listens on 8080 in its container)
+      - "8081:8080"
+      # Prowlarr UI
+      - "9696:9696"
+    restart: unless-stopped
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    network_mode: "service:gluetun"
+    depends_on:
+      - gluetun
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - WEBUI_PORT=8080
+    volumes:
+      - ${APPDATA_DIR}/qbittorrent:/config
+      - ${DATA_DIR}/torrents:/data/torrents
+    restart: unless-stopped
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    network_mode: "service:gluetun"
+    depends_on:
+      - gluetun
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${APPDATA_DIR}/prowlarr:/config
+    restart: unless-stopped
+
+  # radarr/sonarr/readarr remain normal (no VPN), as before:
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    ports: ["7878:7878"]
+    environment: ["PUID=${PUID}", "PGID=${PGID}", "TZ=${TZ}"]
+    volumes:
+      - ${APPDATA_DIR}/radarr:/config
+      - ${DATA_DIR}:/data
+    restart: unless-stopped
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    ports: ["8989:8989"]
+    environment: ["PUID=${PUID}", "PGID=${PGID}", "TZ=${TZ}"]
+    volumes:
+      - ${APPDATA_DIR}/sonarr:/config
+      - ${DATA_DIR}:/data
+    restart: unless-stopped
+
+  readarr:
+    image: lscr.io/linuxserver/readarr:latest
+    container_name: readarr
+    ports: ["8787:8787"]
+    environment: ["PUID=${PUID}", "PGID=${PGID}", "TZ=${TZ}"]
+    volumes:
+      - ${APPDATA_DIR}/readarr:/config
+      - ${DATA_DIR}:/data
+    restart: unless-stopped
