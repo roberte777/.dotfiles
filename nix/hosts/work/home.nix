@@ -1,6 +1,8 @@
-{ config, pkgs, ... }:
-
 {
+  config,
+  pkgs,
+  ...
+}: {
   # Home Manager needs a bit of information about you and the
   # paths it should manage.
   home.username = "ethan.wilkes";
@@ -26,20 +28,19 @@
   programs.jujutsu.enable = true;
   programs.ripgrep.enable = true;
   programs.neovim = {
-      enable = true;
-      defaultEditor = true;
-      viAlias = true;
-      vimAlias = true;
-    };
+    enable = true;
+    defaultEditor = true;
+    viAlias = true;
+    vimAlias = true;
+  };
   home.packages = with pkgs; [
     lazyjj
-          fd
-      jq
-      tree
-      curl
-      wget
-      just
-      gh
-      nixfmt
+    fd
+    jq
+    tree
+    curl
+    wget
+    just
+    gh
   ];
 }

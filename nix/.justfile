@@ -13,3 +13,6 @@ bootstrap config:
 # Clean old generations
 clean:
     home-manager expire-generations "-7 days"
+
+fmt:
+    nix fmt .
