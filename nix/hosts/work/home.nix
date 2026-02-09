@@ -40,5 +40,6 @@
       wget
       just
       gh
+      nixfmt
   ];
 }
