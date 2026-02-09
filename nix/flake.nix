@@ -16,20 +16,22 @@
       home-manager,
     }@inputs:
     let
-      systems = {darwin = "aarch64-darwin";};
+      systems = {
+        darwin = "aarch64-darwin";
+      };
       # hosts = [ "xos" ];
     in
     {
-        formatter.${systems.darwin} = nixpkgs.legacyPackages.${systems.darwin}.nixfmt-rfc-style;
+      formatter.${systems.darwin} = nixpkgs.legacyPackages.${systems.darwin}.alejandra;
 
-        homeConfigurations = {
-            "work" = home-manager.lib.homeManagerConfiguration {
-                pkgs = nixpkgs.legacyPackages.${systems.darwin};
-                extraSpecialArgs = { inherit inputs; };
-                modules = [
-                    ./hosts/work/home.nix
-                ];
-            };
+      homeConfigurations = {
+        "work" = home-manager.lib.homeManagerConfiguration {
+          pkgs = nixpkgs.legacyPackages.${systems.darwin};
+          extraSpecialArgs = { inherit inputs; };
+          modules = [
+            ./hosts/work/home.nix
+          ];
+        };
       };
       # use mr Jon as an example: https://github.com/jonhoo/configs/blob/master/nix/flake.nix
       # nixosConfigurations = nixpkgs.lib.genAttrs hosts (
