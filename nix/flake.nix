@@ -14,24 +14,23 @@
       self,
       nixpkgs,
       home-manager,
-      llm-agents,
-    }:
+    }@inputs:
     let
-      # system = "x86_64-linux";
+      systems = {darwin = "aarch64-darwin";};
       # hosts = [ "xos" ];
     in
     {
+        formatter.${systems.darwin} = nixpkgs.legacyPackages.${systems.darwin}.nixfmt-rfc-style;
 
         homeConfigurations = {
             "work" = home-manager.lib.homeManagerConfiguration {
                 pkgs = nixpkgs.legacyPackages.${systems.darwin};
-                extraSpecialArgs = {inherit inputs};
+                extraSpecialArgs = { inherit inputs; };
                 modules = [
                     ./hosts/work/home.nix
-                ]
-            }
-      }
-    
+                ];
+            };
+      };
       # use mr Jon as an example: https://github.com/jonhoo/configs/blob/master/nix/flake.nix
       # nixosConfigurations = nixpkgs.lib.genAttrs hosts (
       #   name:
