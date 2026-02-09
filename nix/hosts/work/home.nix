@@ -18,4 +18,27 @@
 
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
+
+  programs.starship.enable = true;
+  programs.direnv.enable = true;
+  programs.zoxide.enable = true;
+  programs.zellij.enable = true;
+  programs.jujutsu.enable = true;
+  programs.ripgrep.enable = true;
+  programs.neovim = {
+      enable = true;
+      defaultEditor = true;
+      viAlias = true;
+      vimAlias = true;
+    };
+  home.packages = with pkgs; [
+    lazyjj
+          fd
+      jq
+      tree
+      curl
+      wget
+      just
+      gh
+  ];
 }
