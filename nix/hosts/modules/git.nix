@@ -1,6 +1,8 @@
-{ config, pkgs, ... }:
-
 {
+  config,
+  pkgs,
+  ...
+}: {
   programs.git = {
     enable = true;
     userName = "roberte777";
@@ -10,20 +12,20 @@
       init.defaultBranch = "main";
       pull.rebase = true;
       push.autoSetupRemote = true;
-      
+
       # Editor
       core.editor = "nvim";
-      
+
       # Better diffs
       diff.algorithm = "histogram";
-      
+
       # Rebase config
       rebase.autoStash = true;
       rebase.autoSquash = true;
-      
+
       # Merge conflict style
       merge.conflictStyle = "zdiff3";
-      
+
       # Credentials (macOS keychain)
       credential.helper = "store";
     };
