@@ -44,6 +44,17 @@
           }
         ];
       };
+      dualb = nixpkgs.lib.nixosSystem {
+        system = systems.linux;
+        modules = [
+          ./hosts/dualb
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+          }
+        ];
+      };
     };
     # use mr Jon as an example: https://github.com/jonhoo/configs/blob/master/nix/flake.nix
     # nixosConfigurations = nixpkgs.lib.genAttrs hosts (
