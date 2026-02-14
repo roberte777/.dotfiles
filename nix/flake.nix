@@ -11,6 +11,10 @@
       url = "github:noctalia-dev/noctalia-shell";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    spicetify-nix = {
+      url = "github:Gerg-L/spicetify-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {
@@ -29,7 +33,7 @@
     # Helper to create NixOS configurations with home-manager
     mkNixosHost = {
       hostname,
-      system ? "x86_64-linux",
+      system,
       extraSpecialArgs ? {},
     }:
       nixpkgs.lib.nixosSystem {
@@ -41,6 +45,7 @@
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
+            home-manager.extraSpecialArgs = {inherit inputs;};
           }
         ];
       };
@@ -58,8 +63,14 @@
     };
 
     nixosConfigurations = {
-      theater = mkNixosHost {hostname = "theater";};
-      dualb = mkNixosHost {hostname = "dualb";};
+      theater = mkNixosHost {
+        hostname = "theater";
+        system = "x86_64-linux";
+      };
+      dualb = mkNixosHost {
+        hostname = "dualb";
+        system = "x86_64-linux";
+      };
     };
   };
 }
