@@ -16,8 +16,39 @@
       autoUpdate = true;
       notifyAboutUpdates = true;
       useQuickCss = true;
-      enabledThemes = ["everforest.css"];
+      enabledThemes = ["dracula.css"];
     };
+    vencord.themes.dracula = ''
+      /**
+       * @name Dracula
+       * @description Dracula color scheme for Discord
+       * @author Dracula Theme
+       * @version 1.0.0
+       * @BDEditor DiscordRecolor
+       */
+
+      @import url('https://mwittrien.github.io/BetterDiscordAddons/Themes/DiscordRecolor/DiscordRecolor.css');
+
+      :root {
+        --accentcolor: 189,147,249;
+        --accentcolor2: 255,121,198;
+        --linkcolor: 139,233,253;
+        --mentioncolor: 255,184,108;
+        --textbrightest: 248,248,242;
+        --textbrighter: 248,248,242;
+        --textbright: 248,248,242;
+        --textdark: 98,114,164;
+        --textdarker: 68,71,90;
+        --textdarkest: 68,71,90;
+        --backgroundaccent: 68,71,90;
+        --backgroundprimary: 40,42,54;
+        --backgroundsecondary: 33,34,44;
+        --backgroundsecondaryalt: 33,34,44;
+        --backgroundtertiary: 21,22,30;
+        --backgroundfloating: 40,42,54;
+        --settingsicons: 1;
+      }
+    '';
     vencord.themes.everforest = ''
       /**
        * @name Everforest

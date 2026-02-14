@@ -1,3 +1,4 @@
-theme = Everforest Dark Hard
+# theme = Everforest Dark Hard
+theme = Dracula
 window-decoration = true
 keybind = shift+enter=text:\n
