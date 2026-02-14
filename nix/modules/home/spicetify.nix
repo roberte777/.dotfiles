@@ -10,6 +10,6 @@ in {
   programs.spicetify = {
     enable = true;
     theme = spicePkgs.themes.comfy;
-    colorScheme = "Comfy";
+    colorScheme = "Everforest";
   };
 }

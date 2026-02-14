@@ -27,6 +27,7 @@
     git
     ripgrep
     curl
+    # btop
   ];
 
   # SSH
