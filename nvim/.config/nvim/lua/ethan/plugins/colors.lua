@@ -6,7 +6,7 @@ return {
 			local transparent_bg = false
 			require("dracula").setup({ transparent_bg = transparent_bg })
 			-- load the colorscheme here
-			-- vim.cmd([[colorscheme dracula]])
+			vim.cmd([[colorscheme dracula]])
 		end,
 	},
 	{
@@ -67,7 +67,7 @@ return {
 			require("everforest").setup({
 				-- Your config here
 			})
-			vim.cmd([[colorscheme everforest]])
+			-- vim.cmd([[colorscheme everforest]])
 		end,
 	},
 }

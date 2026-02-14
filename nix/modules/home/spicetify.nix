@@ -10,6 +10,7 @@ in {
   programs.spicetify = {
     enable = true;
     theme = spicePkgs.themes.text;
-    colorScheme = "EverforestDarkHard";
+    # colorScheme = "EverforestDarkHard";
+    colorScheme = "Dracula";
   };
 }
