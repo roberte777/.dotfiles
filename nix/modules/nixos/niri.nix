@@ -22,7 +22,16 @@
       pkgs.xdg-desktop-portal-gnome
       pkgs.xdg-desktop-portal-gtk
     ];
-    config.common.default = "gtk";
+    config.common = {
+      default = "gnome";
+      "org.freedesktop.impl.portal.Secret" = "gnome-keyring";
+    };
+  };
+
+  # Required for screen sharing on Wayland
+  services.pipewire = {
+    enable = true;
+    pulse.enable = true;
   };
 
   fonts = {
