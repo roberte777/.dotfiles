@@ -9,7 +9,7 @@ in {
 
   programs.spicetify = {
     enable = true;
-    theme = spicePkgs.themes.comfy;
-    colorScheme = "Everforest";
+    theme = spicePkgs.themes.text;
+    colorScheme = "EverforestDarkHard";
   };
 }
