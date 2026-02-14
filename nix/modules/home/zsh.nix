@@ -24,7 +24,7 @@
       openfortivpn = "sudo systemctl start systemd-resolved.service && sudo openfortivpn --set-dns=0 --pppd-use-peerdns=1";
     };
 
-    initExtra = ''
+    initContent = ''
       # Disable PROMPT_SP (the % shown for partial lines)
       unsetopt PROMPT_SP
 

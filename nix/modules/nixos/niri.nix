@@ -4,6 +4,7 @@
 
   services.displayManager.sddm.enable = true;
   services.displayManager.sddm.wayland.enable = true;
+  services.displayManager.sddm.theme = "sugar-dark";
 
   # Security services for polkit prompts and screen locking
   security.polkit.enable = true;
@@ -67,5 +68,8 @@
     kdePackages.qtstyleplugin-kvantum
     libsForQt5.qt5ct
     kdePackages.qt6ct
+
+    # SDDM theme
+    sddm-sugar-dark
   ];
 }
