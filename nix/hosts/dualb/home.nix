@@ -11,6 +11,7 @@
       # ../../modules/home/theming/everforest.nix
       ../../modules/home/theming/firefox
       ../../modules/home/desktop.nix
+      ../../modules/home/media.nix
       ../../modules/home/spicetify.nix
     ];
 
