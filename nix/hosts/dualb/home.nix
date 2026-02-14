@@ -67,6 +67,9 @@ in {
       enable = true;
       userName = "roberte777";
       userEmail = "rewilkes0041@gmail.com";
+      extraConfig = {
+        credential.helper = "store";
+      };
     };
     programs.starship.enable = true;
     programs.direnv.enable = true;
