@@ -1,11 +1,14 @@
-{ config, pkgs, ... }:
-
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-      ./home.nix
-    ];
+  config,
+  pkgs,
+  inputs,
+  ...
+}: {
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+    ./home.nix
+  ];
 
   nix.settings.experimental-features = ["nix-command" "flakes"];
 
@@ -47,11 +50,14 @@
     variant = "";
   };
 
+  programs.zsh.enable = true;
+  programs.niri.enable = true;
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.roberte777 = {
     isNormalUser = true;
+    shell = pkgs.zsh;
     description = "Ethan Wilkes";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = ["networkmanager" "wheel"];
     packages = with pkgs; [];
   };
 
@@ -59,22 +65,32 @@
   nixpkgs.config.allowUnfree = true;
 
   environment.systemPackages = with pkgs; [
-  vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-  wget
-  git
-  ghostty
-  kitty
-  ripgrep
-  curl
-  stow
-  fzf
-  efibootmgr
+    vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+    wget
+    git
+    ghostty
+    kitty
+    ripgrep
+    curl
+    stow
+    fzf
+    efibootmgr
+    gnumake
+    cmake
+    gcc
+    wl-clipboard
 
-  #niri
-  xwayland-satellite
-  xdg-desktop-portal-gnome
-  xdg-desktop-portal-gtk
-  alacritty
+    #niri
+    xwayland-satellite
+    fuzzel
+
+    alacritty
+
+    # Qt theming
+    libsForQt5.qtstyleplugin-kvantum
+    kdePackages.qtstyleplugin-kvantum
+    libsForQt5.qt5ct
+    kdePackages.qt6ct
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -93,21 +109,60 @@
   services.displayManager.sddm.enable = true;
   services.displayManager.sddm.wayland.enable = true;
 
+  services.xserver.videoDrivers = ["nvidia"];
+
   hardware = {
-  graphics.enable = true;
-  nvidia.modesetting.enable = true;
-  nvidia.nvidiaSettings = true;
-  };
-  environment.sessionVariables = {
-  NIXOS_OZONE_WL = "1";
-  GBM_BACKEND = "nvidia_drm";
-  __GLX_VENDOR_LIBRARY_NAME = "nvidia";
-  ELECTRON_OZONE_PLATFORM_HINT = "wayland";
-  OZONE_PLATFORM = "wayland";
-  GDK_BACKEND = "wayland";
+    graphics.enable = true;
+    nvidia.modesetting.enable = true;
+    nvidia.open = true;
+    nvidia.nvidiaSettings = true;
+    bluetooth.enable = true;
+    bluetooth.powerOnBoot = true;
   };
 
-  programs.niri.enable = true;
+  xdg.portal = {
+    enable = true;
+    extraPortals = [
+      pkgs.xdg-desktop-portal-gnome
+      pkgs.xdg-desktop-portal-gtk
+    ];
+    config.common.default = "gtk";
+  };
+
+  environment.sessionVariables = {
+    NIXOS_OZONE_WL = "1";
+    GBM_BACKEND = "nvidia_drm";
+    __GLX_VENDOR_LIBRARY_NAME = "nvidia";
+    ELECTRON_OZONE_PLATFORM_HINT = "wayland";
+    OZONE_PLATFORM = "wayland";
+    GDK_BACKEND = "wayland";
+    # Qt theming is handled by Home Manager's qt module
+  };
+
+  programs.xwayland.enable = true;
+
+  fonts = {
+    enableDefaultPackages = true;
+    packages = with pkgs; [
+      nerd-fonts.jetbrains-mono
+      inter
+    ];
+    fontconfig = {
+      enable = true;
+      defaultFonts = {
+        sansSerif = [
+          "Inter"
+          "Noto Sans"
+        ];
+        serif = ["Noto Serif"];
+        monospace = ["JetBrainsMono Nerd Font"];
+      };
+    };
+    fontDir.enable = true;
+  };
+  # noctalia settings
+  services.power-profiles-daemon.enable = true;
+  services.upower.enable = true;
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
@@ -122,5 +177,4 @@
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "25.11"; # Did you read the comment?
-
 }
