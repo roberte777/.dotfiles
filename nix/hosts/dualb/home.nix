@@ -13,6 +13,7 @@
       ../../modules/home/desktop.nix
       ../../modules/home/media.nix
       ../../modules/home/spicetify.nix
+      ../../modules/home/cava.nix
     ];
 
     gtk = {
