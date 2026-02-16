@@ -7,24 +7,54 @@
       url = "github:nix-community/home-manager/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    noctalia = {
+      url = "github:noctalia-dev/noctalia-shell";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    spicetify-nix = {
+      url = "github:Gerg-L/spicetify-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {
     self,
     nixpkgs,
     home-manager,
+    ...
   } @ inputs: let
-    systems = {
-      darwin = "aarch64-darwin";
-      linux = "x86_64-linux";
-    };
-    # hosts = [ "xos" ];
+    allSystems = [
+      "x86_64-linux"
+      "aarch64-darwin"
+    ];
+
+    forAllSystems = nixpkgs.lib.genAttrs allSystems;
+
+    # Helper to create NixOS configurations with home-manager
+    mkNixosHost = {
+      hostname,
+      system,
+      extraSpecialArgs ? {},
+    }:
+      nixpkgs.lib.nixosSystem {
+        inherit system;
+        specialArgs = {inherit inputs;} // extraSpecialArgs;
+        modules = [
+          ./hosts/${hostname}
+          home-manager.nixosModules.home-manager
+          {
+            home-manager.useGlobalPkgs = true;
+            home-manager.useUserPackages = true;
+            home-manager.extraSpecialArgs = {inherit inputs;};
+          }
+        ];
+      };
   in {
-    formatter.${systems.darwin} = nixpkgs.legacyPackages.${systems.darwin}.alejandra;
+    formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.alejandra);
 
     homeConfigurations = {
       "work" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages.${systems.darwin};
+        pkgs = nixpkgs.legacyPackages."aarch64-darwin";
         extraSpecialArgs = {inherit inputs;};
         modules = [
           ./hosts/work/home.nix
@@ -33,36 +63,14 @@
     };
 
     nixosConfigurations = {
-      theater = nixpkgs.lib.nixosSystem {
-        system = systems.linux;
-        modules = [
-          ./hosts/theater
-          home-manager.nixosModules.home-manager
-          {
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-          }
-        ];
+      theater = mkNixosHost {
+        hostname = "theater";
+        system = "x86_64-linux";
+      };
+      dualb = mkNixosHost {
+        hostname = "dualb";
+        system = "x86_64-linux";
       };
     };
-    # use mr Jon as an example: https://github.com/jonhoo/configs/blob/master/nix/flake.nix
-    # nixosConfigurations = nixpkgs.lib.genAttrs hosts (
-    #   name:
-    #   nixpkgs.lib.nixosSystem {
-    #     inherit system;
-    #     specialArgs = {
-    #       llm-agents = llm-agents.packages.${system};
-    #     };
-    #     modules = [
-    #       ./hosts/${name}
-    #       home-manager.nixosModules.home-manager
-    #       {
-    #         home-manager.extraSpecialArgs = {
-    #           llm-agents = llm-agents.packages.${system};
-    #         };
-    #       }
-    #     ];
-    #   }
-    # );
   };
 }
