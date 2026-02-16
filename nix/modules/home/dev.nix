@@ -27,5 +27,6 @@
     wget
     just
     gh
+    buf
   ];
 }
