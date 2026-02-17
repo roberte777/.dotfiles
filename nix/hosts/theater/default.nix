@@ -3,6 +3,7 @@
     ./hardware-configuration.nix
     ./home.nix
     ../../modules/nixos/common.nix
+    ../../modules/nixos/niri.nix
   ];
 
   # Bootloader
