@@ -67,6 +67,7 @@
     5055 # seerr
     6767 # bazarr
     6868 # profilarr
+    7575 # homarr
   ];
 
   # Server-specific packages
