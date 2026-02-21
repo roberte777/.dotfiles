@@ -18,6 +18,8 @@ services:
       - "8081:8081"
       # Prowlarr UI
       - "9696:9696"
+      # SABnzbd UI
+      - "8080:8080"
     restart: unless-stopped
 
   qbittorrent:
@@ -118,6 +120,21 @@ services:
     volumes:
       - ${APPDATA_DIR}/bazarr:/config
       - ${DATA_DIR}/media:/data/media
+    restart: unless-stopped
+
+  sabnzbd:
+    image: lscr.io/linuxserver/sabnzbd:latest
+    container_name: sabnzbd
+    network_mode: "service:gluetun"
+    depends_on:
+      - gluetun
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${APPDATA_DIR}/sabnzbd:/config
+      - ${DATA_DIR}/usenet:/data/usenet
     restart: unless-stopped
 
   watchtower:
