@@ -66,6 +66,7 @@
     8096 # jellyfin
     5055 # seerr
     6767 # bazarr
+    6868 # profilarr
   ];
 
   # Server-specific packages
