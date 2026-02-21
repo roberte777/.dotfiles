@@ -90,6 +90,7 @@
 
   services.noctalia-shell.enable = true;
   services.power-profiles-daemon.enable = true;
+  services.tailscale.enable = true;
 
   system.stateVersion = "25.11";
 }
