@@ -31,6 +31,24 @@
   # Docker for media services
   virtualisation.docker.enable = true;
 
+  # Auto-start media stack on boot
+  systemd.services.media-stack = {
+    description = "Media Stack (Docker Compose)";
+    after = ["docker.service" "network-online.target"];
+    wants = ["network-online.target"];
+    wantedBy = ["multi-user.target"];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+      WorkingDirectory = "/home/theater/.dotfiles/nix/hosts/theater";
+      ExecStart = "${pkgs.docker}/bin/docker compose up -d";
+      ExecStop = "${pkgs.docker}/bin/docker compose down";
+    };
+  };
+
+  # Auto-login on TTY1
+  services.getty.autologinUser = "theater";
+
   # Kernel tuning for Sonarr/Radarr file watchers on big libraries
   boot.kernel.sysctl = {
     "fs.inotify.max_user_watches" = 524288;
@@ -41,11 +59,13 @@
   networking.firewall.allowedTCPPorts = [
     7878 # radarr
     8989 # sonarr
-    8787 # readarr
     9696 # prowlarr
     8080 # calibre-web
     13378 # audiobookshelf
     8081 # qbittorrent webui
+    8096 # jellyfin
+    5055 # jellyseerr
+    6767 # bazarr
   ];
 
   # Server-specific packages
