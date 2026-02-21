@@ -97,15 +97,16 @@ services:
       - ${DATA_DIR}/media:/data/media
     restart: unless-stopped
 
-  jellyseerr:
-    image: fallenbagel/jellyseerr:latest
-    container_name: jellyseerr
+  seerr:
+    image: ghcr.io/seerr-team/seerr:latest
+    init: true
+    container_name: seerr
     ports:
       - "5055:5055"
     environment:
       - TZ=${TZ}
     volumes:
-      - ${APPDATA_DIR}/jellyseerr:/app/config
+      - ${APPDATA_DIR}/seerr:/app/config
     restart: unless-stopped
 
   bazarr:
