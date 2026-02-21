@@ -64,7 +64,7 @@
     13378 # audiobookshelf
     8081 # qbittorrent webui
     8096 # jellyfin
-    5055 # jellyseerr
+    5055 # seerr
     6767 # bazarr
   ];
 
