@@ -1,9 +1,14 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  inputs,
+  ...
+}: {
   imports = [
     ./hardware-configuration.nix
     ./home.nix
     ../../modules/nixos/common.nix
     ../../modules/nixos/niri.nix
+    inputs.noctalia.nixosModules.default
   ];
 
   # Bootloader
@@ -13,13 +18,14 @@
   boot.kernelPackages = pkgs.linuxPackages_latest;
 
   networking.hostName = "theater";
+  networking.networkmanager.enable = true;
 
   # User account
-  programs.fish.enable = true;
+  programs.zsh.enable = true;
   users.users.theater = {
     isNormalUser = true;
-    shell = pkgs.fish;
-    extraGroups = ["users" "wheel" "docker"];
+    shell = pkgs.zsh;
+    extraGroups = ["users" "wheel" "docker" "networkmanager"];
   };
 
   # Docker for media services
@@ -47,6 +53,7 @@
     bc
     git-lfs
     htop
+    btop
     pstree
     rsync
     socat
@@ -54,7 +61,15 @@
     unzip
     uutils-coreutils-noprefix
     zip
+    stow
+    fzf
+    gnumake
+    cmake
+    gcc
   ];
+
+  services.noctalia-shell.enable = true;
+  services.power-profiles-daemon.enable = true;
 
   system.stateVersion = "25.11";
 }

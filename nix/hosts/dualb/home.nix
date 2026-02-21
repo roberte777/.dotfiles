@@ -28,7 +28,7 @@
       };
     };
 
-programs.firefox-themed = {
+    programs.firefox-themed = {
       enable = true;
       theme = "dracula";
     };
