@@ -68,7 +68,6 @@
     6767 # bazarr
     6868 # profilarr
     7575 # homarr
-    3000 # zeroclaw
   ];
 
   # Server-specific packages
