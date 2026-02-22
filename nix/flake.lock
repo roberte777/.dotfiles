@@ -62,7 +62,8 @@
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs",
         "noctalia": "noctalia",
-        "spicetify-nix": "spicetify-nix"
+        "spicetify-nix": "spicetify-nix",
+        "zeroclaw": "zeroclaw"
       }
     },
     "spicetify-nix": {
@@ -98,6 +99,22 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
+        "type": "github"
+      }
+    },
+    "zeroclaw": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1771726474,
+        "narHash": "sha256-IPK6gqlBdRryVMydGmRiHG91HPeuTHD19J4pYhtnAa4=",
+        "owner": "zeroclaw-labs",
+        "repo": "zeroclaw",
+        "rev": "13daa872c65ee87c1c3c744ef18c3113f8f4e4c8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "zeroclaw-labs",
+        "repo": "zeroclaw",
         "type": "github"
       }
     }
