@@ -167,6 +167,33 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
 
+  jellystat-db:
+    image: postgres:15-alpine
+    container_name: jellystat-db
+    environment:
+      - POSTGRES_USER=jellystat
+      - POSTGRES_PASSWORD=${JELLYSTAT_DB_PASSWORD}
+      - POSTGRES_DB=jellystat
+    volumes:
+      - ${APPDATA_DIR}/jellystat-db:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  jellystat:
+    image: cyfershepard/jellystat:latest
+    container_name: jellystat
+    ports:
+      - "3000:3000"
+    environment:
+      - POSTGRES_IP=jellystat-db
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=jellystat
+      - POSTGRES_PASSWORD=${JELLYSTAT_DB_PASSWORD}
+      - JWT_SECRET=${JELLYSTAT_JWT_SECRET}
+      - TZ=${TZ}
+    depends_on:
+      - jellystat-db
+    restart: unless-stopped
+
   watchtower:
     image: containrrr/watchtower:latest
     container_name: watchtower
