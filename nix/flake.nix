@@ -15,6 +15,10 @@
       url = "github:Gerg-L/spicetify-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    zeroclaw = {
+      url = "github:zeroclaw-labs/zeroclaw";
+      flake = false;
+    };
   };
 
   outputs = {
