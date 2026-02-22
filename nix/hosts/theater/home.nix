@@ -8,7 +8,6 @@
       ../../modules/home/spicetify.nix
       ../../modules/home/theming/noctalia.nix
       ../../modules/home/media.nix
-      ../../modules/home/zeroclaw.nix
     ];
 
     gtk = {
