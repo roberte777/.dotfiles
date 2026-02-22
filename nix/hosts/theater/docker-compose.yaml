@@ -164,6 +164,32 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
 
+  zeroclaw:
+    image: ghcr.io/theonlyhennygod/zeroclaw:latest
+    container_name: zeroclaw
+    ports:
+      - "3000:3000"
+    environment:
+      - TZ=${TZ}
+      - API_KEY=${ZEROCLAW_API_KEY}
+      - PROVIDER=${ZEROCLAW_PROVIDER:-openrouter}
+    volumes:
+      - ${APPDATA_DIR}/zeroclaw:/zeroclaw-data
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2G
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "zeroclaw", "doctor"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
   watchtower:
     image: containrrr/watchtower:latest
     container_name: watchtower
