@@ -95,6 +95,8 @@ services:
     volumes:
       - ${APPDATA_DIR}/jellyfin:/config
       - ${DATA_DIR}/media:/data/media
+    devices:
+      - /dev/dri:/dev/dri
     restart: unless-stopped
 
   seerr:
