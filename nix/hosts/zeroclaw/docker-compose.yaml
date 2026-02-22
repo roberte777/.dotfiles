@@ -1,0 +1,176 @@
+services:
+  gluetun:
+    image: qmcgaw/gluetun:latest
+    container_name: gluetun
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    environment:
+      - TZ=${TZ}
+      - VPN_SERVICE_PROVIDER=nordvpn
+      - VPN_TYPE=openvpn
+      - OPENVPN_USER=${OPENVPN_USER}
+      - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
+      - SERVER_COUNTRIES=${SERVER_COUNTRIES}
+    ports:
+      # qBittorrent WebUI (qbit listens on 8080 in its container)
+      - "8081:8081"
+      # Prowlarr UI
+      - "9696:9696"
+      # SABnzbd UI
+      - "8080:8080"
+    restart: unless-stopped
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    network_mode: "service:gluetun"
+    depends_on:
+      - gluetun
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - WEBUI_PORT=8081
+    volumes:
+      - ${APPDATA_DIR}/qbittorrent:/config
+      - ${DATA_DIR}/torrents:/data/torrents
+    restart: unless-stopped
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:amd64-latest
+    container_name: prowlarr
+    network_mode: "service:gluetun"
+    depends_on:
+      - gluetun
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${APPDATA_DIR}/prowlarr:/config
+    restart: unless-stopped
+
+  flaresolverr:
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    network_mode: "service:gluetun"
+    depends_on:
+      - gluetun
+    environment:
+      - TZ=${TZ}
+    restart: unless-stopped
+
+  # radarr/sonarr remain normal (no VPN), as before:
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    ports: ["7878:7878"]
+    environment: ["PUID=${PUID}", "PGID=${PGID}", "TZ=${TZ}"]
+    volumes:
+      - ${APPDATA_DIR}/radarr:/config
+      - ${DATA_DIR}:/data
+    restart: unless-stopped
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    ports: ["8989:8989"]
+    environment: ["PUID=${PUID}", "PGID=${PGID}", "TZ=${TZ}"]
+    volumes:
+      - ${APPDATA_DIR}/sonarr:/config
+      - ${DATA_DIR}:/data
+    restart: unless-stopped
+
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin:latest
+    container_name: jellyfin
+    ports:
+      - "8096:8096"
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${APPDATA_DIR}/jellyfin:/config
+      - ${DATA_DIR}/media:/data/media
+    restart: unless-stopped
+
+  seerr:
+    image: ghcr.io/seerr-team/seerr:latest
+    init: true
+    container_name: seerr
+    ports:
+      - "5055:5055"
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${APPDATA_DIR}/seerr:/app/config
+    restart: unless-stopped
+
+  bazarr:
+    image: lscr.io/linuxserver/bazarr:latest
+    container_name: bazarr
+    ports:
+      - "6767:6767"
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${APPDATA_DIR}/bazarr:/config
+      - ${DATA_DIR}/media:/data/media
+    restart: unless-stopped
+
+  sabnzbd:
+    image: lscr.io/linuxserver/sabnzbd:latest
+    container_name: sabnzbd
+    network_mode: "service:gluetun"
+    depends_on:
+      - gluetun
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${APPDATA_DIR}/sabnzbd:/config
+      - ${DATA_DIR}/usenet:/data/usenet
+    restart: unless-stopped
+
+  profilarr:
+    image: santiagosayshey/profilarr:latest
+    container_name: profilarr
+    ports:
+      - "6868:6868"
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${APPDATA_DIR}/profilarr:/config
+    restart: unless-stopped
+
+  homarr:
+    image: ghcr.io/homarr-labs/homarr:latest
+    container_name: homarr
+    ports:
+      - "7575:7575"
+    environment:
+      - TZ=${TZ}
+      - SECRET_ENCRYPTION_KEY=${HOMARR_SECRET_ENCRYPTION_KEY}
+    volumes:
+      - ${APPDATA_DIR}/homarr:/appdata
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - TZ=${TZ}
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_SCHEDULE=0 0 4 * * *
+    restart: unless-stopped

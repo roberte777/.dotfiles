@@ -71,6 +71,10 @@
         hostname = "dualb";
         system = "x86_64-linux";
       };
+      zeroclaw = mkNixosHost {
+        hostname = "zeroclaw";
+        system = "x86_64-linux";
+      };
     };
   };
 }
