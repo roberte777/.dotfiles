@@ -91,6 +91,17 @@
     openssl
   ];
 
+  # Intel Quick Sync (Alder Lake-N) hardware acceleration
+  hardware.graphics = {
+    enable = true;
+    extraPackages = with pkgs; [
+      intel-media-driver # iHD driver for QSV
+      intel-compute-runtime # OpenCL for HDR tone-mapping
+      vpl-gpu-rt # Intel Video Processing Library
+    ];
+  };
+  environment.sessionVariables.LIBVA_DRIVER_NAME = "iHD";
+
   services.noctalia-shell.enable = true;
   services.power-profiles-daemon.enable = true;
   services.tailscale.enable = true;
