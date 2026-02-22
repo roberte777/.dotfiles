@@ -89,6 +89,8 @@
     cmake
     gcc
     openssl
+    libva-utils # vainfo CLI for verifying hardware acceleration
+    intel-gpu-tools # intel_gpu_top for monitoring GPU usage
   ];
 
   # Intel Quick Sync (Alder Lake-N) hardware acceleration
