@@ -25,7 +25,7 @@
   users.users.theater = {
     isNormalUser = true;
     shell = pkgs.zsh;
-    extraGroups = ["users" "wheel" "docker" "networkmanager"];
+    extraGroups = ["users" "wheel" "docker" "networkmanager" "video" "render"];
   };
 
   # Docker for media services
