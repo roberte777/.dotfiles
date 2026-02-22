@@ -5,7 +5,7 @@
 }: let
   zeroclaw = pkgs.rustPlatform.buildRustPackage {
     pname = "zeroclaw";
-    version = "0.1.5";
+    version = "unstable";
     src = inputs.zeroclaw;
     cargoLock.lockFile = "${inputs.zeroclaw}/Cargo.lock";
 
