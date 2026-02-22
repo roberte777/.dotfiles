@@ -89,6 +89,8 @@
     cmake
     gcc
     openssl
+    libva-utils
+    intel-gpu-tools
   ];
 
   # Intel Quick Sync (Alder Lake-N) hardware acceleration
