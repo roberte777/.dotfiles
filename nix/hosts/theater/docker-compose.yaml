@@ -151,6 +151,19 @@ services:
       - ${APPDATA_DIR}/profilarr:/config
     restart: unless-stopped
 
+  homarr:
+    image: ghcr.io/homarr-labs/homarr:latest
+    container_name: homarr
+    ports:
+      - "7575:7575"
+    environment:
+      - TZ=${TZ}
+      - SECRET_ENCRYPTION_KEY=${HOMARR_SECRET_ENCRYPTION_KEY}
+    volumes:
+      - ${APPDATA_DIR}/homarr:/appdata
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
   watchtower:
     image: containrrr/watchtower:latest
     container_name: watchtower
