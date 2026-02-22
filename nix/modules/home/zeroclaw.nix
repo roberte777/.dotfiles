@@ -27,7 +27,7 @@ in {
       After = ["network-online.target"];
     };
     Service = {
-      ExecStart = "${zeroclaw}/bin/zeroclaw";
+      ExecStart = "${zeroclaw}/bin/zeroclaw daemon";
       Restart = "on-failure";
       RestartSec = 5;
     };
