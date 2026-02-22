@@ -88,6 +88,7 @@
     gnumake
     cmake
     gcc
+    openssl
   ];
 
   services.noctalia-shell.enable = true;
