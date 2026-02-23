@@ -35,5 +35,9 @@
     just
     gh
     buf
+
+    rustup
+    gcc
+    pkg-config
   ];
 }
