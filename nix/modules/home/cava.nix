@@ -18,16 +18,16 @@
         # gradient_color_4 = "'#7fbbb3'"; # blue
         # gradient_color_5 = "'#d699b6'"; # purple
         # gradient_color_6 = "'#e67e80'"; # red
-        #dracula
+        # catppuccin mocha
         gradient = 1;
-        gradient_color_1 = "'#8BE9FD'";
-        gradient_color_2 = "'#9AEDFE'";
-        gradient_color_3 = "'#CAA9FA'";
-        gradient_color_4 = "'#BD93F9'";
-        gradient_color_5 = "'#FF92D0'";
-        gradient_color_6 = "'#FF79C6'";
-        gradient_color_7 = "'#FF6E67'";
-        gradient_color_8 = "'#FF5555'";
+        gradient_color_1 = "'#89dceb'"; # sky
+        gradient_color_2 = "'#74c7ec'"; # sapphire
+        gradient_color_3 = "'#89b4fa'"; # blue
+        gradient_color_4 = "'#b4befe'"; # lavender
+        gradient_color_5 = "'#cba6f7'"; # mauve
+        gradient_color_6 = "'#f5c2e7'"; # pink
+        gradient_color_7 = "'#eba0ac'"; # maroon
+        gradient_color_8 = "'#f38ba8'"; # red
       };
     };
   };

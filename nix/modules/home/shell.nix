@@ -11,7 +11,7 @@
     enable = true;
     settings = {
       # color_theme = "everforest-dark-hard";
-      color_theme = "dracula";
+      color_theme = "catppuccin_mocha";
     };
   };
 
