@@ -1,6 +1,7 @@
 {...}: {
   imports = [
     ./zsh.nix
+    ./zesh.nix
   ];
   programs.starship.enable = true;
   programs.direnv.enable = true;
