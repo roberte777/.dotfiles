@@ -20,6 +20,10 @@
       url = "github:zeroclaw-labs/zeroclaw";
       flake = false;
     };
+    zesh = {
+      url = "github:roberte777/zesh";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {
