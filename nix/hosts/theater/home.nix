@@ -29,7 +29,6 @@
 
     home.packages = with pkgs; [
       claude-code
-      nix-direnv
     ];
     home.stateVersion = "25.11";
   };
