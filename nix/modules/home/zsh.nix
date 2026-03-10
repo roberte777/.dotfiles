@@ -15,8 +15,8 @@
       EDITOR = "nvim";
       FLYCTL_INSTALL = "/home/roberte777/.fly";
       NVM_DIR = "$HOME/.nvm";
-      PNPM_HOME = "/home/roberte777/.local/share/pnpm";
-      BUN_INSTALL = "$HOME/.bun";
+      # PNPM_HOME = "/home/roberte777/.local/share/pnpm";
+      # BUN_INSTALL = "$HOME/.bun";
     };
 
     shellAliases = {
@@ -36,19 +36,22 @@
       path+="/usr/local/cuda/bin"
       path+="$HOME/.config/emacs/bin"
       path+="/home/roberte777/.fly/bin"
-      path+="$PNPM_HOME"
-      path+="$BUN_INSTALL/bin"
+      # path+="$PNPM_HOME"
+      # path+="$BUN_INSTALL/bin"
       export PATH
 
       # History search
       bindkey '^R' history-incremental-search-backward
 
       # NVM
-      [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-      [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+      # [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+      # [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
       # Bun completions
       [ -s "/home/roberte777/.bun/_bun" ] && source "/home/roberte777/.bun/_bun"
+
+      # zsh.nix - put this at the very end of initExtra
+      eval "$(direnv hook zsh)"
 
       # Tmux sesh function
       function sesh-sessions() {
