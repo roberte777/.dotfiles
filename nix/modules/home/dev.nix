@@ -35,6 +35,7 @@
     just
     gh
     buf
+    pkgs-unstable.worktrunk
 
     rustup
     gcc
