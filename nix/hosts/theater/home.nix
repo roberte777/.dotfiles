@@ -1,4 +1,4 @@
-{pkgs,...}: {
+{pkgs, ...}: {
   home-manager.users.theater = {
     imports = [
       ../../modules/home/dev.nix
@@ -24,7 +24,7 @@
 
     programs.firefox-themed = {
       enable = true;
-      theme = "dracula";
+      theme = "catppuccin-mocha";
     };
 
     home.packages = with pkgs; [

@@ -3,6 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+    nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     home-manager = {
       url = "github:nix-community/home-manager/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -19,11 +20,16 @@
       url = "github:zeroclaw-labs/zeroclaw";
       flake = false;
     };
+    zesh = {
+      url = "github:roberte777/zesh";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {
     self,
     nixpkgs,
+    nixpkgs-unstable,
     home-manager,
     ...
   } @ inputs: let
@@ -39,7 +45,12 @@
       hostname,
       system,
       extraSpecialArgs ? {},
-    }:
+    }: let
+      pkgs-unstable = import nixpkgs-unstable {
+        inherit system;
+        config.allowUnfree = true;
+      };
+    in
       nixpkgs.lib.nixosSystem {
         inherit system;
         specialArgs = {inherit inputs;} // extraSpecialArgs;
@@ -49,7 +60,7 @@
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.extraSpecialArgs = {inherit inputs;};
+            home-manager.extraSpecialArgs = {inherit inputs pkgs-unstable;};
           }
         ];
       };
@@ -57,13 +68,20 @@
     formatter = forAllSystems (system: nixpkgs.legacyPackages.${system}.alejandra);
 
     homeConfigurations = {
-      "work" = home-manager.lib.homeManagerConfiguration {
-        pkgs = nixpkgs.legacyPackages."aarch64-darwin";
-        extraSpecialArgs = {inherit inputs;};
-        modules = [
-          ./hosts/work/home.nix
-        ];
-      };
+      "work" = let
+        system = "aarch64-darwin";
+        pkgs-unstable = import nixpkgs-unstable {
+          inherit system;
+          config.allowUnfree = true;
+        };
+      in
+        home-manager.lib.homeManagerConfiguration {
+          pkgs = nixpkgs.legacyPackages.${system};
+          extraSpecialArgs = {inherit inputs pkgs-unstable;};
+          modules = [
+            ./hosts/work/home.nix
+          ];
+        };
     };
 
     nixosConfigurations = {

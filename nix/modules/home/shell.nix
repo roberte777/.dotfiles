@@ -1,9 +1,15 @@
 {...}: {
   imports = [
     ./zsh.nix
+    ./zesh.nix
   ];
   programs.starship.enable = true;
-  programs.direnv.enable = true;
+  programs.direnv = {
+    enable = true;
+    enableBashIntegration = true;
+    enableZshIntegration = true; # adds the hook for zsh
+    nix-direnv.enable = true;
+  };
   programs.zoxide.enable = true;
   programs.zellij.enable = true;
   programs.fastfetch.enable = true;
@@ -11,7 +17,7 @@
     enable = true;
     settings = {
       # color_theme = "everforest-dark-hard";
-      color_theme = "dracula";
+      color_theme = "catppuccin_mocha";
     };
   };
 
