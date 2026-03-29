@@ -6,7 +6,7 @@ return {
 			local transparent_bg = false
 			require("dracula").setup({ transparent_bg = transparent_bg })
 			-- load the colorscheme here
-			vim.cmd([[colorscheme dracula]])
+			-- vim.cmd([[colorscheme dracula]])
 		end,
 	},
 	{
@@ -52,9 +52,8 @@ return {
 		config = function()
 			require("catppuccin").setup({
 				flavour = "mocha",
-				transparent_background = true,
 			})
-			-- vim.cmd([[colorscheme catppuccin]])
+			vim.cmd([[colorscheme catppuccin]])
 		end,
 	},
 	{

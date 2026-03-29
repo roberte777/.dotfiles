@@ -16,13 +16,13 @@
       autoUpdate = true;
       notifyAboutUpdates = true;
       useQuickCss = true;
-      enabledThemes = ["dracula.css"];
+      enabledThemes = ["catppuccin-mocha.css"];
     };
-    vencord.themes.dracula = ''
+    vencord.themes.catppuccin-mocha = ''
       /**
-       * @name Dracula
-       * @description Dracula color scheme for Discord
-       * @author Dracula Theme
+       * @name Catppuccin Mocha
+       * @description Catppuccin Mocha color scheme for Discord
+       * @author Catppuccin
        * @version 1.0.0
        * @BDEditor DiscordRecolor
        */
@@ -30,22 +30,22 @@
       @import url('https://mwittrien.github.io/BetterDiscordAddons/Themes/DiscordRecolor/DiscordRecolor.css');
 
       :root {
-        --accentcolor: 189,147,249;
-        --accentcolor2: 255,121,198;
-        --linkcolor: 139,233,253;
-        --mentioncolor: 255,184,108;
-        --textbrightest: 248,248,242;
-        --textbrighter: 248,248,242;
-        --textbright: 248,248,242;
-        --textdark: 98,114,164;
-        --textdarker: 68,71,90;
-        --textdarkest: 68,71,90;
-        --backgroundaccent: 68,71,90;
-        --backgroundprimary: 40,42,54;
-        --backgroundsecondary: 33,34,44;
-        --backgroundsecondaryalt: 33,34,44;
-        --backgroundtertiary: 21,22,30;
-        --backgroundfloating: 40,42,54;
+        --accentcolor: 203,166,247;
+        --accentcolor2: 245,194,231;
+        --linkcolor: 137,180,250;
+        --mentioncolor: 250,179,135;
+        --textbrightest: 205,214,244;
+        --textbrighter: 186,194,222;
+        --textbright: 166,173,200;
+        --textdark: 147,153,178;
+        --textdarker: 127,132,156;
+        --textdarkest: 108,112,134;
+        --backgroundaccent: 88,91,112;
+        --backgroundprimary: 30,30,46;
+        --backgroundsecondary: 24,24,37;
+        --backgroundsecondaryalt: 24,24,37;
+        --backgroundtertiary: 17,17,27;
+        --backgroundfloating: 30,30,46;
         --settingsicons: 1;
       }
     '';

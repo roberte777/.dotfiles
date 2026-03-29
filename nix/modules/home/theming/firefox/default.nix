@@ -5,97 +5,109 @@
 }: let
   cfg = config.programs.firefox-themed;
 
-  draculaTheme = {
+  catppuccinMochaTheme = {
     userChrome = ''
-      /* Dracula Theme for Firefox */
+      /* Catppuccin Mocha Theme for Firefox */
       :root {
-        --dracula-bg: #282a36;
-        --dracula-bg-dark: #21222c;
-        --dracula-bg-darker: #15161e;
-        --dracula-bg-light: #44475a;
-        --dracula-bg-lighter: #6272a4;
-        --dracula-fg: #f8f8f2;
-        --dracula-comment: #6272a4;
-        --dracula-cyan: #8be9fd;
-        --dracula-green: #50fa7b;
-        --dracula-orange: #ffb86c;
-        --dracula-pink: #ff79c6;
-        --dracula-purple: #bd93f9;
-        --dracula-red: #ff5555;
-        --dracula-yellow: #f1fa8c;
+        --ctp-rosewater: #f5e0dc;
+        --ctp-flamingo: #f2cdcd;
+        --ctp-pink: #f5c2e7;
+        --ctp-mauve: #cba6f7;
+        --ctp-red: #f38ba8;
+        --ctp-maroon: #eba0ac;
+        --ctp-peach: #fab387;
+        --ctp-yellow: #f9e2af;
+        --ctp-green: #a6e3a1;
+        --ctp-teal: #94e2d5;
+        --ctp-sky: #89dceb;
+        --ctp-sapphire: #74c7ec;
+        --ctp-blue: #89b4fa;
+        --ctp-lavender: #b4befe;
+        --ctp-text: #cdd6f4;
+        --ctp-subtext1: #bac2de;
+        --ctp-subtext0: #a6adc8;
+        --ctp-overlay2: #9399b2;
+        --ctp-overlay1: #7f849c;
+        --ctp-overlay0: #6c7086;
+        --ctp-surface2: #585b70;
+        --ctp-surface1: #45475a;
+        --ctp-surface0: #313244;
+        --ctp-base: #1e1e2e;
+        --ctp-mantle: #181825;
+        --ctp-crust: #11111b;
 
         /* Firefox color mappings */
-        --lwt-accent-color: var(--dracula-bg) !important;
-        --lwt-text-color: var(--dracula-fg) !important;
-        --toolbar-bgcolor: var(--dracula-bg) !important;
-        --toolbar-color: var(--dracula-fg) !important;
-        --toolbar-field-background-color: var(--dracula-bg-light) !important;
-        --toolbar-field-color: var(--dracula-fg) !important;
-        --toolbar-field-border-color: var(--dracula-bg-lighter) !important;
-        --toolbar-field-focus-background-color: var(--dracula-bg) !important;
-        --toolbar-field-focus-border-color: var(--dracula-purple) !important;
-        --urlbar-popup-url-color: var(--dracula-cyan) !important;
-        --tab-selected-bgcolor: var(--dracula-bg-light) !important;
-        --tab-selected-textcolor: var(--dracula-fg) !important;
-        --tab-loading-fill: var(--dracula-purple) !important;
-        --arrowpanel-background: var(--dracula-bg) !important;
-        --arrowpanel-color: var(--dracula-fg) !important;
-        --arrowpanel-border-color: var(--dracula-bg-light) !important;
+        --lwt-accent-color: var(--ctp-base) !important;
+        --lwt-text-color: var(--ctp-text) !important;
+        --toolbar-bgcolor: var(--ctp-base) !important;
+        --toolbar-color: var(--ctp-text) !important;
+        --toolbar-field-background-color: var(--ctp-surface0) !important;
+        --toolbar-field-color: var(--ctp-text) !important;
+        --toolbar-field-border-color: var(--ctp-surface1) !important;
+        --toolbar-field-focus-background-color: var(--ctp-base) !important;
+        --toolbar-field-focus-border-color: var(--ctp-mauve) !important;
+        --urlbar-popup-url-color: var(--ctp-sapphire) !important;
+        --tab-selected-bgcolor: var(--ctp-surface0) !important;
+        --tab-selected-textcolor: var(--ctp-text) !important;
+        --tab-loading-fill: var(--ctp-mauve) !important;
+        --arrowpanel-background: var(--ctp-base) !important;
+        --arrowpanel-color: var(--ctp-text) !important;
+        --arrowpanel-border-color: var(--ctp-surface0) !important;
       }
 
       /* Tab bar background */
       #TabsToolbar {
-        background-color: var(--dracula-bg-dark) !important;
+        background-color: var(--ctp-mantle) !important;
       }
 
       /* Active tab */
       .tab-background[selected="true"] {
-        background-color: var(--dracula-bg) !important;
+        background-color: var(--ctp-base) !important;
       }
 
       /* Inactive tabs */
       .tab-background:not([selected="true"]) {
-        background-color: var(--dracula-bg-dark) !important;
+        background-color: var(--ctp-mantle) !important;
       }
 
       /* Navigation bar */
       #nav-bar {
-        background-color: var(--dracula-bg) !important;
-        border-bottom: 1px solid var(--dracula-bg-light) !important;
+        background-color: var(--ctp-base) !important;
+        border-bottom: 1px solid var(--ctp-surface0) !important;
       }
 
       /* URL bar */
       #urlbar-background {
-        background-color: var(--dracula-bg-light) !important;
-        border-color: var(--dracula-bg-lighter) !important;
+        background-color: var(--ctp-surface0) !important;
+        border-color: var(--ctp-surface1) !important;
       }
 
       #urlbar[focused="true"] > #urlbar-background {
-        border-color: var(--dracula-purple) !important;
+        border-color: var(--ctp-mauve) !important;
       }
 
       /* Bookmarks bar */
       #PersonalToolbar {
-        background-color: var(--dracula-bg-dark) !important;
+        background-color: var(--ctp-mantle) !important;
       }
 
       /* Sidebar */
       #sidebar-box {
-        background-color: var(--dracula-bg-dark) !important;
-        color: var(--dracula-fg) !important;
+        background-color: var(--ctp-mantle) !important;
+        color: var(--ctp-text) !important;
       }
 
       /* Menu popup panels */
       menupopup, panel {
-        --panel-background: var(--dracula-bg) !important;
-        --panel-color: var(--dracula-fg) !important;
+        --panel-background: var(--ctp-base) !important;
+        --panel-color: var(--ctp-text) !important;
       }
     '';
     userContent = ''
-      /* Dracula for Firefox internal pages */
+      /* Catppuccin Mocha for Firefox internal pages */
       @-moz-document url("about:newtab"), url("about:home"), url("about:blank") {
         body {
-          background-color: #282a36 !important;
+          background-color: #1e1e2e !important;
         }
       }
     '';
@@ -201,7 +213,7 @@
   };
 
   themes = {
-    dracula = draculaTheme;
+    catppuccin-mocha = catppuccinMochaTheme;
     everforest = everforestTheme;
   };
 
@@ -211,8 +223,8 @@ in {
     enable = lib.mkEnableOption "Firefox with theme support";
 
     theme = lib.mkOption {
-      type = lib.types.enum ["dracula" "everforest"];
-      default = "dracula";
+      type = lib.types.enum ["catppuccin-mocha" "everforest"];
+      default = "catppuccin-mocha";
       description = "The color theme to use for Firefox";
     };
   };

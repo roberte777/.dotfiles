@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  pkgs-unstable,
+  ...
+}: {
   programs.git = {
     enable = true;
     settings = {
@@ -15,11 +19,14 @@
     vimAlias = true;
   };
 
-  programs.jujutsu.enable = true;
+  programs.jujutsu = {
+    enable = true;
+    package = pkgs-unstable.jujutsu;
+  };
   programs.ripgrep.enable = true;
 
   home.packages = with pkgs; [
-    lazyjj
+    pkgs-unstable.lazyjj
     fd
     jq
     tree
@@ -28,6 +35,7 @@
     just
     gh
     buf
+    pkgs-unstable.worktrunk
 
     rustup
     gcc

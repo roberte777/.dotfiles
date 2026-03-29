@@ -30,7 +30,7 @@
 
     programs.firefox-themed = {
       enable = true;
-      theme = "dracula";
+      theme = "catppuccin-mocha";
     };
 
     home.stateVersion = "25.11";
