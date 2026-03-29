@@ -100,6 +100,23 @@ services:
       - /dev/dri:/dev/dri
     restart: unless-stopped
 
+  plex:
+    image: lscr.io/linuxserver/plex:latest
+    container_name: plex
+    network_mode: host
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - VERSION=docker
+    volumes:
+      - ${APPDATA_DIR}/plex:/config
+      - ${DATA_DIR}/media:/data/media
+      - /tmp/plex:/transcode
+    devices:
+      - /dev/dri:/dev/dri
+    restart: unless-stopped
+
   seerr:
     image: ghcr.io/seerr-team/seerr:latest
     init: true
@@ -110,6 +127,20 @@ services:
       - TZ=${TZ}
     volumes:
       - ${APPDATA_DIR}/seerr:/app/config
+    restart: unless-stopped
+
+  seerr-plex:
+    image: ghcr.io/seerr-team/seerr:latest
+    init: true
+    container_name: seerr-plex
+    ports:
+      - "5056:5055"
+    environment:
+      - TZ=${TZ}
+      - PUID=${PUID}
+      - PGID=${PGID}
+    volumes:
+      - ${APPDATA_DIR}/seerr-plex:/app/config
     restart: unless-stopped
 
   bazarr:

@@ -29,7 +29,14 @@
   };
 
   # Docker for media services
-  virtualisation.docker.enable = true;
+  virtualisation.docker = {
+    enable = true;
+    autoPrune = {
+      enable = true;
+      dates = "weekly";
+      flags = ["-a" "--volumes"];
+    };
+  };
 
   # Auto-start media stack on boot
   systemd.services.media-stack = {
@@ -44,6 +51,13 @@
       ExecStart = "${pkgs.docker}/bin/docker compose up -d";
       ExecStop = "${pkgs.docker}/bin/docker compose down";
     };
+  };
+
+  # Automatic Nix garbage collection
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 30d";
   };
 
   # Auto-login on TTY1
@@ -64,6 +78,7 @@
     13378 # audiobookshelf
     8081 # qbittorrent webui
     8096 # jellyfin
+    32400 # plex
     5055 # seerr
     6767 # bazarr
     6868 # profilarr
