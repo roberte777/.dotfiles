@@ -106,6 +106,7 @@
     openssl
     libva-utils
     intel-gpu-tools
+    ncdu # disk usage analyzer
   ];
 
   # Intel Quick Sync (Alder Lake-N) hardware acceleration
