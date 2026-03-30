@@ -56,6 +56,7 @@
         specialArgs = {inherit inputs;} // extraSpecialArgs;
         modules = [
           ./hosts/${hostname}
+          {nixpkgs.config.allowUnfree = true;}
           home-manager.nixosModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
@@ -76,7 +77,10 @@
         };
       in
         home-manager.lib.homeManagerConfiguration {
-          pkgs = nixpkgs.legacyPackages.${system};
+          pkgs = import nixpkgs {
+            inherit system;
+            config.allowUnfree = true;
+          };
           extraSpecialArgs = {inherit inputs pkgs-unstable;};
           modules = [
             ./hosts/work/home.nix

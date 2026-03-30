@@ -36,9 +36,12 @@
     gh
     buf
     pkgs-unstable.worktrunk
-
     rustup
     gcc
     pkg-config
+    cargo-release
+    claude-code
+    sesh
+    tmux
   ];
 }
