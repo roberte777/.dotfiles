@@ -1,6 +1,7 @@
 {
   pkgs,
   pkgs-unstable,
+  pkgs-master,
   ...
 }: {
   programs.git = {
@@ -13,6 +14,7 @@
   };
 
   programs.neovim = {
+    package = pkgs-master.neovim-unwrapped;
     enable = true;
     defaultEditor = true;
     viAlias = true;
@@ -43,5 +45,12 @@
     claude-code
     sesh
     tmux
+    nodePackages.typescript
+    nodePackages.typescript-language-server
+    lua-language-server
+    stylua
+    ruff
+    nodePackages.prettier
+    prettierd
   ];
 }
