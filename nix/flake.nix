@@ -4,6 +4,7 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs-master.url = "github:NixOS/nixpkgs/master";
     home-manager = {
       url = "github:nix-community/home-manager/release-25.11";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -30,6 +31,7 @@
     self,
     nixpkgs,
     nixpkgs-unstable,
+    nixpkgs-master,
     home-manager,
     ...
   } @ inputs: let
@@ -50,6 +52,9 @@
         inherit system;
         config.allowUnfree = true;
       };
+      pkgs-master = import nixpkgs-master {
+        inherit system;
+      };
     in
       nixpkgs.lib.nixosSystem {
         inherit system;
@@ -61,7 +66,7 @@
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
-            home-manager.extraSpecialArgs = {inherit inputs pkgs-unstable;};
+            home-manager.extraSpecialArgs = {inherit inputs pkgs-unstable pkgs-master;};
           }
         ];
       };
@@ -75,13 +80,16 @@
           inherit system;
           config.allowUnfree = true;
         };
+        pkgs-master = import nixpkgs-master {
+          inherit system;
+        };
       in
         home-manager.lib.homeManagerConfiguration {
           pkgs = import nixpkgs {
             inherit system;
             config.allowUnfree = true;
           };
-          extraSpecialArgs = {inherit inputs pkgs-unstable;};
+          extraSpecialArgs = {inherit inputs pkgs-unstable pkgs-master;};
           modules = [
             ./hosts/work/home.nix
           ];
