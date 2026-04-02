@@ -20,6 +20,28 @@
   networking.hostName = "theater";
   networking.networkmanager.enable = true;
 
+  # Storage mounts
+  fileSystems."/mnt/bay1" = {
+    device = "/dev/disk/by-uuid/af74c964-f88c-48b0-a56b-97f67036d8b5";
+    fsType = "ext4";
+  };
+
+  # MergerFS pool combining all bay drives
+  fileSystems."/mnt/storage" = {
+    device = "/mnt/bay*";
+    fsType = "fuse.mergerfs";
+    options = [
+      "defaults"
+      "allow_other"
+      "use_ino"
+      "cache.files=partial"
+      "dropcacheonclose=true"
+      "category.create=mfs"  # most free space for new files
+      "moveonenospc=true"    # move files if drive fills up
+      "fsname=mergerfs:storage"
+    ];
+  };
+
   # User account
   programs.zsh.enable = true;
   users.users.theater = {
@@ -107,6 +129,7 @@
     libva-utils
     intel-gpu-tools
     ncdu # disk usage analyzer
+    mergerfs # filesystem for pooling drives
   ];
 
   # Intel Quick Sync (Alder Lake-N) hardware acceleration
