@@ -59,5 +59,11 @@
   };
   services.upower.enable = true;
 
+  nix.gc = {
+    automatic = true;
+    dates = "weekly";
+    options = "--delete-older-than 90d";
+  };
+
   system.stateVersion = "25.11";
 }
