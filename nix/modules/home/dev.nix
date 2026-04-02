@@ -14,7 +14,7 @@
   };
 
   programs.neovim = {
-    package = pkgs-master.neovim-unwrapped;
+    package = pkgs-unstable.neovim-unwrapped;
     enable = true;
     defaultEditor = true;
     viAlias = true;
@@ -52,5 +52,6 @@
     ruff
     nodePackages.prettier
     prettierd
+    tree-sitter
   ];
 }
