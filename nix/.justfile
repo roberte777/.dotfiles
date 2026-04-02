@@ -20,3 +20,12 @@ clean:
 
 fmt:
     nix fmt .
+
+update all
+    nix flake update
+
+update stable
+    nix flake update nixpkgs
+
+update unstable
+    nix flake update nixpkgs-unstable
