@@ -53,5 +53,6 @@
     nodePackages.prettier
     prettierd
     tree-sitter
+    pkgs-unstable.opencode
   ];
 }

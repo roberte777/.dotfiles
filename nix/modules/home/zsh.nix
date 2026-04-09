@@ -40,6 +40,9 @@
       # path+="$BUN_INSTALL/bin"
       export PATH
 
+      # Source secrets from ~/.secrets (not version controlled)
+      [ -f "$HOME/.secrets" ] && source "$HOME/.secrets"
+
       # History search
       bindkey '^R' history-incremental-search-backward
 

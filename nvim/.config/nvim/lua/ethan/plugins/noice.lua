@@ -1,6 +1,9 @@
 return {
 	"folke/noice.nvim",
 	event = "VeryLazy",
+	enabled = function()
+		return not vim.g.use_ui2
+	end,
 	opts = {
 		-- add any options here
 	},
