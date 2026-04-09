@@ -21,11 +21,11 @@ clean:
 fmt:
     nix fmt .
 
-update all
+update-all:
     nix flake update
 
-update stable
+update-stable:
     nix flake update nixpkgs
 
-update unstable
+update-unstable:
     nix flake update nixpkgs-unstable
