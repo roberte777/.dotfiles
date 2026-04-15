@@ -37,7 +37,6 @@
 
     # Host-specific packages
     home.packages = with pkgs; [
-      claude-code
     ];
   };
 }

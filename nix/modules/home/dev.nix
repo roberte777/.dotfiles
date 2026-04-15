@@ -42,7 +42,7 @@
     gcc
     pkg-config
     cargo-release
-    claude-code
+    pkgs-unstable.claude-code
     sesh
     tmux
     nodePackages.typescript
@@ -54,5 +54,6 @@
     prettierd
     tree-sitter
     pkgs-unstable.opencode
+    pkgs-unstable.tldr
   ];
 }
