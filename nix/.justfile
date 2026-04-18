@@ -10,6 +10,10 @@ switch config:
 rebuild config:
     sudo nixos-rebuild switch --flake .#{{config}}
 
+# Rebuild nix-darwin configuration
+darwin config:
+    sudo darwin-rebuild switch --flake .#{{config}}
+
 # Bootstrap home-manager (first-time setup with flakes)
 bootstrap config:
     nix run home-manager -- switch --flake .#{{config}}
