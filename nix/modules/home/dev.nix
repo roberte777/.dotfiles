@@ -10,6 +10,7 @@
       user.name = "roberte777";
       user.email = "rewilkes0041@gmail.com";
       credential.helper = "store";
+      init.defaultBranch = "main";
     };
   };
 
@@ -44,6 +45,7 @@
     cargo-release
     pkgs-unstable.claude-code
     sesh
+    stow
     tmux
     nodePackages.typescript
     nodePackages.typescript-language-server
