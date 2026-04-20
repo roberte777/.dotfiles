@@ -2,3 +2,5 @@
 theme = Catppuccin Mocha
 window-decoration = true
 keybind = shift+enter=text:\n
+background-opacity=0.95
+background-blur=true
