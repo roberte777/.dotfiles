@@ -1,4 +1,4 @@
-{ pkgs, ... }: {
+{pkgs, ...}: {
   imports = [
     ./home.nix
   ];
@@ -43,6 +43,9 @@
       "discord"
       "google-chrome"
       "ghostty"
+      "obsidian"
+      "zen"
+      "docker"
     ];
     onActivation = {
       autoUpdate = true;
@@ -52,5 +55,5 @@
   };
 
   system.primaryUser = "roberte777";
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+  nix.settings.experimental-features = ["nix-command" "flakes"];
 }

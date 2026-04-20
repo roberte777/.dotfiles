@@ -2,6 +2,7 @@
   pkgs,
   pkgs-unstable,
   pkgs-master,
+  inputs,
   ...
 }: {
   programs.git = {
@@ -43,7 +44,7 @@
     gcc
     pkg-config
     cargo-release
-    pkgs-unstable.claude-code
+    inputs.claude-code-nix.packages.${pkgs.system}.default
     sesh
     stow
     tmux
