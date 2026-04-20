@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  inputs,
+  ...
+}: {
   home-manager.users.theater = {
     imports = [
       ../../modules/home/dev.nix
@@ -27,8 +31,8 @@
       theme = "catppuccin-mocha";
     };
 
-    home.packages = with pkgs; [
-      claude-code
+    home.packages = [
+      inputs.claude-code-nix.packages.${pkgs.system}.default
     ];
     home.stateVersion = "25.11";
   };

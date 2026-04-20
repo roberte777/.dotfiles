@@ -53,7 +53,7 @@ return {
 			require("catppuccin").setup({
 				flavour = "mocha",
 			})
-			vim.cmd([[colorscheme catppuccin]])
+			-- vim.cmd([[colorscheme catppuccin]])
 		end,
 	},
 	{
@@ -75,10 +75,10 @@ return {
 		priority = 1000, -- make sure to load this before all the other start plugins
 		config = function()
 			require("ayu").setup({
-				mirage = true,
+				mirage = false,
 				terminal = false,
 			})
-			-- vim.cmd([[colorscheme ayu]])
+			vim.cmd([[colorscheme ayu]])
 		end,
 	},
 }

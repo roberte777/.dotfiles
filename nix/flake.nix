@@ -28,6 +28,10 @@
       url = "github:roberte777/zesh";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    claude-code-nix = {
+      url = "github:sadjow/claude-code-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
   outputs = {
     self,
@@ -87,7 +91,7 @@
         specialArgs = {inherit inputs;} // extraSpecialArgs;
         modules = [
           ./hosts/${hostname}
- { nixpkgs.hostPlatform = system; }
+          {nixpkgs.hostPlatform = system;}
           {nixpkgs.config.allowUnfree = true;}
           home-manager.darwinModules.home-manager
           {
