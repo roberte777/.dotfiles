@@ -44,7 +44,6 @@
       "google-chrome"
       "ghostty"
       "obsidian"
-      "zen"
       "docker"
     ];
     onActivation = {
