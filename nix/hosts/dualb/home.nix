@@ -14,6 +14,7 @@
       ../../modules/home/media.nix
       ../../modules/home/spicetify.nix
       ../../modules/home/cava.nix
+      ../../modules/home/zen-browser.nix
     ];
 
     gtk = {
@@ -36,7 +37,7 @@
     home.stateVersion = "25.11";
 
     # Host-specific packages
-    home.packages = with pkgs; [
+    home.packages = [
     ];
   };
 }
