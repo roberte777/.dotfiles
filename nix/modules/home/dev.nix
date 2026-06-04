@@ -58,5 +58,6 @@
     tree-sitter
     pkgs-unstable.opencode
     pkgs-unstable.tldr
+    awscli2
   ];
 }
