@@ -31,6 +31,7 @@
 
   home.packages = with pkgs; [
     pkgs-unstable.lazyjj
+    fzf
     fd
     jq
     tree
