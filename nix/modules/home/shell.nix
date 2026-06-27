@@ -11,6 +11,11 @@
     nix-direnv.enable = true;
   };
   programs.zoxide.enable = true;
+  programs.atuin = {
+    enable = true;
+    enableZshIntegration = true;
+    enableBashIntegration = true;
+  };
   programs.zellij.enable = true;
   programs.fastfetch.enable = true;
   programs.btop = {

@@ -80,3 +80,10 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 
 -- color column
 vim.opt.colorcolumn = "80"
+
+-- Completion
+vim.o.winborder = "rounded"
+vim.opt.wildignore:append({ ".DS_Store" })
+vim.o.completeopt = "menuone,noselect,noinsert"
+vim.o.pumheight = 15
+vim.o.pumborder = "rounded"

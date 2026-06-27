@@ -1,4 +1,8 @@
-{pkgs, ...}: {
+{
+  pkgs,
+  inputs,
+  ...
+}: {
   home-manager.users.theater = {
     imports = [
       ../../modules/home/dev.nix
@@ -8,6 +12,7 @@
       ../../modules/home/spicetify.nix
       ../../modules/home/theming/noctalia.nix
       ../../modules/home/media.nix
+      ../../modules/home/zen-browser.nix
     ];
 
     gtk = {
@@ -27,8 +32,8 @@
       theme = "catppuccin-mocha";
     };
 
-    home.packages = with pkgs; [
-      claude-code
+    home.packages = [
+      inputs.claude-code-nix.packages.${pkgs.system}.default
     ];
     home.stateVersion = "25.11";
   };

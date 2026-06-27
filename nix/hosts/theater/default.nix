@@ -36,8 +36,8 @@
       "use_ino"
       "cache.files=partial"
       "dropcacheonclose=true"
-      "category.create=mfs"  # most free space for new files
-      "moveonenospc=true"    # move files if drive fills up
+      "category.create=mfs" # most free space for new files
+      "moveonenospc=true" # move files if drive fills up
       "fsname=mergerfs:storage"
     ];
   };
