@@ -40,8 +40,8 @@
       # path+="$BUN_INSTALL/bin"
       export PATH
 
-      # History search
-      bindkey '^R' history-incremental-search-backward
+      # Source secrets from ~/.secrets (not version controlled)
+      [ -f "$HOME/.secrets" ] && source "$HOME/.secrets"
 
       # NVM
       # [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"

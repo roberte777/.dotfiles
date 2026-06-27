@@ -2,6 +2,7 @@
   imports = [
     ../../modules/home/dev.nix
     ../../modules/home/shell.nix
+    ../../modules/home/zen-browser.nix
   ];
 
   home.username = "ethan.wilkes";

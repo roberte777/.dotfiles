@@ -1,4 +1,6 @@
 # theme = Everforest Dark Hard
-theme = Catppuccin Mocha
+theme = Ayu
 window-decoration = true
 keybind = shift+enter=text:\n
+background-opacity=0.95
+background-blur=true

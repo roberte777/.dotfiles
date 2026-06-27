@@ -2,6 +2,7 @@
   pkgs,
   pkgs-unstable,
   pkgs-master,
+  inputs,
   ...
 }: {
   programs.git = {
@@ -10,11 +11,12 @@
       user.name = "roberte777";
       user.email = "rewilkes0041@gmail.com";
       credential.helper = "store";
+      init.defaultBranch = "main";
     };
   };
 
   programs.neovim = {
-    package = pkgs-master.neovim-unwrapped;
+    package = pkgs-unstable.neovim-unwrapped;
     enable = true;
     defaultEditor = true;
     viAlias = true;
@@ -29,6 +31,7 @@
 
   home.packages = with pkgs; [
     pkgs-unstable.lazyjj
+    fzf
     fd
     jq
     tree
@@ -42,8 +45,9 @@
     gcc
     pkg-config
     cargo-release
-    claude-code
+    inputs.claude-code-nix.packages.${pkgs.system}.default
     sesh
+    stow
     tmux
     nodePackages.typescript
     nodePackages.typescript-language-server
@@ -52,5 +56,9 @@
     ruff
     nodePackages.prettier
     prettierd
+    tree-sitter
+    pkgs-unstable.opencode
+    pkgs-unstable.tldr
+    awscli2
   ];
 }
