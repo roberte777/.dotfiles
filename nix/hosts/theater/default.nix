@@ -99,6 +99,7 @@
     8080 # calibre-web
     13378 # audiobookshelf
     8081 # qbittorrent webui
+    8082 # shelfarr
     8096 # jellyfin
     32400 # plex
     5055 # seerr
