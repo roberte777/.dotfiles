@@ -106,6 +106,10 @@
     6767 # bazarr
     6868 # profilarr
     7575 # homarr
+    3000 # omnibus
+    443  # kasm browser sessions
+    3001 # kasm https
+    3002 # kasm http
   ];
 
   # Server-specific packages
