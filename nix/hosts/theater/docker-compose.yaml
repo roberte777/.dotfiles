@@ -20,8 +20,6 @@ services:
       - "9696:9696"
       # SABnzbd UI
       - "8080:8080"
-      # Shelfarr UI
-      - "8082:8082"
     restart: unless-stopped
 
   qbittorrent:
@@ -177,9 +175,8 @@ services:
   shelfarr:
     image: ghcr.io/pedro-revez-silva/shelfarr:latest
     container_name: shelfarr
-    network_mode: "service:gluetun"
-    depends_on:
-      - gluetun
+    ports:
+      - "8082:8082"
     environment:
       - SOLID_QUEUE_IN_PUMA=1
       - PUID=${PUID}
@@ -190,7 +187,8 @@ services:
       - ${APPDATA_DIR}/shelfarr:/rails/storage
       - ${DATA_DIR}/media/audiobooks:/audiobooks
       - ${DATA_DIR}/media/books:/ebooks
-      - ${DATA_DIR}/torrents:/downloads
+      - ${DATA_DIR}:/data
+      - ${DATA_DIR}/torrents/shelfarr:/downloads
     restart: unless-stopped
 
   profilarr:
@@ -219,6 +217,23 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
 
+  kasm:
+    image: lscr.io/linuxserver/kasm:latest
+    container_name: kasm
+    privileged: true
+    ports:
+      - "3001:3000"
+      - "3002:3001"
+      - "443:443"
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+    volumes:
+      - ${APPDATA_DIR}/kasm:/config
+      - /dev/shm:/dev/shm
+    restart: unless-stopped
+
   watchtower:
     image: containrrr/watchtower:latest
     container_name: watchtower
@@ -228,4 +243,24 @@ services:
       - TZ=${TZ}
       - WATCHTOWER_CLEANUP=true
       - WATCHTOWER_SCHEDULE=0 0 4 * * *
+    restart: unless-stopped
+
+  omnibus:
+    image: sesloan/omnibus:latest
+    container_name: omnibus
+    ports:
+      - "3000:3000"
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - OMNIBUS_PUBLIC_ORIGIN=${OMNIBUS_PUBLIC_ORIGIN}
+      - OMNIBUS_SECURE_COOKIES=0
+      - EBOOK_LIBRARY_PATH=/books
+      - AUDIOBOOK_LIBRARY_PATH=/audiobooks
+    volumes:
+      - ${APPDATA_DIR}/omnibus/config:/config
+      - ${APPDATA_DIR}/omnibus/cache:/cache
+      - ${DATA_DIR}/media/books:/books
+      - ${DATA_DIR}/media/audiobooks:/audiobooks
     restart: unless-stopped
