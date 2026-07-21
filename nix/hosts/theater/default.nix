@@ -107,7 +107,7 @@
     6868 # profilarr
     7575 # homarr
     3000 # omnibus
-    443  # kasm browser sessions
+    443 # kasm browser sessions
     3001 # kasm https
     3002 # kasm http
   ];
