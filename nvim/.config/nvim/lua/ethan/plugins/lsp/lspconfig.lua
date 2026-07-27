@@ -165,6 +165,9 @@ return {
 							cargo = {
 								allFeatures = true,
 							},
+							files = {
+								excludeDirs = { ".direnv" },
+							},
 							-- Add clippy lints for Rust.
 							check = {
 								command = "clippy",
