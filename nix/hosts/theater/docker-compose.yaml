@@ -185,10 +185,9 @@ services:
       - HTTP_PORT=8082
     volumes:
       - ${APPDATA_DIR}/shelfarr:/rails/storage
-      - ${DATA_DIR}/media/audiobooks:/audiobooks
-      - ${DATA_DIR}/media/books:/ebooks
+      # Single /data mount (TRaSH-style) so paths reported by qBittorrent and
+      # SABnzbd resolve identically inside shelfarr and hardlinks/atomic moves work.
       - ${DATA_DIR}:/data
-      - ${DATA_DIR}/torrents/shelfarr:/downloads
     restart: unless-stopped
 
   profilarr:
@@ -258,6 +257,7 @@ services:
       - OMNIBUS_SECURE_COOKIES=0
       - EBOOK_LIBRARY_PATH=/books
       - AUDIOBOOK_LIBRARY_PATH=/audiobooks
+      - RUST_LOG=omnibus=debug,tower_http=debug,info
     volumes:
       - ${APPDATA_DIR}/omnibus/config:/config
       - ${APPDATA_DIR}/omnibus/cache:/cache
