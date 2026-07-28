@@ -1,4 +1,5 @@
 {
+  config,
   pkgs,
   inputs,
   ...
@@ -8,6 +9,7 @@
     ./home.nix
     ../../modules/nixos/common.nix
     ../../modules/nixos/niri.nix
+    ../../modules/nixos/cloudflared.nix
     inputs.noctalia.nixosModules.default
   ];
 
@@ -53,6 +55,7 @@
   # Docker for media services
   virtualisation.docker = {
     enable = true;
+    package = pkgs.docker_29;
     autoPrune = {
       enable = true;
       dates = "weekly";
@@ -70,8 +73,8 @@
       Type = "oneshot";
       RemainAfterExit = true;
       WorkingDirectory = "/home/theater/.dotfiles/nix/hosts/theater";
-      ExecStart = "${pkgs.docker}/bin/docker compose up -d";
-      ExecStop = "${pkgs.docker}/bin/docker compose down";
+      ExecStart = "${config.virtualisation.docker.package}/bin/docker compose up -d";
+      ExecStop = "${config.virtualisation.docker.package}/bin/docker compose down";
     };
   };
 
