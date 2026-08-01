@@ -8,11 +8,63 @@ services:
       - /dev/net/tun:/dev/net/tun
     environment:
       - TZ=${TZ}
-      - VPN_SERVICE_PROVIDER=nordvpn
-      - VPN_TYPE=openvpn
-      - OPENVPN_USER=${OPENVPN_USER}
-      - OPENVPN_PASSWORD=${OPENVPN_PASSWORD}
+      - VPN_SERVICE_PROVIDER=protonvpn
+      - VPN_TYPE=wireguard
+      - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
       - SERVER_COUNTRIES=${SERVER_COUNTRIES}
+      # No SERVER_HOSTNAMES pin here. The old pin worked around a NordVPN OpenVPN
+      # quirk: gluetun would latch onto one endpoint that rejected auth and retry
+      # it forever. Proton WireGuard authenticates with a key rather than
+      # per-server credentials, so a bad-endpoint pick is not sticky in the same
+      # way and the workaround no longer earns its keep.
+      #
+      # Restricts server selection to Proton endpoints that support port
+      # forwarding, which is the same set as its P2P servers -- gluetun has no
+      # SERVER_FEATURES variable, so this is how "P2P only" is expressed. Without
+      # it, gluetun can pick a non-P2P server, connect fine, and then silently
+      # fail to obtain a forwarded port.
+      #
+      # Note this narrows the pool for EVERY service on this tunnel, not just the
+      # MAM client. That is the accepted cost of keeping MyAnonaMouse on a single
+      # exit IP: MAM binds the session to one IP and rejects a torrent client that
+      # announces from a different one than the indexer browses from, so prowlarr
+      # and qbittorrent-mam must share this namespace.
+      - PORT_FORWARD_ONLY=on
+      # Actually requests the forwarded port over NAT-PMP. The certificate must
+      # have been generated with NAT-PMP enabled in the Proton dashboard; that is
+      # baked into the cert and cannot be toggled afterwards.
+      - VPN_PORT_FORWARDING=on
+      # Proton issues a new forwarded port on every reconnect, so qBittorrent's
+      # listen port cannot be hardcoded -- it would silently stop being
+      # connectable after the first reconnect. gluetun substitutes {{PORT}} and
+      # runs this once the port is up, pushing it into qBittorrent's API.
+      #
+      # Targets 8084 (qbittorrent-mam's WEBUI_PORT), NOT 8081 -- the forwarded
+      # port belongs to the MAM client. Requires that client's "Bypass
+      # authentication for clients on localhost" to be enabled.
+      #
+      # MAM blacklists the common BitTorrent ports (6881-6889) and other p2p
+      # ports; Proton's NAT-PMP assignments land well outside that range, so the
+      # dynamic port is safe to use as-is.
+      # The whole shell script must be ONE argument to `sh -c`, hence the single
+      # quotes: without them sh runs `wget` alone and treats the rest as
+      # positional parameters, failing with "wget: missing URL".
+      - VPN_PORT_FORWARDING_UP_COMMAND=/bin/sh -c 'wget -qO- --retry-connrefused --post-data "json={\"listen_port\":{{PORT}},\"random_port\":false,\"upnp\":false}" http://127.0.0.1:8084/api/v2/app/setPreferences'
+      #
+      # Refresh the ProtonVPN server list every 20 days. Defaults to 0 (disabled),
+      # which lets the list bundled in the image drift out of date as the provider
+      # rotates endpoints. Writes into the persisted /gluetun mount below.
+      # Do not go below 360h: more frequent polling spams the provider's API and
+      # risks getting the updater blocked.
+      - UPDATER_PERIOD=480h
+      - UPDATER_VPN_SERVICE_PROVIDERS=protonvpn
+    volumes:
+      # Persists /gluetun/servers/manifest.json across image updates. The image
+      # ships a server list baked in at build time; the provider rotates endpoints,
+      # and a stale list makes gluetun dial a decommissioned server, which fails to
+      # connect and looks like a bad key. Without this mount, watchtower's nightly
+      # pull reverts the refreshed list.
+      - ${APPDATA_DIR}/gluetun:/gluetun
     ports:
       # qBittorrent WebUI (qbit listens on 8080 in its container)
       - "8081:8081"
@@ -20,6 +72,69 @@ services:
       - "9696:9696"
       # SABnzbd UI
       - "8080:8080"
+      # qbittorrent-mam WebUI
+      - "8084:8084"
+      # MouseHole UI
+      - "5010:5010"
+    restart: unless-stopped
+
+  # Dedicated qBittorrent for MyAnonaMouse, separate from the general-purpose
+  # qbittorrent above so its version can be pinned and its settings tuned to
+  # MAM's rules without affecting the rest of the stack.
+  #
+  # VERSION IS PINNED DELIBERATELY -- DO NOT CHANGE TO :latest.
+  # MAM only permits qBittorrent 5.0.1 through the 5.2.x line, and its rules
+  # require auto-update to be disabled. watchtower pulls :latest nightly across
+  # this stack, so a floating tag would eventually upgrade this client past 5.2.x
+  # and trip "Unauthorized Client" with no warning. The label below also excludes
+  # it from watchtower as a second layer of defence.
+  # Before bumping this pin, confirm the target version is still on MAM's
+  # allowed-clients list.
+  qbittorrent-mam:
+    image: lscr.io/linuxserver/qbittorrent:5.2.3_v2.0.13-ls469
+    container_name: qbittorrent-mam
+    network_mode: "service:gluetun"
+    depends_on:
+      - gluetun
+    environment:
+      - PUID=${PUID}
+      - PGID=${PGID}
+      - TZ=${TZ}
+      - WEBUI_PORT=8084
+    labels:
+      # Keep watchtower away from the pinned MAM client.
+      - com.centurylinklabs.watchtower.enable=false
+    volumes:
+      - ${APPDATA_DIR}/qbittorrent-mam:/config
+      - ${DATA_DIR}/torrents:/data/torrents
+    restart: unless-stopped
+
+  # Keeps the MAM session pointed at the current VPN exit IP. MAM requires the
+  # torrent client and the session to come from the same IP; because this client
+  # egresses through gluetun while you browse the site from the house connection,
+  # the two differ and MAM would otherwise reject the client with "Unrecognized
+  # host/PassKey" whenever Proton moves us to a new endpoint.
+  #
+  # Shares the gluetun namespace on purpose -- it must report the SAME exit IP
+  # that qbittorrent-mam and prowlarr use, so it cannot run outside the tunnel.
+  # This is also why MAM lives on the main tunnel rather than a second one: the
+  # indexer, the client and this updater all have to agree on one IP.
+  #
+  # The MAM cookie is pasted into the web UI at http://<host>:5010 after startup;
+  # it is not supplied via environment variable.
+  mousehole:
+    image: tmmrtn/mousehole:latest
+    container_name: mousehole
+    network_mode: "service:gluetun"
+    depends_on:
+      - gluetun
+    environment:
+      - TZ=${TZ}
+      - MOUSEHOLE_AUTH_PASSWORD=${MOUSEHOLE_AUTH_PASSWORD}
+      # Needed because the UI is reached over the LAN rather than localhost.
+      - MOUSEHOLE_ALLOWED_HOSTS=${MOUSEHOLE_ALLOWED_HOSTS}
+    volumes:
+      - ${APPDATA_DIR}/mousehole:/var/lib/mousehole
     restart: unless-stopped
 
   qbittorrent:
@@ -269,8 +384,25 @@ services:
       - ${APPDATA_DIR}/vaultwarden:/data
     restart: unless-stopped
 
+  # Maintained fork, NOT containrrr/watchtower -- the original was abandoned in
+  # 2023 and its last image speaks Docker API 1.25. Docker 29 raised the minimum
+  # to 1.40, so containrrr now fails every cycle with "client version 1.25 is too
+  # old" and restart:unless-stopped turns that into a crash loop. Re-pulling
+  # :latest does not help; there is no newer containrrr build to get.
+  # The fork keeps the WATCHTOWER_* variables and the com.centurylinklabs.*
+  # labels, so the exclusion on qbittorrent-mam still applies.
+  # There is no per-container interval label -- the schedule belongs to the
+  # watchtower process, so a container that needs different timing needs its own
+  # instance. Hence two: this one nightly for the stack, and watchtower-fast
+  # below on a short cycle for omnibus.
+  #
+  # Deliberately left UNSCOPED. An unscoped instance manages exactly those
+  # containers that carry no scope label, and skips scoped ones -- so it keeps
+  # picking up every service in this file automatically, while omnibus (labelled
+  # into omnibus-fast) is handed off to the other instance with no race. Setting a
+  # scope here would silently orphan all ~20 unlabelled services.
   watchtower:
-    image: containrrr/watchtower:latest
+    image: nickfedor/watchtower:latest
     container_name: watchtower
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -280,9 +412,36 @@ services:
       - WATCHTOWER_SCHEDULE=0 0 4 * * *
     restart: unless-stopped
 
+  # Fast-cycle instance for omnibus only. Scoped, so it ignores every container
+  # that does not carry the matching scope label.
+  #
+  # Hourly is the floor worth using: registry pulls are rate limited and anonymous
+  # Docker Hub requests get throttled if polled harder, which would break BOTH
+  # instances rather than just this one.
+  watchtower-fast:
+    image: nickfedor/watchtower:latest
+    container_name: watchtower-fast
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - TZ=${TZ}
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_SCHEDULE=0 0 * * * *
+      - WATCHTOWER_SCOPE=omnibus-fast
+    # No scope label on purpose: this container stays unscoped so the nightly
+    # instance above keeps its image updated. WATCHTOWER_SCOPE sets what this
+    # instance *watches*; it does not label the container itself.
+    restart: unless-stopped
+
   omnibus:
     image: sesloan/omnibus:latest
     container_name: omnibus
+    labels:
+      # Hands this container to watchtower-fast (hourly) instead of the nightly
+      # instance. Safe to cycle often because omnibus is standalone -- own bridge
+      # network, own port, nothing shares its namespace -- so a bad pull affects
+      # only omnibus.
+      - com.centurylinklabs.watchtower.scope=omnibus-fast
     ports:
       - "3000:3000"
     environment:
