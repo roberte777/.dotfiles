@@ -78,6 +78,51 @@
     };
   };
 
+  # Silent-failure checks for the media stack -- the states where every
+  # container reports healthy but the stack is broken (no forwarded port, MAM
+  # session rejected, VPN leak, unmounted bay). Pushes to ntfy on failure.
+  #
+  # Runs as root, unlike the stack itself: smartctl needs raw device access and
+  # the mountpoint checks read /mnt directly.
+  systemd.services.stack-healthcheck = {
+    description = "Media stack silent-failure checks";
+    after = ["docker.service" "network-online.target"];
+    wants = ["network-online.target"];
+    path = with pkgs; [
+      docker_29
+      curl
+      gnused
+      gawk
+      gnugrep
+      smartmontools
+      util-linux # mountpoint
+      coreutils
+      bash
+    ];
+    serviceConfig = {
+      Type = "oneshot";
+      # A failing check exits 1 by design, which would otherwise mark the unit
+      # failed and, worse, make `systemctl status` misleading during a real
+      # outage. The notification is the output that matters.
+      SuccessExitStatus = "0 1";
+      ExecStart = "/home/theater/.dotfiles/nix/hosts/theater/scripts/stack-healthcheck.sh";
+    };
+  };
+
+  systemd.timers.stack-healthcheck = {
+    description = "Run media stack checks every 15 minutes";
+    wantedBy = ["timers.target"];
+    timerConfig = {
+      # First run 5 min after boot so the stack has time to come up; a check at
+      # T+0 would alert on containers that are merely still starting.
+      OnBootSec = "5min";
+      OnUnitActiveSec = "15min";
+      # Spread the run so it does not collide with watchtower's 04:00 cycle.
+      RandomizedDelaySec = "60";
+      Unit = "stack-healthcheck.service";
+    };
+  };
+
   # Automatic Nix garbage collection
   nix.gc = {
     automatic = true;
@@ -113,6 +158,8 @@
     443 # kasm browser sessions
     3001 # kasm https
     3002 # kasm http
+    3003 # uptime kuma
+    8085 # ntfy
   ];
 
   # Server-specific packages
@@ -138,6 +185,7 @@
     intel-gpu-tools
     ncdu # disk usage analyzer
     mergerfs # filesystem for pooling drives
+    smartmontools # SMART drive health, read by stack-healthcheck.sh
   ];
 
   # Intel Quick Sync (Alder Lake-N) hardware acceleration
