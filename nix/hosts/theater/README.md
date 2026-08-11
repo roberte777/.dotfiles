@@ -104,6 +104,74 @@ All services are managed via docker-compose:
 - **Profilarr**: Profile management (port 6868)
 - **Homarr**: Dashboard (port 7575)
 - **Watchtower**: Automatic container updates
+- **ntfy**: Push notifications to phone (port 8085)
+- **Uptime Kuma**: Service monitoring and alerting (port 3003)
+
+## Monitoring & Alerts
+
+Two layers, because most of the interesting failures here leave every container
+reporting "healthy".
+
+### Layer 1 — Uptime Kuma (port 3003)
+
+HTTP probes against each service. Configured through its web UI. Set the ntfy
+notification to `http://ntfy:8085` with the topic from `.env`.
+
+Because every VPN-namespace service shares gluetun's network, a gluetun outage
+trips all of them at once. Set those monitors as **children of a gluetun
+monitor** (Uptime Kuma → monitor → "Parent Monitor") to get one alert instead of
+six.
+
+### Layer 2 — `scripts/stack-healthcheck.sh`
+
+Runs every 15 minutes via the `stack-healthcheck` systemd timer. Catches the
+failures that HTTP probes cannot see:
+
+| Check | Failure it catches |
+|---|---|
+| VPN exit IP ≠ house WAN IP | Tunnel dropped, traffic leaking from home IP |
+| Forwarded port exists | gluetun picked a server without port forwarding |
+| Port matches qBittorrent | `VPN_PORT_FORWARDING_UP_COMMAND` silently failed |
+| MouseHole `lastMamContactResult` | MAM session rejected (returns HTTP **200** while broken) |
+| qbittorrent-mam version ≤ 5.2.x | Client drifted outside MAM's allowed range |
+| All `/mnt/bay*` mounted | A bay unmounted; mergerfs serves an incomplete pool silently |
+| Pool under 90% full | Storage filling up |
+| SMART reallocated/pending sectors | Drive degrading before it fails outright |
+
+Run it by hand any time:
+
+```bash
+./scripts/stack-healthcheck.sh          # exits 1 if any check fails
+systemctl start stack-healthcheck       # or via systemd
+systemctl list-timers stack-healthcheck # confirm next run
+journalctl -u stack-healthcheck -n 50   # see recent results
+```
+
+**When adding a drive**, bump `EXPECTED_BAYS` in the script. It is hardcoded on
+purpose: deriving it from what is currently mounted would let a missing bay
+define itself out of existence.
+
+### Phone setup
+
+Install the ntfy app (iOS/Android), then **Add subscription**:
+
+- Topic: the `NTFY_TOPIC` value from `.env`
+- Server: uncheck "Use ntfy.sh", enter the `NTFY_BASE_URL` from `.env`
+  (`http://theater.tail4d5f23.ts.net:8085` — the MagicDNS name, not the 100.x
+  IP, which is reassigned on logout/re-login or a rebuild)
+
+Delivery works away from home **as long as Tailscale is connected on the
+phone**, which is its normal background state. `NTFY_UPSTREAM_BASE_URL` relays a
+wake-up via ntfy.sh's Apple push certificate, but the app then fetches the
+message body from this server — so with Tailscale fully disabled the
+notification still arrives, without its text.
+
+The topic name is the only secret — anyone who can reach the server and guess it
+can publish. Regenerate it if it leaks:
+
+```bash
+echo "theater-alerts-$(head -c 9 /dev/urandom | base32 | tr '[:upper:]' '[:lower:]' | tr -d '=')"
+```
 
 ## MergerFS Configuration
 
