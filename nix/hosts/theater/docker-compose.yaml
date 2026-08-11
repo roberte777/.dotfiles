@@ -433,6 +433,64 @@ services:
     # instance *watches*; it does not label the container itself.
     restart: unless-stopped
 
+  # Push-notification server. The phone subscribes to a topic and anything that
+  # POSTs to that topic pushes to the phone.
+  #
+  # Reachable over Tailscale rather than the public internet -- the tailnet
+  # already has the iOS devices on it, so no port forward and no inbound
+  # exposure. BASE_URL must be the tailnet address because ntfy hands that URL
+  # to clients for attachments and click actions; with a LAN IP here the phone
+  # silently fails to fetch them from outside the house.
+  #
+  # The topic name is the ONLY secret in an unauthenticated ntfy instance --
+  # anyone who can reach the server and guess the topic can publish to it. That
+  # is acceptable here precisely because the tailnet is the boundary; do not
+  # expose 8085 publicly without turning on auth.
+  ntfy:
+    image: binwiederhier/ntfy:latest
+    container_name: ntfy
+    command: serve
+    environment:
+      - TZ=${TZ}
+      - NTFY_BASE_URL=${NTFY_BASE_URL}
+      - NTFY_LISTEN_HTTP=:8085
+      # Persist messages so a phone that was offline still receives what it
+      # missed once it reconnects. Without a cache file ntfy keeps messages in
+      # memory only and a restart drops anything undelivered.
+      - NTFY_CACHE_FILE=/var/cache/ntfy/cache.db
+      - NTFY_CACHE_DURATION=12h
+      # Keep the iOS app awake. Without this, ntfy only pushes on new messages
+      # and iOS eventually tears the connection down, so alerts arrive late or
+      # not at all -- the one setting that most often makes self-hosted ntfy
+      # look broken on iPhone.
+      - NTFY_UPSTREAM_BASE_URL=https://ntfy.sh
+    volumes:
+      - ${APPDATA_DIR}/ntfy/cache:/var/cache/ntfy
+      - ${APPDATA_DIR}/ntfy/etc:/etc/ntfy
+    ports:
+      - "8085:8085"
+    restart: unless-stopped
+
+  # Decides WHEN to notify. Runs the HTTP probes against every service and calls
+  # ntfy when one fails.
+  #
+  # Needs the docker socket only for the "Docker Container" monitor type; the
+  # HTTP monitors do not require it. Mounted read-only -- Uptime Kuma never
+  # needs to start or stop anything.
+  #
+  # Host port 3003 because omnibus already owns 3000 and kasm owns 3001/3002.
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    container_name: uptime-kuma
+    environment:
+      - TZ=${TZ}
+    volumes:
+      - ${APPDATA_DIR}/uptime-kuma:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - "3003:3001"
+    restart: unless-stopped
+
   omnibus:
     image: sesloan/omnibus:latest
     container_name: omnibus
