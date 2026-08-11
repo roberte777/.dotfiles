@@ -29,6 +29,18 @@
   };
   programs.ripgrep.enable = true;
 
+  programs.gh = {
+    enable = true;
+    extensions = [pkgs-unstable.gh-stack];
+    # Keep the global `credential.helper = "store"` above in charge of
+    # github.com rather than letting gh inject a per-host helper.
+    gitCredentialHelper.enable = false;
+    settings = {
+      git_protocol = "https";
+      aliases.co = "pr checkout";
+    };
+  };
+
   home.packages = with pkgs; [
     pkgs-unstable.lazyjj
     fzf
@@ -38,7 +50,6 @@
     curl
     wget
     just
-    gh
     buf
     pkgs-unstable.worktrunk
     rustup
