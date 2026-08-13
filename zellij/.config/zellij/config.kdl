@@ -250,6 +250,7 @@ web_client {
 // Choose the theme that is specified in the themes section.
 // Default: default
 // 
+// theme "ayu_dark"
 theme "ayu_dark"
 // theme "catppuccin-mocha"
  
