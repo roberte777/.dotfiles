@@ -42,6 +42,10 @@ return {
 			-- Only one of these is needed, not both.
 			"nvim-telescope/telescope.nvim", -- optional
 		},
+		cmd = "Neogit",
+		keys = {
+			{ "<leader>gg", "<cmd>Neogit<cr>", desc = "Neogit" },
+		},
 		config = true,
 	},
 }

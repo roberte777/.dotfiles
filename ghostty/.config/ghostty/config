@@ -1,5 +1,7 @@
 # theme = Everforest Dark Hard
 theme = Ayu
+#theme = nordic
+#theme = Gruvbox Dark Hard
 window-decoration = true
 keybind = shift+enter=text:\n
 background-opacity=0.95

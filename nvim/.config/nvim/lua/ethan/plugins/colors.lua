@@ -13,8 +13,10 @@ return {
 		"sainnhe/gruvbox-material",
 		priority = 1000,
 		config = function()
-			-- vim.cmd([[colorscheme gruvbox-material]])
+			vim.cmd([[set background=dark]])
+			vim.cmd([[let g:gruvbox_material_foreground = 'original']])
 			vim.cmd([[let g:gruvbox_material_background = 'hard']])
+			-- vim.cmd([[colorscheme gruvbox-material]])
 		end,
 	},
 	{
@@ -79,6 +81,22 @@ return {
 				terminal = false,
 			})
 			vim.cmd([[colorscheme ayu]])
+		end,
+	},
+	{
+		"AlexvZyl/nordic.nvim",
+		lazy = false,
+		priority = 1000,
+		config = function()
+			-- require("nordic").load({
+			-- 	-- Enable editor background transparency.
+			-- 	transparent = {
+			-- 		-- Enable transparent background.
+			-- 		bg = true,
+			-- 		-- Enable transparent background for floating windows.
+			-- 		float = false,
+			-- 	},
+			-- })
 		end,
 	},
 }
