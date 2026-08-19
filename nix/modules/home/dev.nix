@@ -43,6 +43,7 @@
 
   home.packages = with pkgs; [
     pkgs-unstable.lazyjj
+    pkgs-unstable.lazygit
     fzf
     fd
     jq
