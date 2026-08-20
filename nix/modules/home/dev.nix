@@ -5,6 +5,10 @@
   inputs,
   ...
 }: {
+  imports = [
+    ./worktrunk-sync.nix
+  ];
+
   programs.git = {
     enable = true;
     settings = {
