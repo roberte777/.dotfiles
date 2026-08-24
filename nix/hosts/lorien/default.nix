@@ -44,7 +44,9 @@
       "google-chrome"
       "ghostty"
       "obsidian"
-      "docker"
+      "docker-desktop"
+      "tailscale-app"
+      "bitwarden"
     ];
     onActivation = {
       autoUpdate = true;
