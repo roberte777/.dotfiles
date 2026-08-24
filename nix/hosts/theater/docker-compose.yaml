@@ -1,6 +1,11 @@
 services:
   gluetun:
-    image: qmcgaw/gluetun:latest
+    # v3, NOT latest. On this repo :latest tracks the development branch and is
+    # rebuilt continuously -- it produced a new image every single night, so
+    # watchtower tore down and recreated the tunnel (and every one of the six
+    # containers sharing its namespace) daily. :v3 follows stable releases and
+    # still gets patch updates, so this stays current without the nightly churn.
+    image: qmcgaw/gluetun:v3
     container_name: gluetun
     cap_add:
       - NET_ADMIN
@@ -102,11 +107,31 @@ services:
       - TZ=${TZ}
       - WEBUI_PORT=8084
     labels:
-      # Keep watchtower away from the pinned MAM client.
-      - com.centurylinklabs.watchtower.enable=false
+      # monitor-only, NOT enable=false. Both stop watchtower upgrading past the
+      # pin, but enable=false hides this container from watchtower completely --
+      # including from the "stop linked containers" pass that recreates everything
+      # sharing gluetun's namespace when gluetun itself is updated. That left this
+      # client attached to a destroyed namespace: still running, still holding a
+      # listening socket on 8084, but unreachable, and `docker ps` showed it Up.
+      # monitor-only keeps it visible so it is recreated alongside gluetun, while
+      # still never being upgraded off the pinned tag.
+      - com.centurylinklabs.watchtower.monitor-only=true
     volumes:
       - ${APPDATA_DIR}/qbittorrent-mam:/config
       - ${DATA_DIR}/torrents:/data/torrents
+    # Makes a stranded-namespace failure visible. When this container loses the
+    # namespace it is attached to, the process keeps running and keeps a socket
+    # open on 8084 -- connections get RESET rather than refused -- so `docker ps`
+    # reports "Up" indefinitely while the UI is unreachable. Probing the WebUI
+    # from inside catches that; a plain liveness check cannot.
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-m", "5", "-o", "/dev/null", "http://127.0.0.1:8084"]
+      interval: 60s
+      timeout: 10s
+      # Generous: qBittorrent rechecks torrents on start and the WebUI can take a
+      # while to answer. Too low here would flap the container on every restart.
+      start_period: 180s
+      retries: 3
     restart: unless-stopped
 
   # Keeps the MAM session pointed at the current VPN exit IP. MAM requires the
@@ -396,11 +421,9 @@ services:
   # instance. Hence two: this one nightly for the stack, and watchtower-fast
   # below on a short cycle for omnibus.
   #
-  # Deliberately left UNSCOPED. An unscoped instance manages exactly those
-  # containers that carry no scope label, and skips scoped ones -- so it keeps
-  # picking up every service in this file automatically, while omnibus (labelled
-  # into omnibus-fast) is handed off to the other instance with no race. Setting a
-  # scope here would silently orphan all ~20 unlabelled services.
+  # Scope "none" is NOT the same as leaving it unset: unset monitors every
+  # container regardless of label, so it would claim omnibus and delete
+  # watchtower-fast as a same-scope duplicate. "none" means the unlabelled ones.
   watchtower:
     image: nickfedor/watchtower:latest
     container_name: watchtower
@@ -410,6 +433,7 @@ services:
       - TZ=${TZ}
       - WATCHTOWER_CLEANUP=true
       - WATCHTOWER_SCHEDULE=0 0 4 * * *
+      - WATCHTOWER_SCOPE=none
     restart: unless-stopped
 
   # Fast-cycle instance for omnibus only. Scoped, so it ignores every container
@@ -428,9 +452,12 @@ services:
       - WATCHTOWER_CLEANUP=true
       - WATCHTOWER_SCHEDULE=0 0 * * * *
       - WATCHTOWER_SCOPE=omnibus-fast
-    # No scope label on purpose: this container stays unscoped so the nightly
-    # instance above keeps its image updated. WATCHTOWER_SCOPE sets what this
-    # instance *watches*; it does not label the container itself.
+    labels:
+      # Puts this instance in its own scope; the env var above only sets what it
+      # watches. Unlabelled it lands in scope "none" and races the nightly
+      # instance, which deletes it as a duplicate. Cost: it self-updates hourly
+      # now, since the nightly instance no longer sees it.
+      - com.centurylinklabs.watchtower.scope=omnibus-fast
     restart: unless-stopped
 
   # Push-notification server. The phone subscribes to a topic and anything that
