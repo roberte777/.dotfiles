@@ -1,0 +1,53 @@
+# nordic — Ghostty theme matching alexvzyl/nordic.nvim
+#
+# ANSI mapping is taken verbatim from the plugin's own terminal definitions
+# (lua/nordic/groups/terminal.lua), so `:terminal` inside nvim and the host
+# terminal render identically.
+#
+# Note: Ghostty has no inline comments — a trailing `# ...` becomes part of
+# the value — so palette names are listed here instead.
+#
+#   0 black0        8  gray2
+#   1 red.base      9  red.bright
+#   2 green.base    10 green.bright
+#   3 yellow.base   11 yellow.bright
+#   4 blue0         12 blue2
+#   5 magenta.base  13 magenta.bright
+#   6 cyan.base     14 cyan.bright
+#   7 white0        15 white1
+
+# Normal
+palette = 0=#191d24
+palette = 1=#bf616a
+palette = 2=#a3be8c
+palette = 3=#ebcb8b
+palette = 4=#5e81ac
+palette = 5=#b48ead
+palette = 6=#8fbcbb
+palette = 7=#c0c8d8
+
+# Bright
+palette = 8=#3b4252
+palette = 9=#c5727a
+palette = 10=#b1c89d
+palette = 11=#efd49f
+palette = 12=#88c0d0
+palette = 13=#be9db8
+palette = 14=#9fc6c5
+palette = 15=#d8dee9
+
+# Normal fg/bg — matches the nvim `Normal` highlight (C.bg = gray0, C.fg = white0).
+# white0 is #c0c8d8 because nordic defaults to `reduced_blue = true`;
+# set it to #bbc3d4 if you turn that option off.
+background = #242933
+foreground = #c0c8d8
+
+# `Cursor = { fg = black0, bg = fg }`
+cursor-color = #c0c8d8
+cursor-text = #191d24
+
+# nordic's `visual.theme` default is 'dark', which blends toward black0 and gives
+# #1b1f26 — darker than the background and near-invisible for terminal selections.
+# This uses the 'light' variant instead: blend(gray2, gray0, 0.85).
+selection-background = #383e4d
+selection-foreground = #c0c8d8
