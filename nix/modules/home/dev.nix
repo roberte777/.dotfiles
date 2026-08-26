@@ -5,6 +5,10 @@
   inputs,
   ...
 }: {
+  imports = [
+    ./worktrunk-sync.nix
+  ];
+
   programs.git = {
     enable = true;
     settings = {
@@ -12,6 +16,8 @@
       user.email = "rewilkes0041@gmail.com";
       credential.helper = "store";
       init.defaultBranch = "main";
+      pull.rebase = true;
+      push.autoSetupRemote = true;
     };
   };
 
