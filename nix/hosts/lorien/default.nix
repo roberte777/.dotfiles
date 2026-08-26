@@ -57,4 +57,27 @@
 
   system.primaryUser = "roberte777";
   nix.settings.experimental-features = ["nix-command" "flakes"];
+
+  # Automatic Nix garbage collection. theater/dualb already do this; without it
+  # the store here grew to 335G, 300G of which was unreachable.
+  # nix-darwin uses `interval` (a launchd calendar spec) — `dates` is removed.
+  nix.gc = {
+    automatic = true;
+    interval = {
+      Weekday = 0;
+      Hour = 3;
+      Minute = 0;
+    };
+    options = "--delete-older-than 30d";
+  };
+
+  # Hardlink identical files between store paths; was never enabled here.
+  nix.optimise = {
+    automatic = true;
+    interval = {
+      Weekday = 0;
+      Hour = 4;
+      Minute = 0;
+    };
+  };
 }
