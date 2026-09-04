@@ -1,0 +1,217 @@
+# Resource alerts over Prometheus. Separate file from rules.yaml so the log
+# rules and the metric rules can be edited independently.
+#
+# These are deliberately about TREND, which is the gap the existing checks left:
+# stack-healthcheck.sh already fires at 90% disk and on SMART failure, but a
+# threshold on the present moment cannot tell you a drive will be full in three
+# weeks, or that memory has been climbing since a watchtower update.
+
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: host-resources
+    folder: Media Stack
+    interval: 1m
+    rules:
+      # ----------------------------------------------------------------------
+      # The predictive one. Complements, not duplicates, the script's 90% check:
+      # this fires weeks earlier, while there is still time to prune or buy a
+      # drive, instead of at the point where writes are about to fail.
+      - uid: disk-will-fill
+        title: Filesystem predicted to fill within 14 days
+        condition: B
+        for: 1h
+        annotations:
+          summary: >-
+            {{ $labels.mountpoint }} is on track to run out of space within 14
+            days at its current growth rate. stack-healthcheck.sh will not fire
+            until 90%.
+        labels:
+          severity: warning
+        isPaused: false
+        noDataState: OK
+        execErrState: OK
+        data:
+          - refId: A
+            relativeTimeRange: { from: 21600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              datasource: { type: prometheus, uid: prometheus }
+              # predict_linear over 6h of history, extrapolated 14 days out.
+              # Guarded on <50% headroom so a half-empty disk with noisy churn
+              # cannot trip it.
+              expr: >-
+                (predict_linear(node_filesystem_avail_bytes{fstype!~"tmpfs|devtmpfs"}[6h], 14 * 24 * 3600) < 0)
+                and
+                (node_filesystem_avail_bytes / node_filesystem_size_bytes < 0.5)
+              instant: true
+          - refId: B
+            relativeTimeRange: { from: 0, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [0] }
+
+      # ----------------------------------------------------------------------
+      - uid: host-memory-pressure
+        title: Host memory available is low
+        condition: B
+        for: 15m
+        annotations:
+          summary: >-
+            Less than 10% of RAM available on theater. Check the per-container
+            memory panel on the Host & Containers dashboard to see which
+            service is responsible.
+        labels:
+          severity: warning
+        isPaused: false
+        noDataState: OK
+        execErrState: OK
+        data:
+          - refId: A
+            relativeTimeRange: { from: 900, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              datasource: { type: prometheus, uid: prometheus }
+              # MemAvailable, not MemFree -- free excludes reclaimable page
+              # cache and would read as an emergency on a healthy box.
+              expr: '(node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes) * 100'
+              instant: true
+          - refId: B
+            relativeTimeRange: { from: 0, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: lt, params: [10] }
+
+      # ----------------------------------------------------------------------
+      # NOTE: this deliberately does NOT read node_hwmon_temp_celsius. hwmon on
+      # this box exposes the CPU package, NVMe, wifi and a thermal zone -- but
+      # NOT the SATA spinner, whose temperature is only available over SMART.
+      # An earlier version used max() across all hwmon sensors, which watched
+      # every component except the drive it was named for, and would have
+      # false-fired on a CPU package temp during a transcode (routinely 70C+)
+      # while reporting it as a drive problem.
+      #
+      # smartctl_device_temperature comes from the textfile collector fed by the
+      # smart-textfile systemd timer in default.nix.
+      - uid: drive-temperature-high
+        title: Drive temperature high
+        condition: B
+        for: 20m
+        annotations:
+          summary: >-
+            {{ $labels.device }} has been above 50C for 20 minutes. Sustained
+            heat is the main controllable factor in spinner lifespan -- check
+            enclosure airflow before it becomes a SMART problem.
+        labels:
+          severity: warning
+        isPaused: false
+        noDataState: OK
+        execErrState: OK
+        data:
+          - refId: A
+            relativeTimeRange: { from: 1200, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              datasource: { type: prometheus, uid: prometheus }
+              # 50C, not 55C: drive vendors rate for 60C but failure rates climb
+              # measurably above 50 in the Backblaze data, and this drive holds
+              # the only copy of the library.
+              expr: 'smartctl_device_temperature'
+              instant: true
+          - refId: B
+            relativeTimeRange: { from: 0, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [50] }
+
+      # ----------------------------------------------------------------------
+      # Container memory growth. This is the metric-side counterpart to the log
+      # volume spike rule -- same failure class, different signal.
+      - uid: container-memory-growth
+        title: Container memory climbing steadily
+        condition: B
+        for: 30m
+        annotations:
+          summary: >-
+            {{ $labels.name }} has grown its working set by more than 50% over
+            6h with no plateau, which is the shape of a leak rather than a
+            workload change.
+        labels:
+          severity: warning
+        isPaused: false
+        noDataState: OK
+        execErrState: OK
+        data:
+          - refId: A
+            relativeTimeRange: { from: 21600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              datasource: { type: prometheus, uid: prometheus }
+              # Ratio of now to 6h ago. The 200MB floor keeps small containers
+              # from tripping on normal warm-up churn.
+              expr: >-
+                (container_memory_working_set_bytes{name!=""} /
+                 (container_memory_working_set_bytes{name!=""} offset 6h))
+                and (container_memory_working_set_bytes{name!=""} > 200e6)
+              instant: true
+          - refId: B
+            relativeTimeRange: { from: 0, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [1.5] }
+
+      # ----------------------------------------------------------------------
+      # Without this the whole metrics pipeline can die silently and every rule
+      # above just reads OK forever.
+      - uid: metrics-target-down
+        title: A Prometheus scrape target is down
+        condition: B
+        for: 10m
+        annotations:
+          summary: >-
+            Prometheus cannot scrape {{ $labels.job }}. Metrics-based alerts are
+            blind until this is fixed.
+        labels:
+          severity: warning
+        isPaused: false
+        noDataState: OK
+        execErrState: OK
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: prometheus
+            model:
+              refId: A
+              datasource: { type: prometheus, uid: prometheus }
+              expr: 'up'
+              instant: true
+          - refId: B
+            relativeTimeRange: { from: 0, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: lt, params: [1] }

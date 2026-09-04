@@ -1,0 +1,19 @@
+# Metrics datasource, alongside Loki. Provisioned for the same reason: so a
+# volume reset brings Grafana back fully wired rather than half-configured.
+
+apiVersion: 1
+
+datasources:
+  - name: Prometheus
+    type: prometheus
+    access: proxy
+    uid: prometheus
+    url: http://prometheus:9090
+    # Loki stays default -- most ad-hoc work here starts from logs.
+    isDefault: false
+    jsonData:
+      # Must match the scrape_interval in prometheus.yml or Grafana picks
+      # misleading step values on wide time ranges.
+      timeInterval: 15s
+      httpMethod: POST
+    editable: false

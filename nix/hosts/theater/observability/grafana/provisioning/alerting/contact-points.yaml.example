@@ -1,0 +1,42 @@
+# Routes Grafana alerts to the same ntfy topic the rest of the stack uses, so
+# these land in the existing phone subscription with no new client setup.
+#
+# The url below embeds NTFY_TOPIC, which is the only secret on an
+# unauthenticated ntfy instance. Grafana provisioning does not expand
+# environment variables inside contact point settings, so it cannot be wired up
+# by reference -- keep this file out of git, and if the topic is rotated in
+# .env, update it here too and `docker compose restart grafana`.
+#
+# Grafana reaches ntfy over the compose network (ntfy:8085), not the published
+# 127.0.0.1:8085 -- a container cannot use the host loopback.
+
+apiVersion: 1
+
+contactPoints:
+  - orgId: 1
+    name: ntfy
+    receivers:
+      - uid: ntfy-media-stack
+        type: webhook
+        settings:
+          url: http://ntfy:8085/REPLACE_WITH_NTFY_TOPIC
+          httpMethod: POST
+          # ntfy treats the request body as the message text, so send a plain
+          # summary rather than Grafana's default JSON envelope.
+          message: |
+            {{ len .Alerts.Firing }} firing / {{ len .Alerts.Resolved }} resolved
+            {{ range .Alerts.Firing }}{{ .Labels.alertname }} - {{ .Labels.container }}
+            {{ .Annotations.summary }}
+            {{ end }}
+          title: '[{{ .Status | toUpper }}] media stack'
+        disableResolveMessage: false
+
+policies:
+  - orgId: 1
+    receiver: ntfy
+    group_by: ['alertname', 'container']
+    # Bundle the initial burst; a runaway loop trips several rules at once.
+    group_wait: 1m
+    group_interval: 5m
+    # Do not re-notify more than every 6h for something already known-firing.
+    repeat_interval: 6h

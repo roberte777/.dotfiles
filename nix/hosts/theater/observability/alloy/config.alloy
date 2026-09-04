@@ -1,0 +1,197 @@
+// Reads the systemd journal and ships to Loki. Docker uses the journald log
+// driver, so all containers arrive here with CONTAINER_NAME attached.
+
+loki.relabel "journal" {
+  forward_to = []
+
+  rule {
+    source_labels = ["__journal_container_name"]
+    target_label  = "container"
+  }
+
+  // Non-container logs (sshd, kernel, stack-healthcheck timer) carry a unit
+  // instead, so host and container problems share one query surface.
+  rule {
+    source_labels = ["__journal__systemd_unit"]
+    target_label  = "unit"
+  }
+
+  rule {
+    source_labels = ["__journal_syslog_identifier"]
+    target_label  = "syslog_identifier"
+  }
+
+  rule {
+    source_labels = ["__journal_priority_keyword"]
+    target_label  = "level"
+  }
+
+  rule {
+    source_labels = ["__journal__hostname"]
+    target_label  = "host"
+  }
+}
+
+loki.source.journal "read" {
+  forward_to    = [loki.process.dedupe_labels.receiver]
+  relabel_rules = loki.relabel.journal.rules
+  path          = "/var/log/journal"
+
+  // Backfill on first start so dashboards aren't empty. Kept short -- the
+  // journal holds ~28 days and replaying it all would spike ingestion at boot.
+  max_age = "24h"
+
+  labels = {
+    job = "systemd-journal",
+  }
+}
+
+loki.process "dedupe_labels" {
+  forward_to = [loki.write.default.receiver]
+
+  // Docker's journald driver stamps EVERY stderr line as PRIORITY=3 ("err"),
+  // regardless of the app's own severity. Containers that log to stderr (omnibus,
+  // ntfy, ...) therefore arrive 100% level="error" and make the label useless for
+  // alerting. So: drop the journald-derived level and re-derive it from the
+  // message text, per log format. Anything we cannot parse falls back to "info"
+  // rather than inheriting the bogus "error".
+  //
+  // Strip ANSI colour first -- omnibus (tracing) and seerr wrap the level in
+  // escape codes, which would otherwise defeat the regexes below.
+  // RE2 has no \x1b escape; \033 (octal) is the portable spelling for ESC.
+  stage.replace {
+    expression = "\\033\\[[0-9;]*[a-zA-Z]"
+    replace    = ""
+  }
+
+  // 1. *arr suite (sonarr/radarr/prowlarr/readarr/lidarr): "[Info] Service: msg"
+  stage.match {
+    selector = "{container=~\"sonarr|radarr|prowlarr|bazarr|readarr|lidarr|whisparr\"}"
+
+    stage.regex {
+      expression = "\\[(?P<lvl>Trace|Debug|Info|Warn|Error|Fatal)\\]"
+    }
+  }
+
+  // 2. Python-style: "2026-08-26 13:04:00 - logger - DEBUG - msg"
+  //    and bazarr's variant: "... :  INFO (series:170) - msg"
+  stage.match {
+    selector = "{container=~\"profilarr|bazarr|mousehole\"}"
+
+    stage.regex {
+      expression = "\\s(?P<lvl>TRACE|DEBUG|INFO|NOTICE|WARNING|WARN|ERROR|CRITICAL|FATAL)\\s"
+    }
+  }
+
+  // 3. Rust tracing (omnibus): "<ts> DEBUG request: msg".
+  //    NOTE: stage.replace above rewrites the stored line but later stages still
+  //    parse the ORIGINAL text, so these patterns must tolerate inline ANSI
+  //    themselves -- hence (?:\033\[[0-9;]*m)* rather than a plain anchor.
+  stage.match {
+    selector = "{container=\"omnibus\"}"
+
+    stage.regex {
+      expression = "(?:\\033\\[[0-9;]*m)*\\d{4}-\\d{2}-\\d{2}T\\S+\\s+(?:\\033\\[[0-9;]*m)*\\s*(?P<lvl>TRACE|DEBUG|INFO|WARN|ERROR)(?:\\033\\[[0-9;]*m)*\\s"
+    }
+  }
+
+  // 4. Go-style (ntfy): "2026/08/26 17:03:53 INFO msg"
+  stage.match {
+    selector = "{container=\"ntfy\"}"
+
+    stage.regex {
+      expression = "\\d{4}/\\d{2}/\\d{2}\\s+\\d{2}:\\d{2}:\\d{2}\\s+(?P<lvl>TRACE|DEBUG|INFO|WARN|ERROR|FATAL)\\s"
+    }
+  }
+
+  // 5. seerr/overseerr: "2026-...Z [debug][Jobs]: msg" (ANSI already stripped)
+  stage.match {
+    selector = "{container=~\"seerr|seerr-plex\"}"
+
+    stage.regex {
+      expression = "\\[(?P<lvl>trace|debug|info|warn|error|fatal)\\]"
+    }
+  }
+
+  // Promote the parsed level, lowercased. stage.labels only overwrites when the
+  // extracted map has the key, so containers whose regex did not match keep the
+  // journald value -- which is why the fallback below runs for those.
+  stage.template {
+    source   = "lvl"
+    template = "{{ ToLower .Value }}"
+  }
+
+  stage.labels {
+    values = {
+      level = "lvl",
+    }
+  }
+
+  // Fallback for every line the stages above did NOT parse a level from. This
+  // must be keyed on "lvl is empty", not on container name: even a container
+  // with a known format emits lines that carry no level -- banners, blank
+  // separators, and the 2nd..Nth line of a multi-line record. Scoping this by
+  // container instead let those lines keep journald's bogus "error" (observed:
+  // profilarr's import summary, "Added: 0, Updated: 250, Failed: 5").
+  //
+  // Deliberately NOT grepping the line for words like "error" here: a summary
+  // line reading "Failed: 5" is not itself an error event, and counting it as
+  // one is what makes a rate-based alert cry wolf. An unparsed line defaults to
+  // info; real errors come from the format-specific stages above.
+  stage.match {
+    selector = "{container=~\".+\"}"
+
+    stage.template {
+      source   = "lvl"
+      template = "{{ if .Value }}{{ ToLower .Value }}{{ else }}info{{ end }}"
+    }
+
+    stage.labels {
+      values = {
+        level = "lvl",
+      }
+    }
+  }
+
+  // Normalise the spelling variants so level="warning" is one bucket, not three.
+  stage.match {
+    selector = "{level=~\"warn|critical|fatal|err\"}"
+
+    stage.template {
+      source   = "level"
+      template = "{{ if or (eq .Value \"warn\") (eq .Value \"warning\") }}warning{{ else if or (eq .Value \"critical\") (eq .Value \"fatal\") }}error{{ else if eq .Value \"err\" }}error{{ else }}{{ .Value }}{{ end }}"
+    }
+
+    stage.labels {
+      values = {
+        level = "",
+      }
+    }
+  }
+}
+
+loki.write "default" {
+  endpoint {
+    url = "http://loki:3100/loki/api/v1/push"
+  }
+
+  // Buffer to disk so a Loki restart doesn't punch a hole in the logs during
+  // whatever incident prompted the restart.
+  wal {
+    enabled         = true
+    max_segment_age = "1h"
+    drain_timeout   = "30s"
+  }
+}
+
+// Enables /api/v0/web/debug, which streams [IN]/[OUT] label sets per stage --
+// the only practical way to debug loki.process. Localhost-only, same as the UI.
+// Turn off if the collector ever gets noticeably busier.
+livedebugging {
+  enabled = true
+}
+
+logging {
+  level  = "warn"
+  format = "logfmt"
+}

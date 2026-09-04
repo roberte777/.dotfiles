@@ -123,12 +123,57 @@
     };
   };
 
+  # SMART attributes for node-exporter's textfile collector.
+  #
+  # hwmon does not expose SATA drive temperature -- node_hwmon_temp_celsius on
+  # this box covers the CPU package, NVMe, wifi and a thermal zone, but not the
+  # 16TB spinner holding the library. Only SMART has it, and that needs root,
+  # which node-exporter (unprivileged, in a container) does not have.
+  #
+  # This is the trend counterpart to stack-healthcheck.sh: that alerts on SMART
+  # failure, this records the attributes over time so a reallocated sector count
+  # creeping 0 -> 3 -> 9 is visible before the verdict flips.
+  systemd.services.smart-textfile = {
+    description = "Export SMART attributes for node-exporter";
+    after = ["local-fs.target"];
+    path = with pkgs; [
+      smartmontools
+      gawk
+      gnugrep
+      coreutils
+      bash
+    ];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "/home/theater/.dotfiles/nix/hosts/theater/scripts/smart-textfile.sh";
+    };
+  };
+
+  systemd.timers.smart-textfile = {
+    description = "Refresh SMART metrics every 5 minutes";
+    wantedBy = ["timers.target"];
+    timerConfig = {
+      OnBootSec = "3min";
+      # 5 min is plenty: drive temperature moves slowly and smartctl spins up a
+      # sleeping disk, so polling harder would keep it awake for no benefit.
+      OnUnitActiveSec = "5min";
+      Unit = "smart-textfile.service";
+    };
+  };
+
   # Automatic Nix garbage collection
   nix.gc = {
     automatic = true;
     dates = "weekly";
     options = "--delete-older-than 30d";
   };
+
+  # Every container logs to the journal (journald docker driver). The default cap
+  # is 10% of the filesystem -- ~93G on this root. Backstop against a runaway
+  # container; size-based eviction handles retention, so no MaxRetentionSec.
+  services.journald.extraConfig = ''
+    SystemMaxUse=2G
+  '';
 
   # Auto-login on TTY1
   services.getty.autologinUser = "theater";
@@ -159,8 +204,34 @@
     3001 # kasm https
     3002 # kasm http
     3003 # uptime kuma
+    3004 # grafana
     8085 # ntfy
   ];
+  # Loki (3100), Alloy (12345), Prometheus (9090) and cadvisor (8086) omitted
+  # deliberately -- all bind 127.0.0.1 and are reached over the compose network.
+  # Grafana is the only entry point.
+
+  # node-exporter is the exception: it runs with network_mode: host so it can
+  # see real interfaces and processes, which means it listens on the host's
+  # 9100 rather than inside the compose network. Prometheus reaches it via the
+  # bridge gateway, and NixOS defaults to DROP, so that path needs an explicit
+  # rule.
+  #
+  # Scoped to the docker bridge interfaces rather than added to
+  # allowedTCPPorts -- node-exporter exposes host memory, filesystem layout,
+  # network counters and process stats with no auth, and that list opens a port
+  # to the whole LAN.
+  #
+  # iptables syntax, not nftables: this host still runs the iptables backend
+  # (networking.nftables.enable is not set), so extraInputRules would not apply.
+  networking.firewall.extraCommands = ''
+    iptables -A nixos-fw -i br-+ -p tcp --dport 9100 -j nixos-fw-accept
+    iptables -A nixos-fw -i docker0 -p tcp --dport 9100 -j nixos-fw-accept
+  '';
+  networking.firewall.extraStopCommands = ''
+    iptables -D nixos-fw -i br-+ -p tcp --dport 9100 -j nixos-fw-accept 2>/dev/null || true
+    iptables -D nixos-fw -i docker0 -p tcp --dport 9100 -j nixos-fw-accept 2>/dev/null || true
+  '';
 
   # Server-specific packages
   environment.systemPackages = with pkgs; [
