@@ -71,7 +71,11 @@
     nodePackages.typescript-language-server
     lua-language-server
     stylua
+    # Python: uv owns interpreters and project envs; ruff lints/formats and
+    # pyright type-checks (both are wired up in the neovim LSP config).
+    pkgs-unstable.uv
     ruff
+    pyright
     nodePackages.prettier
     prettierd
     tree-sitter

@@ -30,6 +30,12 @@
     # btop
   ];
 
+  # uv downloads prebuilt CPython builds that expect an FHS dynamic loader,
+  # which NixOS does not have. nix-ld supplies one so `uv python install` and
+  # native wheels work. Add to programs.nix-ld.libraries if a wheel reports a
+  # missing shared object.
+  programs.nix-ld.enable = true;
+
   # SSH
   services.openssh.enable = true;
 }
