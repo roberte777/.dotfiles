@@ -1,0 +1,137 @@
+# Rate-based alerts over Loki.
+#
+# Design note, from docs/SHELFARR_HEALTHCHECK_CHAINS.md: the failure these exist
+# to catch is a service that is up, correct, and answering -- just doing the
+# right thing far too often. Reachability checks (Uptime Kuma) and targeted
+# probes (stack-healthcheck.sh) both stayed green through 48 runaway job chains.
+# Log VOLUME was the only signal. So rule 1 is deliberately generic: it does not
+# know what shelfarr is, and would have caught that incident on day one.
+#
+# All queries use a Loki instant query (refId A) piped into a threshold
+# expression (refId B), which is the shape Grafana's unified alerting expects
+# for datasource-backed rules.
+
+apiVersion: 1
+
+groups:
+  - orgId: 1
+    name: media-stack
+    folder: Media Stack
+    # 1m is fast enough for a runaway loop and cheap against Loki.
+    interval: 1m
+    rules:
+      # ----------------------------------------------------------------------
+      - uid: log-volume-spike
+        title: Container log volume spiked vs its own baseline
+        condition: B
+        # 15m of sustained spike, not a burst -- a restart or a library scan
+        # briefly spikes any container and must not page.
+        for: 15m
+        annotations:
+          summary: >-
+            {{ $labels.container }} is logging far above its 6h baseline.
+            Check for a runaway loop: a self-rescheduling job, a retry storm, or
+            a crash loop. See docs/SHELFARR_HEALTHCHECK_CHAINS.md.
+        labels:
+          severity: warning
+        isPaused: false
+        noDataState: OK
+        execErrState: OK
+        data:
+          - refId: A
+            relativeTimeRange: { from: 21600, to: 0 }
+            datasourceUid: loki
+            model:
+              refId: A
+              datasource: { type: loki, uid: loki }
+              # Denominator floor excludes near-idle containers, where a single
+              # line reads as a 70x spike.
+              expr: >-
+                (sum by (container) (rate({container=~".+"}[5m])))
+                / (sum by (container) (rate({container=~".+"}[6h]) > 0.01))
+              queryType: instant
+          - refId: B
+            relativeTimeRange: { from: 0, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: gt, params: [4] }
+
+      # ----------------------------------------------------------------------
+      - uid: error-rate-high
+        title: Sustained error rate from a container
+        condition: B
+        for: 10m
+        annotations:
+          summary: >-
+            {{ $labels.container }} is producing errors continuously.
+            Note: levels are parsed from message text by Alloy, because Docker's
+            journald driver stamps all stderr as PRIORITY=3.
+        labels:
+          severity: warning
+        isPaused: false
+        noDataState: OK
+        execErrState: OK
+        data:
+          - refId: A
+            relativeTimeRange: { from: 600, to: 0 }
+            datasourceUid: loki
+            model:
+              refId: A
+              datasource: { type: loki, uid: loki }
+              expr: 'sum by (container) (count_over_time({container=~".+", level="error"}[5m]))'
+              queryType: instant
+          - refId: B
+            relativeTimeRange: { from: 0, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: threshold
+              expression: A
+              # 25 errors per 5m -- above the stack's normal error chatter,
+              # which sits near zero now that levels parse correctly.
+              conditions:
+                - evaluator: { type: gt, params: [25] }
+
+      # ----------------------------------------------------------------------
+      # The inverse failure: a container that goes SILENT. Catches a wedged
+      # process that keeps its port open, which reachability checks also miss.
+      - uid: container-log-silence
+        title: Chatty container has gone silent
+        condition: B
+        for: 20m
+        annotations:
+          summary: >-
+            {{ $labels.container }} normally logs steadily but has produced
+            nothing for 20m. It may be wedged even if its port still answers.
+        labels:
+          severity: warning
+        isPaused: false
+        noDataState: OK
+        execErrState: OK
+        data:
+          - refId: A
+            relativeTimeRange: { from: 86400, to: 0 }
+            datasourceUid: loki
+            model:
+              refId: A
+              datasource: { type: loki, uid: loki }
+              # Only consider containers that averaged >6 lines/min over 24h, so
+              # normally-quiet services do not alert for being quiet.
+              expr: >-
+                (sum by (container) (count_over_time({container=~".+"}[20m])))
+                and
+                (sum by (container) (rate({container=~".+"}[24h])) > 0.1)
+              queryType: instant
+          - refId: B
+            relativeTimeRange: { from: 0, to: 0 }
+            datasourceUid: __expr__
+            model:
+              refId: B
+              type: threshold
+              expression: A
+              conditions:
+                - evaluator: { type: lt, params: [1] }

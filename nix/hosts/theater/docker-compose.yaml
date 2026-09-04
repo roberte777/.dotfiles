@@ -17,11 +17,33 @@ services:
       - VPN_TYPE=wireguard
       - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
       - SERVER_COUNTRIES=${SERVER_COUNTRIES}
-      # No SERVER_HOSTNAMES pin here. The old pin worked around a NordVPN OpenVPN
-      # quirk: gluetun would latch onto one endpoint that rejected auth and retry
-      # it forever. Proton WireGuard authenticates with a key rather than
-      # per-server credentials, so a bad-endpoint pick is not sticky in the same
-      # way and the workaround no longer earns its keep.
+      # Restricted to endpoints whose exit ASN is already authorised on the
+      # MyAnonaMouse session. This is about MAM, not about connectivity.
+      #
+      # MAM binds a seedbox session to a set of ASNs, not just an IP. Unpinned,
+      # SERVER_COUNTRIES=United States leaves 73 port-forward endpoints in the
+      # pool, and 41 of them exit via ASNs the session does not allow -- so a
+      # healthcheck reconnect had a better-than-even chance of landing somewhere
+      # MAM rejects with "Invalid session - ASN mismatch", forcing a manual IP
+      # re-add on the site. Observed drifting Secaucus -> Chicago (AS212238) ->
+      # Phoenix (AS63023) in a few days.
+      #
+      # The single worst offender is AS212238 (Datacamp), which alone is 40 of
+      # the 73 nodes and is NOT on the session allow-list.
+      #
+      # Filtering by city does not work: Proton's Chicago nodes straddle AS60068
+      # and AS212238, so the filter has to be hostname-level. Every host below
+      # resolves into one of the session's allowed ASNs (9009 / 60068 / 63023 /
+      # 199218), so gluetun is free to rotate among them on a healthcheck failure
+      # and the exit stays authorised no matter which one it picks. Keeping all
+      # 32 rather than a single host is deliberate -- it preserves failover.
+      #
+      # Session allow-list at time of writing: 9009, 60068, 63023, 199218, 208172.
+      # (208172 currently has no US port-forward nodes, hence no hosts for it.)
+      #
+      # Proton does renumber nodes, so if MAM starts rejecting again, re-derive:
+      #   scripts/mam-allowed-vpn-hosts.sh
+      - SERVER_HOSTNAMES=node-us-126.protonvpn.net,node-us-127.protonvpn.net,node-us-130.protonvpn.net,node-us-144.protonvpn.net,node-us-171.protonvpn.net,node-us-176.protonvpn.net,node-us-181.protonvpn.net,node-us-183.protonvpn.net,node-us-189.protonvpn.net,node-us-190.protonvpn.net,node-us-195.protonvpn.net,node-us-197.protonvpn.net,node-us-208.protonvpn.net,node-us-212.protonvpn.net,node-us-215b.protonvpn.net,node-us-221.protonvpn.net,node-us-237.protonvpn.net,node-us-238.protonvpn.net,node-us-256.protonvpn.net,node-us-259.protonvpn.net,node-us-260.protonvpn.net,node-us-261.protonvpn.net,node-us-300.protonvpn.net,node-us-311.protonvpn.net,node-us-312.protonvpn.net,node-us-313.protonvpn.net,node-us-371.protonvpn.net,node-us-372.protonvpn.net,node-us-58.protonvpn.net,node-us-69.protonvpn.net,node-us-74.protonvpn.net,node-us-93.protonvpn.net
       #
       # Restricts server selection to Proton endpoints that support port
       # forwarding, which is the same set as its P2P servers -- gluetun has no
@@ -116,6 +138,9 @@ services:
       # monitor-only keeps it visible so it is recreated alongside gluetun, while
       # still never being upgraded off the pinned tag.
       - com.centurylinklabs.watchtower.monitor-only=true
+      # See sabnzbd. monitor-only keeps this container visible, but visibility is
+      # not a dependency -- this label is what actually ties it to gluetun.
+      - com.centurylinklabs.watchtower.depends-on=gluetun
     volumes:
       - ${APPDATA_DIR}/qbittorrent-mam:/config
       - ${DATA_DIR}/torrents:/data/torrents
@@ -158,6 +183,10 @@ services:
       - MOUSEHOLE_AUTH_PASSWORD=${MOUSEHOLE_AUTH_PASSWORD}
       # Needed because the UI is reached over the LAN rather than localhost.
       - MOUSEHOLE_ALLOWED_HOSTS=${MOUSEHOLE_ALLOWED_HOSTS}
+    labels:
+      # See sabnzbd. Ties this container to gluetun so watchtower recreates it
+      # when the tunnel is replaced, instead of stranding it on a dead namespace.
+      - com.centurylinklabs.watchtower.depends-on=gluetun
     volumes:
       - ${APPDATA_DIR}/mousehole:/var/lib/mousehole
     restart: unless-stopped
@@ -173,6 +202,10 @@ services:
       - PGID=${PGID}
       - TZ=${TZ}
       - WEBUI_PORT=8081
+    labels:
+      # See sabnzbd. Ties this container to gluetun so watchtower recreates it
+      # when the tunnel is replaced, instead of stranding it on a dead namespace.
+      - com.centurylinklabs.watchtower.depends-on=gluetun
     volumes:
       - ${APPDATA_DIR}/qbittorrent:/config
       - ${DATA_DIR}/torrents:/data/torrents
@@ -188,6 +221,10 @@ services:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
+    labels:
+      # See sabnzbd. Ties this container to gluetun so watchtower recreates it
+      # when the tunnel is replaced, instead of stranding it on a dead namespace.
+      - com.centurylinklabs.watchtower.depends-on=gluetun
     volumes:
       - ${APPDATA_DIR}/prowlarr:/config
     restart: unless-stopped
@@ -200,6 +237,10 @@ services:
       - gluetun
     environment:
       - TZ=${TZ}
+    labels:
+      # See sabnzbd. Ties this container to gluetun so watchtower recreates it
+      # when the tunnel is replaced, instead of stranding it on a dead namespace.
+      - com.centurylinklabs.watchtower.depends-on=gluetun
     restart: unless-stopped
 
   # radarr/sonarr remain normal (no VPN), as before:
@@ -320,6 +361,26 @@ services:
       - PUID=${PUID}
       - PGID=${PGID}
       - TZ=${TZ}
+    labels:
+      # Watchtower recreates this container whenever it replaces gluetun. Without
+      # it, a gluetun update leaves sabnzbd attached to the destroyed namespace:
+      # the process keeps running and keeps its socket on 8080, `docker ps` shows
+      # it Up and healthy, but the published 8080 now forwards into the NEW
+      # namespace where nothing listens. Radarr then fails every grab with
+      # "Broken pipe" / "Connection reset by peer" and returns 500 from
+      # POST /api/v3/release, while search still works -- so it reads like a
+      # Prowlarr or indexer fault rather than a download-client one.
+      #
+      # depends_on above does NOT cover this; it only orders startup and does
+      # nothing when gluetun is replaced later.
+      #
+      # network_mode: service:gluetun is also an implicit link, but a fragile one.
+      # Watchtower stores that link as a container ID and has to inspect the ID to
+      # turn it back into "gluetun". Once the referenced container is gone -- which
+      # is exactly the stranded case -- the inspect fails ("Unable to resolve
+      # network container") and the link is lost at the moment it is needed. The
+      # explicit label is a plain name, checked before any of that, so it survives.
+      - com.centurylinklabs.watchtower.depends-on=gluetun
     volumes:
       - ${APPDATA_DIR}/sabnzbd:/config
       - ${DATA_DIR}/usenet:/data/usenet
@@ -543,4 +604,181 @@ services:
       - ${APPDATA_DIR}/omnibus/cache:/cache
       - ${DATA_DIR}/media/books:/books
       - ${DATA_DIR}/media/audiobooks:/audiobooks
+    restart: unless-stopped
+
+  # --- Observability -------------------------------------------------------
+  # Docker uses the journald log driver, so Alloy reads every container's stdout
+  # from the journal. No logging config on any other service.
+
+  loki:
+    # Pinned: Loki has schema changes between minors, and an unattended bump
+    # needing a migration would take logging down unnoticed.
+    image: grafana/loki:3.7.6
+    container_name: loki
+    user: "${PUID}:${PGID}"
+    ports:
+      # localhost only -- no auth, and it holds everything the stack logs.
+      - "127.0.0.1:3100:3100"
+    command: -config.file=/etc/loki/loki-config.yaml
+    volumes:
+      - ${APPDATA_DIR}/loki/loki-config.yaml:/etc/loki/loki-config.yaml:ro
+      - ${APPDATA_DIR}/loki/data:/loki
+    restart: unless-stopped
+
+  # Metrics half of the observability stack. Loki says what containers logged;
+  # these say what the machine and each container are actually doing. The
+  # shelfarr incident is the worked example for why both matter: the logs held
+  # the signal, but per-container CPU would have shown it too, and neither
+  # Uptime Kuma nor the healthcheck script could see either.
+  prometheus:
+    # Pinned: retention and TSDB format are on-disk state, and an unattended
+    # major bump is not something to discover during an incident.
+    image: prom/prometheus:v3.7.3
+    container_name: prometheus
+    user: "${PUID}:${PGID}"
+    ports:
+      # localhost only -- no auth, same reasoning as Loki. Grafana reaches it
+      # over the compose network.
+      - "127.0.0.1:9090:9090"
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      # 90 days: long enough to see a seasonal pattern and to answer "when did
+      # this start" for a slow leak. At this scrape interval and series count
+      # that is a couple of GB, well under the headroom on the NVMe.
+      - --storage.tsdb.retention.time=90d
+      # Lets Grafana deep-link into the Prometheus UI correctly if ever needed.
+      - --web.enable-lifecycle
+    # node-exporter is on the host network, so it has no container name to
+    # resolve. This maps host.docker.internal to the bridge gateway rather than
+    # hardcoding 172.18.0.1, which moves if the network is recreated.
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    volumes:
+      - ${APPDATA_DIR}/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ${APPDATA_DIR}/prometheus/data:/prometheus
+    depends_on:
+      - node-exporter
+      - cadvisor
+    restart: unless-stopped
+
+  # Host-level metrics. Needs broad read-only host mounts because that is
+  # precisely its job -- it reads /proc and /sys for the real host, not the
+  # container's namespaced view.
+  node-exporter:
+    image: prom/node-exporter:v1.10.1
+    container_name: node-exporter
+    # Host PID + network so it sees real processes and real interfaces rather
+    # than the container's own. Read-only mounts; it never writes anything.
+    pid: host
+    network_mode: host
+    command:
+      - --path.procfs=/host/proc
+      - --path.sysfs=/host/sys
+      - --path.rootfs=/host/root
+      # Without this every container overlay and bind mount shows up as its own
+      # filesystem and buries the three that matter (/, /boot, /mnt/bay1).
+      - --collector.filesystem.mount-points-exclude=^/(dev|proc|sys|run|var/lib/docker/.+|var/lib/kubelet/.+)($$|/)
+      - --collector.filesystem.fs-types-exclude=^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$$
+      - --collector.hwmon
+      # hwmon covers the CPU package, NVMe and wifi but NOT the SATA spinner --
+      # that temperature only exists over SMART, which needs root. The
+      # smart-textfile systemd timer writes it here as a .prom file instead.
+      - --collector.textfile
+      - --collector.textfile.directory=/var/lib/node-exporter/textfile
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/host/root:ro,rslave
+      - /var/lib/node-exporter/textfile:/var/lib/node-exporter/textfile:ro
+    restart: unless-stopped
+
+  # Per-container CPU/memory/network/IO. This is what turns "something is
+  # leaking" into "shelfarr is leaking".
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.55.1
+    container_name: cadvisor
+    ports:
+      # localhost only; Prometheus scrapes it over the compose network.
+      - "127.0.0.1:8086:8080"
+    # cadvisor genuinely needs these to read cgroup accounting for every
+    # container. Everything is read-only except the docker socket, which it
+    # uses to map cgroup ids to container names.
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+      # Without this cadvisor cannot map cgroup ids to container names: every
+      # series comes back as id="/" with no name label, which makes per-container
+      # attribution -- the entire reason for running it -- impossible.
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    devices:
+      - /dev/kmsg
+    privileged: true
+    command:
+      # Only the metrics the scrape config keeps; disabling the rest at source
+      # is cheaper than dropping them after transfer.
+      - --housekeeping_interval=15s
+      - --docker_only=true
+      - --store_container_labels=false
+      # NixOS puts containerd's socket under /var/run/docker/containerd rather
+      # than the /run/containerd default cadvisor compiles in. Without this its
+      # docker factory fails to register, it silently falls back to the Raw
+      # factory, and every series comes back as id="/" with no name label --
+      # scrapes look healthy while producing nothing usable.
+      - --containerd=/var/run/docker/containerd/containerd.sock
+    restart: unless-stopped
+
+  alloy:
+    # Pinned so a watchtower bump cannot silently change the collector.
+    image: grafana/alloy:v1.19.0
+    container_name: alloy
+    ports:
+      - "127.0.0.1:12345:12345"
+    command:
+      - run
+      - --server.http.listen-addr=0.0.0.0:12345
+      # Not the default /var/lib/alloy/data: that parent is baked into the image
+      # as 0770 uid 473, so a PUID container cannot traverse it to reach a volume
+      # mounted underneath. Fails as "mkdir ... permission denied" naming the child.
+      - --storage.path=/alloy-data
+      - /etc/alloy/config.alloy
+    volumes:
+      - ${APPDATA_DIR}/alloy/config.alloy:/etc/alloy/config.alloy:ro
+      - ${APPDATA_DIR}/alloy/data:/alloy-data
+      - /var/log/journal:/var/log/journal:ro
+      - /run/log/journal:/run/log/journal:ro
+      - /etc/machine-id:/etc/machine-id:ro
+    # PUID to own the state dir, systemd-journal as a supplementary group to read
+    # the journal. gid 62 here; `getent group systemd-journal` to confirm.
+    user: "${PUID}:${PGID}"
+    group_add:
+      - "62"
+    depends_on:
+      - loki
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:13.2.0
+    container_name: grafana
+    # Image defaults to uid 472, which cannot write a PUID-owned appdata dir.
+    user: "${PUID}:${PGID}"
+    ports:
+      # 3000-3003 are omnibus, kasm x2, uptime-kuma.
+      - "3004:3000"
+    environment:
+      - TZ=${TZ}
+      - GF_SECURITY_ADMIN_USER=${GRAFANA_ADMIN_USER:-admin}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_ANALYTICS_REPORTING_ENABLED=false
+      - GF_ANALYTICS_CHECK_FOR_UPDATES=false
+      - GF_EXPLORE_ENABLED=true
+    volumes:
+      - ${APPDATA_DIR}/grafana/data:/var/lib/grafana
+      - ${APPDATA_DIR}/grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - loki
     restart: unless-stopped

@@ -1,0 +1,57 @@
+# Metrics for the host and per-container resource usage. Complements Loki:
+# Loki answers "what did a service say", this answers "what is the machine
+# doing". Neither sees the other's failure modes.
+#
+# Scrape targets are reached over the compose network by container name, the
+# same way Grafana reaches Loki. Nothing here is exposed off the host.
+
+global:
+  # 15s is the node_exporter default and is plenty for trend work. The point of
+  # these metrics is weeks-of-runway and slow leaks, not sub-minute resolution.
+  scrape_interval: 15s
+  scrape_timeout: 10s
+  # Tags every series so a future second host stays distinguishable.
+  external_labels:
+    host: theater
+
+scrape_configs:
+  # Host: CPU, memory, load, filesystems, network, disk I/O, and the SMART-ish
+  # bits exposed via textfile collectors.
+  # node-exporter runs with network_mode: host so it sees real interfaces, which
+  # means it has no compose-network name to resolve. host.docker.internal is
+  # mapped to the gateway by an extra_hosts entry on the prometheus service --
+  # preferred over hardcoding 172.18.0.1, which changes if the compose network
+  # is ever recreated.
+  - job_name: node
+    static_configs:
+      - targets: ['host.docker.internal:9100']
+        labels:
+          instance: theater
+
+  # Per-container CPU/memory/network/IO. This is the piece that gives
+  # attribution -- "memory is climbing" becomes "shelfarr's memory is climbing".
+  - job_name: cadvisor
+    static_configs:
+      - targets: ['cadvisor:8080']
+        labels:
+          instance: theater
+    metric_relabel_configs:
+      # cadvisor emits a very wide set by default and most of it is per-cgroup
+      # noise that inflates storage for no benefit here. Keep the families the
+      # dashboards and alerts actually use.
+      - source_labels: [__name__]
+        regex: 'container_(cpu_usage_seconds_total|memory_working_set_bytes|memory_usage_bytes|spec_memory_limit_bytes|network_(receive|transmit)_bytes_total|fs_(reads|writes)_bytes_total|last_seen|start_time_seconds)'
+        action: keep
+      # Drop the per-container series with no name label -- those are the
+      # cgroup roots and they double the series count.
+      - source_labels: [name]
+        regex: '^$'
+        action: drop
+
+  # Prometheus scrapes itself so "is the metrics pipeline alive" is answerable
+  # from within the metrics pipeline.
+  - job_name: prometheus
+    static_configs:
+      - targets: ['localhost:9090']
+        labels:
+          instance: theater

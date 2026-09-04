@@ -1,0 +1,20 @@
+# Provisioned so dashboards survive a volume reset, same rationale as the
+# datasource. JSON lives in ${APPDATA_DIR}/grafana/data/dashboards, which is
+# inside the existing /var/lib/grafana mount -- deliberately reusing that mount
+# so compose does not need a new volume line just for dashboards.
+
+apiVersion: 1
+
+providers:
+  - name: media-stack
+    orgId: 1
+    folder: Media Stack
+    type: file
+    # Lets the UI's "Save" work for iterating; the file on disk still wins on
+    # every Grafana restart, so treat the file as the source of truth.
+    disableDeletion: false
+    allowUiUpdates: true
+    updateIntervalSeconds: 30
+    options:
+      path: /var/lib/grafana/dashboards
+      foldersFromFilesStructure: false
