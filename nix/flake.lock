@@ -2,17 +2,17 @@
   "nodes": {
     "claude-code-nix": {
       "inputs": {
-        "flake-utils": "flake-utils",
         "nixpkgs": [
           "nixpkgs"
-        ]
+        ],
+        "systems": "systems"
       },
       "locked": {
-        "lastModified": 1785285785,
-        "narHash": "sha256-r1cMlvXjRVKe+uQ/GKwy4TpionpmbNgksFP2758D/MM=",
+        "lastModified": 1788798610,
+        "narHash": "sha256-exCgwjF4Lls46Kj590fPb0HlNcwllX1sOZX0V49qb1s=",
         "owner": "sadjow",
         "repo": "claude-code-nix",
-        "rev": "da78262708d858861afbe1f68ea65fedda4054c4",
+        "rev": "806752b6b51c5a3f9362fd60aed838c891b5c58b",
         "type": "github"
       },
       "original": {
@@ -59,24 +59,6 @@
       }
     },
     "flake-utils": {
-      "inputs": {
-        "systems": "systems"
-      },
-      "locked": {
-        "lastModified": 1731533236,
-        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
-        "type": "github"
-      },
-      "original": {
-        "owner": "numtide",
-        "repo": "flake-utils",
-        "type": "github"
-      }
-    },
-    "flake-utils_2": {
       "inputs": {
         "systems": "systems_3"
       },
@@ -345,7 +327,7 @@
       "inputs": {
         "crane": "crane",
         "fenix": "fenix",
-        "flake-utils": "flake-utils_2",
+        "flake-utils": "flake-utils",
         "nixpkgs": [
           "nixpkgs"
         ]
