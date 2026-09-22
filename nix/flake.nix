@@ -37,6 +37,26 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
     };
+    # Tracks main. Upstream marks Nix a Tier 2 platform and warns that commits
+    # to main may break the packages, so a failed rebuild here is expected
+    # maintenance rather than a bug -- roll back by pinning a rev in this url.
+    #
+    # Follows nixpkgs-unstable, not our nixpkgs: Hermes builds against
+    # nodejs_26, which exists in unstable but not in the 25.11 release we pin,
+    # and following the latter fails evaluation outright. Note this couples two
+    # moving targets -- updating nixpkgs-unstable can break Hermes even when
+    # Hermes itself has not changed.
+    hermes-agent = {
+      url = "github:NousResearch/hermes-agent";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.home-manager.follows = "home-manager";
+    };
+    # Follows nixpkgs-unstable for the same reason as hermes-agent above: its
+    # sops-install-secrets needs Go >= 1.26, and our 25.11 pin ships 1.25.
+    sops-nix = {
+      url = "github:Mic92/sops-nix";
+      inputs.nixpkgs.follows = "nixpkgs-unstable";
+    };
   };
   outputs = {
     self,
