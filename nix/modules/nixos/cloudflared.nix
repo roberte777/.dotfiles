@@ -20,6 +20,7 @@ in {
 
       ingress = {
         # --- Public (own auth, no Cloudflare Access) ---
+        "kakashi.${domain}" = "http://localhost:8404"; # kakashi site (static, no secrets)
         "vault.${domain}" = "http://localhost:8083"; # vaultwarden
         "requests.${domain}" = "http://localhost:5055"; # seerr
         "books.${domain}" = "http://localhost:3000"; # omnibus (has own auth)
