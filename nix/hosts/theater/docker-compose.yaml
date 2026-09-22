@@ -1,10 +1,8 @@
 services:
   gluetun:
-    # v3, NOT latest. On this repo :latest tracks the development branch and is
-    # rebuilt continuously -- it produced a new image every single night, so
-    # watchtower tore down and recreated the tunnel (and every one of the six
-    # containers sharing its namespace) daily. :v3 follows stable releases and
-    # still gets patch updates, so this stays current without the nightly churn.
+    # v3, NOT latest -- :latest tracks the dev branch and rebuilds nightly, so
+    # watchtower recreated the tunnel (and all six containers sharing its
+    # namespace) every day. :v3 still gets patch updates.
     image: qmcgaw/gluetun:v3
     container_name: gluetun
     cap_add:
@@ -17,80 +15,40 @@ services:
       - VPN_TYPE=wireguard
       - WIREGUARD_PRIVATE_KEY=${WIREGUARD_PRIVATE_KEY}
       - SERVER_COUNTRIES=${SERVER_COUNTRIES}
-      # Restricted to endpoints whose exit ASN is already authorised on the
-      # MyAnonaMouse session. This is about MAM, not about connectivity.
-      #
-      # MAM binds a seedbox session to a set of ASNs, not just an IP. Unpinned,
-      # SERVER_COUNTRIES=United States leaves 73 port-forward endpoints in the
-      # pool, and 41 of them exit via ASNs the session does not allow -- so a
-      # healthcheck reconnect had a better-than-even chance of landing somewhere
-      # MAM rejects with "Invalid session - ASN mismatch", forcing a manual IP
-      # re-add on the site. Observed drifting Secaucus -> Chicago (AS212238) ->
-      # Phoenix (AS63023) in a few days.
-      #
-      # The single worst offender is AS212238 (Datacamp), which alone is 40 of
-      # the 73 nodes and is NOT on the session allow-list.
-      #
-      # Filtering by city does not work: Proton's Chicago nodes straddle AS60068
-      # and AS212238, so the filter has to be hostname-level. Every host below
-      # resolves into one of the session's allowed ASNs (9009 / 60068 / 63023 /
-      # 199218), so gluetun is free to rotate among them on a healthcheck failure
-      # and the exit stays authorised no matter which one it picks. Keeping all
-      # 32 rather than a single host is deliberate -- it preserves failover.
-      #
-      # Session allow-list at time of writing: 9009, 60068, 63023, 199218, 208172.
-      # (208172 currently has no US port-forward nodes, hence no hosts for it.)
-      #
-      # Proton does renumber nodes, so if MAM starts rejecting again, re-derive:
+      # Pinned to endpoints whose exit ASN is on the MAM session allow-list
+      # (9009 / 60068 / 63023 / 199218); otherwise a reconnect lands on a
+      # disallowed ASN and MAM fails with "Invalid session - ASN mismatch",
+      # needing a manual IP re-add. Must be hostname-level: Proton's cities
+      # straddle multiple ASNs. All 32 kept deliberately, to preserve failover.
+      # Proton renumbers nodes -- if MAM starts rejecting, re-derive with:
       #   scripts/mam-allowed-vpn-hosts.sh
       - SERVER_HOSTNAMES=node-us-126.protonvpn.net,node-us-127.protonvpn.net,node-us-130.protonvpn.net,node-us-144.protonvpn.net,node-us-171.protonvpn.net,node-us-176.protonvpn.net,node-us-181.protonvpn.net,node-us-183.protonvpn.net,node-us-189.protonvpn.net,node-us-190.protonvpn.net,node-us-195.protonvpn.net,node-us-197.protonvpn.net,node-us-208.protonvpn.net,node-us-212.protonvpn.net,node-us-215b.protonvpn.net,node-us-221.protonvpn.net,node-us-237.protonvpn.net,node-us-238.protonvpn.net,node-us-256.protonvpn.net,node-us-259.protonvpn.net,node-us-260.protonvpn.net,node-us-261.protonvpn.net,node-us-300.protonvpn.net,node-us-311.protonvpn.net,node-us-312.protonvpn.net,node-us-313.protonvpn.net,node-us-371.protonvpn.net,node-us-372.protonvpn.net,node-us-58.protonvpn.net,node-us-69.protonvpn.net,node-us-74.protonvpn.net,node-us-93.protonvpn.net
       #
-      # Restricts server selection to Proton endpoints that support port
-      # forwarding, which is the same set as its P2P servers -- gluetun has no
-      # SERVER_FEATURES variable, so this is how "P2P only" is expressed. Without
-      # it, gluetun can pick a non-P2P server, connect fine, and then silently
-      # fail to obtain a forwarded port.
-      #
-      # Note this narrows the pool for EVERY service on this tunnel, not just the
-      # MAM client. That is the accepted cost of keeping MyAnonaMouse on a single
-      # exit IP: MAM binds the session to one IP and rejects a torrent client that
-      # announces from a different one than the indexer browses from, so prowlarr
-      # and qbittorrent-mam must share this namespace.
+      # How "P2P only" is expressed -- gluetun has no SERVER_FEATURES variable,
+      # and Proton's port-forward servers are the same set as its P2P ones.
+      # Without it gluetun can pick a non-P2P server, connect fine, and silently
+      # never get a forwarded port. Narrows the pool for every service on this
+      # tunnel: the accepted cost of MAM needing one shared exit IP.
       - PORT_FORWARD_ONLY=on
-      # Actually requests the forwarded port over NAT-PMP. The certificate must
-      # have been generated with NAT-PMP enabled in the Proton dashboard; that is
-      # baked into the cert and cannot be toggled afterwards.
+      # The cert must have been generated with NAT-PMP enabled in the Proton
+      # dashboard -- that is baked in and cannot be toggled afterwards.
       - VPN_PORT_FORWARDING=on
-      # Proton issues a new forwarded port on every reconnect, so qBittorrent's
-      # listen port cannot be hardcoded -- it would silently stop being
-      # connectable after the first reconnect. gluetun substitutes {{PORT}} and
-      # runs this once the port is up, pushing it into qBittorrent's API.
-      #
-      # Targets 8084 (qbittorrent-mam's WEBUI_PORT), NOT 8081 -- the forwarded
-      # port belongs to the MAM client. Requires that client's "Bypass
-      # authentication for clients on localhost" to be enabled.
-      #
-      # MAM blacklists the common BitTorrent ports (6881-6889) and other p2p
-      # ports; Proton's NAT-PMP assignments land well outside that range, so the
-      # dynamic port is safe to use as-is.
-      # The whole shell script must be ONE argument to `sh -c`, hence the single
-      # quotes: without them sh runs `wget` alone and treats the rest as
-      # positional parameters, failing with "wget: missing URL".
+      # Proton issues a new port on every reconnect, so the listen port cannot be
+      # hardcoded; gluetun substitutes {{PORT}} and pushes it into qBittorrent.
+      # Targets 8084 (qbittorrent-mam), NOT 8081 -- the forwarded port belongs to
+      # the MAM client, which needs "Bypass authentication for localhost" on.
+      # Single quotes are required: the script must be ONE argument to `sh -c`,
+      # otherwise sh runs `wget` alone and fails with "wget: missing URL".
       - VPN_PORT_FORWARDING_UP_COMMAND=/bin/sh -c 'wget -qO- --retry-connrefused --post-data "json={\"listen_port\":{{PORT}},\"random_port\":false,\"upnp\":false}" http://127.0.0.1:8084/api/v2/app/setPreferences'
-      #
-      # Refresh the ProtonVPN server list every 20 days. Defaults to 0 (disabled),
-      # which lets the list bundled in the image drift out of date as the provider
-      # rotates endpoints. Writes into the persisted /gluetun mount below.
-      # Do not go below 360h: more frequent polling spams the provider's API and
-      # risks getting the updater blocked.
+      # Refresh the server list every 20 days; defaults to 0 (disabled), letting
+      # the image's bundled list drift as Proton rotates endpoints. Do not go
+      # below 360h -- harder polling risks the updater being blocked.
       - UPDATER_PERIOD=480h
       - UPDATER_VPN_SERVICE_PROVIDERS=protonvpn
     volumes:
-      # Persists /gluetun/servers/manifest.json across image updates. The image
-      # ships a server list baked in at build time; the provider rotates endpoints,
-      # and a stale list makes gluetun dial a decommissioned server, which fails to
-      # connect and looks like a bad key. Without this mount, watchtower's nightly
-      # pull reverts the refreshed list.
+      # Persists the refreshed server list across image updates -- without it
+      # watchtower's pull reverts to the stale baked-in one, and gluetun dials a
+      # decommissioned server, which looks like a bad key.
       - ${APPDATA_DIR}/gluetun:/gluetun
     ports:
       # qBittorrent WebUI (qbit listens on 8080 in its container)
@@ -105,18 +63,13 @@ services:
       - "5010:5010"
     restart: unless-stopped
 
-  # Dedicated qBittorrent for MyAnonaMouse, separate from the general-purpose
-  # qbittorrent above so its version can be pinned and its settings tuned to
-  # MAM's rules without affecting the rest of the stack.
+  # Dedicated qBittorrent for MyAnonaMouse, kept separate from the general-purpose
+  # one so it can be pinned and tuned to MAM's rules independently.
   #
-  # VERSION IS PINNED DELIBERATELY -- DO NOT CHANGE TO :latest.
-  # MAM only permits qBittorrent 5.0.1 through the 5.2.x line, and its rules
-  # require auto-update to be disabled. watchtower pulls :latest nightly across
-  # this stack, so a floating tag would eventually upgrade this client past 5.2.x
-  # and trip "Unauthorized Client" with no warning. The label below also excludes
-  # it from watchtower as a second layer of defence.
-  # Before bumping this pin, confirm the target version is still on MAM's
-  # allowed-clients list.
+  # VERSION IS PINNED DELIBERATELY -- DO NOT CHANGE TO :latest. MAM only permits
+  # qBittorrent 5.0.1 through 5.2.x, so a floating tag would eventually upgrade
+  # past that and trip "Unauthorized Client" with no warning. Before bumping,
+  # confirm the target version is still on MAM's allowed-clients list.
   qbittorrent-mam:
     image: lscr.io/linuxserver/qbittorrent:5.2.3_v2.0.13-ls469
     container_name: qbittorrent-mam
@@ -129,49 +82,37 @@ services:
       - TZ=${TZ}
       - WEBUI_PORT=8084
     labels:
-      # monitor-only, NOT enable=false. Both stop watchtower upgrading past the
-      # pin, but enable=false hides this container from watchtower completely --
-      # including from the "stop linked containers" pass that recreates everything
-      # sharing gluetun's namespace when gluetun itself is updated. That left this
-      # client attached to a destroyed namespace: still running, still holding a
-      # listening socket on 8084, but unreachable, and `docker ps` showed it Up.
-      # monitor-only keeps it visible so it is recreated alongside gluetun, while
-      # still never being upgraded off the pinned tag.
+      # monitor-only, NOT enable=false. Both hold the pin, but enable=false hides
+      # this container from the pass that recreates everything sharing gluetun's
+      # namespace, stranding it on a destroyed one (see sabnzbd).
       - com.centurylinklabs.watchtower.monitor-only=true
-      # See sabnzbd. monitor-only keeps this container visible, but visibility is
-      # not a dependency -- this label is what actually ties it to gluetun.
+      # See sabnzbd. Visibility alone is not a dependency -- this is what
+      # actually ties it to gluetun.
       - com.centurylinklabs.watchtower.depends-on=gluetun
     volumes:
       - ${APPDATA_DIR}/qbittorrent-mam:/config
       - ${DATA_DIR}/torrents:/data/torrents
-    # Makes a stranded-namespace failure visible. When this container loses the
-    # namespace it is attached to, the process keeps running and keeps a socket
-    # open on 8084 -- connections get RESET rather than refused -- so `docker ps`
-    # reports "Up" indefinitely while the UI is unreachable. Probing the WebUI
-    # from inside catches that; a plain liveness check cannot.
+    # Makes a stranded-namespace failure visible: the process keeps running with
+    # a socket open on 8084, so `docker ps` reports "Up" indefinitely while the
+    # UI is unreachable. Probing the WebUI catches that; a liveness check cannot.
     healthcheck:
       test: ["CMD", "curl", "-fsS", "-m", "5", "-o", "/dev/null", "http://127.0.0.1:8084"]
       interval: 60s
       timeout: 10s
-      # Generous: qBittorrent rechecks torrents on start and the WebUI can take a
-      # while to answer. Too low here would flap the container on every restart.
+      # Generous: qBittorrent rechecks torrents on start, and too low here would
+      # flap the container on every restart.
       start_period: 180s
       retries: 3
     restart: unless-stopped
 
-  # Keeps the MAM session pointed at the current VPN exit IP. MAM requires the
-  # torrent client and the session to come from the same IP; because this client
-  # egresses through gluetun while you browse the site from the house connection,
-  # the two differ and MAM would otherwise reject the client with "Unrecognized
-  # host/PassKey" whenever Proton moves us to a new endpoint.
+  # Keeps the MAM session pointed at the current VPN exit IP; without it MAM
+  # rejects the client with "Unrecognized host/PassKey" whenever Proton moves to
+  # a new endpoint. Shares the gluetun namespace on purpose -- it must report the
+  # SAME exit IP as qbittorrent-mam and prowlarr, which is also why MAM lives on
+  # the main tunnel rather than a second one.
   #
-  # Shares the gluetun namespace on purpose -- it must report the SAME exit IP
-  # that qbittorrent-mam and prowlarr use, so it cannot run outside the tunnel.
-  # This is also why MAM lives on the main tunnel rather than a second one: the
-  # indexer, the client and this updater all have to agree on one IP.
-  #
-  # The MAM cookie is pasted into the web UI at http://<host>:5010 after startup;
-  # it is not supplied via environment variable.
+  # The MAM cookie is pasted into the web UI at http://<host>:5010 after startup,
+  # not supplied via environment variable.
   mousehole:
     image: tmmrtn/mousehole:latest
     container_name: mousehole
@@ -184,8 +125,7 @@ services:
       # Needed because the UI is reached over the LAN rather than localhost.
       - MOUSEHOLE_ALLOWED_HOSTS=${MOUSEHOLE_ALLOWED_HOSTS}
     labels:
-      # See sabnzbd. Ties this container to gluetun so watchtower recreates it
-      # when the tunnel is replaced, instead of stranding it on a dead namespace.
+      # See sabnzbd -- recreates this alongside gluetun rather than stranding it.
       - com.centurylinklabs.watchtower.depends-on=gluetun
     volumes:
       - ${APPDATA_DIR}/mousehole:/var/lib/mousehole
@@ -203,8 +143,7 @@ services:
       - TZ=${TZ}
       - WEBUI_PORT=8081
     labels:
-      # See sabnzbd. Ties this container to gluetun so watchtower recreates it
-      # when the tunnel is replaced, instead of stranding it on a dead namespace.
+      # See sabnzbd -- recreates this alongside gluetun rather than stranding it.
       - com.centurylinklabs.watchtower.depends-on=gluetun
     volumes:
       - ${APPDATA_DIR}/qbittorrent:/config
@@ -222,8 +161,7 @@ services:
       - PGID=${PGID}
       - TZ=${TZ}
     labels:
-      # See sabnzbd. Ties this container to gluetun so watchtower recreates it
-      # when the tunnel is replaced, instead of stranding it on a dead namespace.
+      # See sabnzbd -- recreates this alongside gluetun rather than stranding it.
       - com.centurylinklabs.watchtower.depends-on=gluetun
     volumes:
       - ${APPDATA_DIR}/prowlarr:/config
@@ -238,8 +176,7 @@ services:
     environment:
       - TZ=${TZ}
     labels:
-      # See sabnzbd. Ties this container to gluetun so watchtower recreates it
-      # when the tunnel is replaced, instead of stranding it on a dead namespace.
+      # See sabnzbd -- recreates this alongside gluetun rather than stranding it.
       - com.centurylinklabs.watchtower.depends-on=gluetun
     restart: unless-stopped
 
@@ -362,24 +299,18 @@ services:
       - PGID=${PGID}
       - TZ=${TZ}
     labels:
-      # Watchtower recreates this container whenever it replaces gluetun. Without
-      # it, a gluetun update leaves sabnzbd attached to the destroyed namespace:
-      # the process keeps running and keeps its socket on 8080, `docker ps` shows
-      # it Up and healthy, but the published 8080 now forwards into the NEW
-      # namespace where nothing listens. Radarr then fails every grab with
-      # "Broken pipe" / "Connection reset by peer" and returns 500 from
-      # POST /api/v3/release, while search still works -- so it reads like a
-      # Prowlarr or indexer fault rather than a download-client one.
+      # Canonical note for the depends-on labels on every container sharing this
+      # namespace. Watchtower recreates this whenever it replaces gluetun.
+      # Without it, sabnzbd stays attached to the destroyed namespace: `docker ps`
+      # shows it Up, but published 8080 forwards into the NEW namespace where
+      # nothing listens, and Radarr fails every grab with "Broken pipe" while
+      # search still works -- reading like an indexer fault, not a client one.
       #
-      # depends_on above does NOT cover this; it only orders startup and does
-      # nothing when gluetun is replaced later.
-      #
-      # network_mode: service:gluetun is also an implicit link, but a fragile one.
-      # Watchtower stores that link as a container ID and has to inspect the ID to
-      # turn it back into "gluetun". Once the referenced container is gone -- which
-      # is exactly the stranded case -- the inspect fails ("Unable to resolve
-      # network container") and the link is lost at the moment it is needed. The
-      # explicit label is a plain name, checked before any of that, so it survives.
+      # depends_on does NOT cover this; it only orders startup. network_mode is
+      # an implicit link, but watchtower stores it as a container ID and must
+      # inspect it to recover the name -- which fails once that container is
+      # gone, exactly the stranded case. This label is a plain name, so it
+      # survives.
       - com.centurylinklabs.watchtower.depends-on=gluetun
     volumes:
       - ${APPDATA_DIR}/sabnzbd:/config
@@ -471,20 +402,15 @@ services:
     restart: unless-stopped
 
   # Maintained fork, NOT containrrr/watchtower -- the original was abandoned in
-  # 2023 and its last image speaks Docker API 1.25. Docker 29 raised the minimum
-  # to 1.40, so containrrr now fails every cycle with "client version 1.25 is too
-  # old" and restart:unless-stopped turns that into a crash loop. Re-pulling
-  # :latest does not help; there is no newer containrrr build to get.
-  # The fork keeps the WATCHTOWER_* variables and the com.centurylinklabs.*
-  # labels, so the exclusion on qbittorrent-mam still applies.
-  # There is no per-container interval label -- the schedule belongs to the
-  # watchtower process, so a container that needs different timing needs its own
-  # instance. Hence two: this one nightly for the stack, and watchtower-fast
-  # below on a short cycle for omnibus.
+  # 2023 and speaks Docker API 1.25, below the 1.40 minimum Docker 29 requires,
+  # so it crash-loops. No newer containrrr build exists. The fork keeps the
+  # WATCHTOWER_* variables and com.centurylinklabs.* labels.
   #
-  # Scope "none" is NOT the same as leaving it unset: unset monitors every
-  # container regardless of label, so it would claim omnibus and delete
-  # watchtower-fast as a same-scope duplicate. "none" means the unlabelled ones.
+  # Two instances because the schedule belongs to the process, not a per-container
+  # label: this one nightly for the stack, watchtower-fast below for omnibus.
+  #
+  # Scope "none" means the unlabelled containers, and is NOT the same as unset --
+  # unset would claim omnibus and delete watchtower-fast as a duplicate.
   watchtower:
     image: nickfedor/watchtower:latest
     container_name: watchtower
@@ -497,12 +423,9 @@ services:
       - WATCHTOWER_SCOPE=none
     restart: unless-stopped
 
-  # Fast-cycle instance for omnibus only. Scoped, so it ignores every container
-  # that does not carry the matching scope label.
-  #
-  # Hourly is the floor worth using: registry pulls are rate limited and anonymous
-  # Docker Hub requests get throttled if polled harder, which would break BOTH
-  # instances rather than just this one.
+  # Fast-cycle instance for omnibus only; scoped, so it ignores anything without
+  # the matching label. Hourly is the floor -- polling harder gets anonymous
+  # Docker Hub requests throttled, which would break BOTH instances.
   watchtower-fast:
     image: nickfedor/watchtower:latest
     container_name: watchtower-fast
@@ -514,26 +437,20 @@ services:
       - WATCHTOWER_SCHEDULE=0 0 * * * *
       - WATCHTOWER_SCOPE=omnibus-fast
     labels:
-      # Puts this instance in its own scope; the env var above only sets what it
-      # watches. Unlabelled it lands in scope "none" and races the nightly
-      # instance, which deletes it as a duplicate. Cost: it self-updates hourly
-      # now, since the nightly instance no longer sees it.
+      # Puts this instance in its own scope -- the env var above only sets what it
+      # watches. Unlabelled it lands in scope "none" and the nightly instance
+      # deletes it as a duplicate. Cost: it now self-updates hourly.
       - com.centurylinklabs.watchtower.scope=omnibus-fast
     restart: unless-stopped
 
-  # Push-notification server. The phone subscribes to a topic and anything that
-  # POSTs to that topic pushes to the phone.
+  # Push-notification server; the phone subscribes to a topic and anything that
+  # POSTs to it pushes through. Reached over Tailscale, so no port forward.
+  # BASE_URL must be the tailnet address -- ntfy hands that URL to clients for
+  # attachments and click actions, and a LAN IP silently fails from outside.
   #
-  # Reachable over Tailscale rather than the public internet -- the tailnet
-  # already has the iOS devices on it, so no port forward and no inbound
-  # exposure. BASE_URL must be the tailnet address because ntfy hands that URL
-  # to clients for attachments and click actions; with a LAN IP here the phone
-  # silently fails to fetch them from outside the house.
-  #
-  # The topic name is the ONLY secret in an unauthenticated ntfy instance --
-  # anyone who can reach the server and guess the topic can publish to it. That
-  # is acceptable here precisely because the tailnet is the boundary; do not
-  # expose 8085 publicly without turning on auth.
+  # The topic name is the ONLY secret on an unauthenticated instance, which is
+  # acceptable only because the tailnet is the boundary -- do not expose 8085
+  # publicly without turning on auth.
   ntfy:
     image: binwiederhier/ntfy:latest
     container_name: ntfy
@@ -542,15 +459,13 @@ services:
       - TZ=${TZ}
       - NTFY_BASE_URL=${NTFY_BASE_URL}
       - NTFY_LISTEN_HTTP=:8085
-      # Persist messages so a phone that was offline still receives what it
-      # missed once it reconnects. Without a cache file ntfy keeps messages in
-      # memory only and a restart drops anything undelivered.
+      # Without a cache file ntfy holds messages in memory only, so a restart
+      # drops anything an offline phone had not yet received.
       - NTFY_CACHE_FILE=/var/cache/ntfy/cache.db
       - NTFY_CACHE_DURATION=12h
-      # Keep the iOS app awake. Without this, ntfy only pushes on new messages
-      # and iOS eventually tears the connection down, so alerts arrive late or
-      # not at all -- the one setting that most often makes self-hosted ntfy
-      # look broken on iPhone.
+      # Keeps the iOS app awake. Without it iOS tears the connection down and
+      # alerts arrive late or not at all -- the usual cause of self-hosted ntfy
+      # looking broken on iPhone.
       - NTFY_UPSTREAM_BASE_URL=https://ntfy.sh
     volumes:
       - ${APPDATA_DIR}/ntfy/cache:/var/cache/ntfy
@@ -559,14 +474,10 @@ services:
       - "8085:8085"
     restart: unless-stopped
 
-  # Decides WHEN to notify. Runs the HTTP probes against every service and calls
-  # ntfy when one fails.
-  #
-  # Needs the docker socket only for the "Docker Container" monitor type; the
-  # HTTP monitors do not require it. Mounted read-only -- Uptime Kuma never
-  # needs to start or stop anything.
-  #
-  # Host port 3003 because omnibus already owns 3000 and kasm owns 3001/3002.
+  # Decides WHEN to notify: runs the HTTP probes and calls ntfy when one fails.
+  # The docker socket is only for the "Docker Container" monitor type, and is
+  # read-only -- it never needs to start or stop anything.
+  # Host port 3003 because omnibus owns 3000 and kasm owns 3001/3002.
   uptime-kuma:
     image: louislam/uptime-kuma:1
     container_name: uptime-kuma
@@ -583,10 +494,9 @@ services:
     image: sesloan/omnibus:latest
     container_name: omnibus
     labels:
-      # Hands this container to watchtower-fast (hourly) instead of the nightly
-      # instance. Safe to cycle often because omnibus is standalone -- own bridge
-      # network, own port, nothing shares its namespace -- so a bad pull affects
-      # only omnibus.
+      # Hands this to watchtower-fast (hourly). Safe to cycle often because
+      # omnibus is standalone -- nothing shares its namespace, so a bad pull
+      # affects only omnibus.
       - com.centurylinklabs.watchtower.scope=omnibus-fast
     ports:
       - "3000:3000"
@@ -625,11 +535,9 @@ services:
       - ${APPDATA_DIR}/loki/data:/loki
     restart: unless-stopped
 
-  # Metrics half of the observability stack. Loki says what containers logged;
-  # these say what the machine and each container are actually doing. The
-  # shelfarr incident is the worked example for why both matter: the logs held
-  # the signal, but per-container CPU would have shown it too, and neither
-  # Uptime Kuma nor the healthcheck script could see either.
+  # Metrics half of the observability stack -- Loki says what containers logged,
+  # this says what the machine and each container are actually doing. See
+  # docs/SHELFARR_HEALTHCHECK_CHAINS.md for why both are needed.
   prometheus:
     # Pinned: retention and TSDB format are on-disk state, and an unattended
     # major bump is not something to discover during an incident.
@@ -643,15 +551,13 @@ services:
     command:
       - --config.file=/etc/prometheus/prometheus.yml
       - --storage.tsdb.path=/prometheus
-      # 90 days: long enough to see a seasonal pattern and to answer "when did
-      # this start" for a slow leak. At this scrape interval and series count
-      # that is a couple of GB, well under the headroom on the NVMe.
+      # 90 days: long enough to answer "when did this start" for a slow leak.
+      # A couple of GB here, well under the NVMe headroom.
       - --storage.tsdb.retention.time=90d
       # Lets Grafana deep-link into the Prometheus UI correctly if ever needed.
       - --web.enable-lifecycle
     # node-exporter is on the host network, so it has no container name to
-    # resolve. This maps host.docker.internal to the bridge gateway rather than
-    # hardcoding 172.18.0.1, which moves if the network is recreated.
+    # resolve. Avoids hardcoding 172.18.0.1, which moves if the network is recreated.
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
@@ -662,14 +568,12 @@ services:
       - cadvisor
     restart: unless-stopped
 
-  # Host-level metrics. Needs broad read-only host mounts because that is
-  # precisely its job -- it reads /proc and /sys for the real host, not the
-  # container's namespaced view.
+  # Host-level metrics. The broad host mounts, host PID and host network are the
+  # job: it reads /proc and /sys for the real host, not the container's
+  # namespaced view. All read-only -- it never writes anything.
   node-exporter:
     image: prom/node-exporter:v1.10.1
     container_name: node-exporter
-    # Host PID + network so it sees real processes and real interfaces rather
-    # than the container's own. Read-only mounts; it never writes anything.
     pid: host
     network_mode: host
     command:
@@ -677,13 +581,13 @@ services:
       - --path.sysfs=/host/sys
       - --path.rootfs=/host/root
       # Without this every container overlay and bind mount shows up as its own
-      # filesystem and buries the three that matter (/, /boot, /mnt/bay1).
+      # filesystem, burying the three that matter (/, /boot, /mnt/bay1).
       - --collector.filesystem.mount-points-exclude=^/(dev|proc|sys|run|var/lib/docker/.+|var/lib/kubelet/.+)($$|/)
       - --collector.filesystem.fs-types-exclude=^(autofs|binfmt_misc|bpf|cgroup2?|configfs|debugfs|devpts|devtmpfs|fusectl|hugetlbfs|iso9660|mqueue|nsfs|overlay|proc|procfs|pstore|rpc_pipefs|securityfs|selinuxfs|squashfs|sysfs|tracefs)$$
       - --collector.hwmon
-      # hwmon covers the CPU package, NVMe and wifi but NOT the SATA spinner --
-      # that temperature only exists over SMART, which needs root. The
-      # smart-textfile systemd timer writes it here as a .prom file instead.
+      # hwmon covers CPU/NVMe/wifi but NOT the SATA spinner -- that temperature
+      # only exists over SMART, which needs root, so the smart-textfile systemd
+      # timer writes it here as a .prom file instead.
       - --collector.textfile
       - --collector.textfile.directory=/var/lib/node-exporter/textfile
     volumes:
@@ -701,18 +605,17 @@ services:
     ports:
       # localhost only; Prometheus scrapes it over the compose network.
       - "127.0.0.1:8086:8080"
-    # cadvisor genuinely needs these to read cgroup accounting for every
-    # container. Everything is read-only except the docker socket, which it
-    # uses to map cgroup ids to container names.
+    # All read-only; cadvisor needs these to read cgroup accounting for every
+    # container.
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
-      # Without this cadvisor cannot map cgroup ids to container names: every
-      # series comes back as id="/" with no name label, which makes per-container
-      # attribution -- the entire reason for running it -- impossible.
+      # Maps cgroup ids to container names. Without it every series comes back as
+      # id="/" with no name label, making per-container attribution -- the entire
+      # reason for running cadvisor -- impossible.
       - /var/run/docker.sock:/var/run/docker.sock:ro
     devices:
       - /dev/kmsg
@@ -723,11 +626,10 @@ services:
       - --housekeeping_interval=15s
       - --docker_only=true
       - --store_container_labels=false
-      # NixOS puts containerd's socket under /var/run/docker/containerd rather
-      # than the /run/containerd default cadvisor compiles in. Without this its
-      # docker factory fails to register, it silently falls back to the Raw
-      # factory, and every series comes back as id="/" with no name label --
-      # scrapes look healthy while producing nothing usable.
+      # NixOS puts containerd's socket here, not the /run/containerd default
+      # cadvisor compiles in. Without this the docker factory fails to register
+      # and it silently falls back to Raw, producing the same unusable id="/"
+      # series as above while scrapes still look healthy.
       - --containerd=/var/run/docker/containerd/containerd.sock
     restart: unless-stopped
 
@@ -740,9 +642,9 @@ services:
     command:
       - run
       - --server.http.listen-addr=0.0.0.0:12345
-      # Not the default /var/lib/alloy/data: that parent is baked into the image
-      # as 0770 uid 473, so a PUID container cannot traverse it to reach a volume
-      # mounted underneath. Fails as "mkdir ... permission denied" naming the child.
+      # Not the default /var/lib/alloy/data: that parent is baked in as 0770 uid
+      # 473, so a PUID container cannot traverse it to reach a volume mounted
+      # underneath. Fails as "mkdir ... permission denied" naming the child.
       - --storage.path=/alloy-data
       - /etc/alloy/config.alloy
     volumes:

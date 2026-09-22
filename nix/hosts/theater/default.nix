@@ -11,7 +11,48 @@
     ../../modules/nixos/niri.nix
     ../../modules/nixos/cloudflared.nix
     inputs.noctalia.nixosModules.default
+    inputs.sops-nix.nixosModules.sops
   ];
+
+  # Secrets, encrypted at rest in the repo and decrypted into /run/secrets at
+  # activation.
+  #
+  # The identity is a standalone age key at ~/.config/sops/age/keys.txt, kept
+  # out of git deliberately -- see nix/.sops.yaml. Activation runs as root and
+  # reads that path directly, so the key must exist before `nixos-rebuild
+  # switch` or activation fails.
+  #
+  # Not the SSH host key (age.sshKeyPaths): that binds secrets to one machine
+  # and breaks on host key rotation.
+  sops = {
+    defaultSopsFile = ../../secrets/theater.yaml;
+    age.keyFile = "/home/theater/.config/sops/age/keys.txt";
+
+    # Explicitly empty: sops-nix defaults this to the SSH host key, which is
+    # not a recipient of our secrets. Left at the default it silently retries
+    # with an identity that cannot work, turning a clear "key file missing"
+    # into the misleading "identity did not match any of the recipients".
+    age.sshKeyPaths = [];
+
+    # The module defaults to building sops-install-secrets from the *host*
+    # pkgs, ignoring the flake input's own nixpkgs -- so the follows= above
+    # does not reach it. Upstream now needs Go >= 1.26 and our 25.11 pin ships
+    # 1.25, which fails the build outright. Override just the toolchain rather
+    # than pulling the whole package from unstable.
+    package =
+      (import "${inputs.sops-nix}" {
+        pkgs = pkgs.extend (_: prev: {
+          buildGoModule = prev.buildGoModule.override {go = prev.go_1_26;};
+        });
+      }).sops-install-secrets;
+
+    # Owned by theater, not root: Hermes runs as a home-manager user service
+    # and reads this file itself during activation.
+    secrets.hermes-env = {
+      owner = "theater";
+      mode = "0400";
+    };
+  };
 
   # Bootloader
   boot.loader.systemd-boot.enable = true;
@@ -257,6 +298,10 @@
     ncdu # disk usage analyzer
     mergerfs # filesystem for pooling drives
     smartmontools # SMART drive health, read by stack-healthcheck.sh
+    # No wrapper needed: sops finds ~/.config/sops/age/keys.txt on its own, and
+    # editing runs as you rather than root.
+    sops # edit nix/secrets/*.yaml
+    age # age-keygen, for adding recipients
   ];
 
   # Intel Quick Sync (Alder Lake-N) hardware acceleration
@@ -269,6 +314,13 @@
     ];
   };
   environment.sessionVariables.LIBVA_DRIVER_NAME = "iHD";
+
+  # Hermes runs as a *user* service under home-manager, and user services are
+  # torn down when the last session for that user ends. This box autologins on
+  # tty1, so that is rare -- but a logout or a session crash would silently take
+  # the Discord and Telegram bots offline until the next login. Lingering keeps
+  # the user manager alive across sessions, the way a system service would be.
+  users.users.theater.linger = true;
 
   services.noctalia-shell.enable = true;
   services.power-profiles-daemon.enable = true;

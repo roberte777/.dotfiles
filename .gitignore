@@ -6,3 +6,13 @@ hypr/.config/hypr/monitors.conf
 hypr/.config/hypr/hyprpaper.conf
 hypr/.config/hypr/hyprlock.conf
 hypr/.config/hypr/workspaces.conf
+
+# Key material. The age identity that decrypts nix/secrets/*.yaml lives in
+# ~/.config/sops/age/keys.txt and must never land in this repo -- committing it
+# would publish every secret it protects the moment this is pushed. A backstop,
+# not the mechanism: the key is kept outside the repo in the first place.
+keys.txt
+*.agekey
+id_ed25519
+id_rsa
+*.pem
