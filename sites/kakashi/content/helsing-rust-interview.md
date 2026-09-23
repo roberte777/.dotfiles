@@ -56,6 +56,8 @@ Total: 3–5 weeks, six stages. Candidate notes to take seriously: **late-stage 
 
 ## What to prep, concretely
 
+Full worked practice set with compile-verified answers: **[Rust & systems drills](/rust-systems-drills.md)**.
+
 ### Rust (rounds 1–2 are your bread and butter)
 
 Fluency, not trivia. The things that bite people in live Rust:
