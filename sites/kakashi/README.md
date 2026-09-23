@@ -38,9 +38,18 @@ draft: true                 # skip entirely
 ---
 ```
 
+Index order: newest `date` first; same-day pages sort by last-edit time (newest first).
+
 Supported markdown: fenced code (Pygments highlight, both themes), tables,
 `{#custom-anchor}` heading ids, auto TOC sidebar on wide screens.
 Link pages with root-relative `/slug.md` — the builder rewrites to real URLs.
+
+## Collapsible answers
+
+Wrap any block in `:::answer ... :::` and it renders as a closed `<details>`
+accordion ("Answer — try it yourself first") — used on the drills page so
+practice answers stay hidden until revealed. The inner content is normal
+markdown (code fences included). One block per question; they can't nest.
 
 ## Serving & hosting
 
