@@ -42,6 +42,27 @@ SITE_TAGLINE = "notes, ops, and pre-flight checklists from the box that runs thi
 
 FRONTMATTER_RE = re.compile(r"\A---\s*\n(.*?)\n---\s*\n", re.DOTALL)
 LINK_RE = re.compile(r'href="/([\w\-/.]+)\.md"')
+ANSWER_RE = re.compile(r"^:::answer\s*\n(.*?)\n:::\s*$", re.MULTILINE | re.DOTALL)
+
+
+def extract_answers(text):
+    """Replace :::answer ... ::: blocks with placeholders; return inner markdown list."""
+    blocks = []
+
+    def repl(m):
+        blocks.append(m.group(1))
+        return f"\n\nKAKASHI-ANSWER-{len(blocks) - 1}\n\n"
+
+    return ANSWER_RE.sub(repl, text), blocks
+
+
+def restore_answers(html, blocks, md_instance):
+    """Render each captured block to markdown and swap it back in as <details>."""
+    def repl(m):
+        inner = md_instance.convert(blocks[int(m.group(1))])
+        return (f'<details class="answer"><summary>Answer — try it yourself '
+                f'first</summary><div class="answer-body">{inner}</div></details>')
+    return re.sub(r"<(?:p|code)>KAKASHI-ANSWER-(\d+)</(?:p|code)>", repl, html)
 
 
 def parse_frontmatter(text):
@@ -84,8 +105,9 @@ def load_pages():
         meta, body_md = parse_frontmatter(path.read_text(encoding="utf-8"))
         if meta.get("draft", "").lower() == "true":
             continue
+        body_md, answer_blocks = extract_answers(body_md)
         md = make_md()
-        body = md.convert(body_md)
+        body = restore_answers(md.convert(body_md), answer_blocks, md)
         if not meta.get("date"):
             meta["date"] = dt.date.fromtimestamp(path.stat().st_mtime).isoformat()
         pages.append({
@@ -93,11 +115,13 @@ def load_pages():
             "title": meta.get("title") or slug.replace("-", " ").title(),
             "desc": meta.get("desc", ""),
             "date": meta["date"],
+            "mtime": path.stat().st_mtime,
             "hidden": meta.get("hidden", "").lower() == "true",
             "body": body,
             "toc": getattr(md, "toc", ""),
         })
-    pages.sort(key=lambda p: p["date"], reverse=True)
+    # newest first; same-day pages ordered by last edit (mtime) descending
+    pages.sort(key=lambda p: (p["date"], p["mtime"]), reverse=True)
     return pages
 
 
