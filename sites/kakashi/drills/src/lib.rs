@@ -181,6 +181,75 @@ pub async fn fan_in(n: usize) -> u64 {
 }
 
 // ---------------------------------------------------------------------------
+// Drill 6 (T4) — receive-path with bytes::BytesMut: split frames without copying
+// ---------------------------------------------------------------------------
+pub fn drain_frames(buf: &mut bytes::BytesMut) -> Vec<bytes::Bytes> {
+    let mut out = Vec::new();
+    loop {
+        if buf.len() < 3 {
+            return out;
+        }
+        let len = u16::from_le_bytes([buf[1], buf[2]]) as usize;
+        if buf.len() < 3 + len + 1 {
+            return out; // incomplete — wait for more bytes
+        }
+        // split() re-points the buffer; freeze() turns the head into Bytes
+        // sharing the SAME allocation. No memcpy anywhere on this path.
+        let frame = buf.split_to(3 + len + 1).freeze();
+        let payload = frame.slice(3..3 + len);
+        out.push(payload);
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Drill 7 (T7) — ArcSwap for read-mostly shared config
+// ---------------------------------------------------------------------------
+pub struct FleetConfig {
+    pub heartbeat_hz: u32,
+    pub geofence_km: f64,
+}
+
+pub struct ConfigChannel {
+    current: arc_swap::ArcSwap<FleetConfig>,
+}
+
+impl ConfigChannel {
+    pub fn new(cfg: FleetConfig) -> Self {
+        Self { current: arc_swap::ArcSwap::from_pointee(cfg) }
+    }
+    /// Readers: lock-free, O(1), returns an immutable Arc snapshot.
+    pub fn load(&self) -> arc_swap::Guard<std::sync::Arc<FleetConfig>> {
+        self.current.load()
+    }
+    /// Writers: build a WHOLE new config, then publish — readers never see
+    /// a half-updated struct (that's the point vs RwLock field mutations).
+    pub fn publish(&self, cfg: FleetConfig) {
+        self.current.store(Arc::new(cfg));
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Drill 8 (T8) — 'static requirement across spawn, and the Arc pattern
+// ---------------------------------------------------------------------------
+// This does NOT compile — borrow doesn't live long enough for 'static:
+//
+// pub fn broken_spawn_with_borrow(cfg: &FleetConfig) {
+//     tokio::spawn(async move {
+//         println!("{}", cfg.heartbeat_hz); // ERROR[E0597]: `cfg` does not live long enough
+//     });
+// }
+//
+// The correct shape: share by Arc (cheap refcount), never by reference:
+pub fn spawn_config_readers(cfg: Arc<FleetConfig>, n: usize) -> Vec<tokio::task::JoinHandle<u32>> {
+    (0..n)
+        .map(|_| {
+            let cfg = Arc::clone(&cfg); // refcount bump, no deep copy
+            tokio::spawn(async move { cfg.heartbeat_hz })
+        })
+        .collect()
+}
+
+// ---------------------------------------------------------------------------
 // tests
 // ---------------------------------------------------------------------------
 #[cfg(test)]
@@ -315,6 +384,56 @@ mod tests {
     #[tokio::test]
     async fn no_lost_updates() {
         assert_eq!(fan_in(8).await, 8_000);
+    }
+
+    #[test]
+    fn bytesmut_drain_splits_without_copying() {
+        let mut buf = bytes::BytesMut::new();
+        buf.extend_from_slice(&frame(b"alpha"));
+        buf.extend_from_slice(&frame(&[1, 2, 3]));
+        buf.extend_from_slice(&[0xA5, 0x09, 0x00]); // partial third frame
+        let original_ptr = buf.as_ptr();
+        let frames = drain_frames(&mut buf);
+        assert_eq!(frames.len(), 2);
+        assert_eq!(&frames[0][..], b"alpha");
+        assert_eq!(&frames[1][..], &[1, 2, 3]);
+        // the frozen head still points into the original allocation: zero copies
+        assert_eq!(frames[0].as_ptr(), unsafe { original_ptr.add(3) });
+        assert_eq!(buf.len(), 3); // the partial header remains
+    }
+
+    #[test]
+    fn arcswap_publish_is_atomic_snapshot() {
+        let ch = Arc::new(ConfigChannel::new(FleetConfig { heartbeat_hz: 1, geofence_km: 5.0 }));
+        let before = ch.load().heartbeat_hz;
+        // concurrent readers keep a consistent snapshot while a writer publishes
+        let mut hs = Vec::new();
+        for _ in 0..8 {
+            let ch = Arc::clone(&ch);
+            hs.push(std::thread::spawn(move || {
+                let g = ch.load();
+                (g.heartbeat_hz, g.geofence_km)
+            }));
+        }
+        ch.publish(FleetConfig { heartbeat_hz: 50, geofence_km: 9.0 });
+        for h in hs {
+            let (hz, km) = h.join().unwrap();
+            assert!(
+                (hz == before && km == 5.0) || (hz == 50 && km == 9.0),
+                "torn read: {hz}/{km}"
+            );
+        }
+        assert_eq!(ch.load().heartbeat_hz, 50);
+    }
+
+    #[tokio::test]
+    async fn arc_shared_config_across_spawns() {
+        let cfg = Arc::new(FleetConfig { heartbeat_hz: 7, geofence_km: 1.0 });
+        let readers = spawn_config_readers(Arc::clone(&cfg), 40);
+        for r in readers {
+            assert_eq!(r.await.unwrap(), 7);
+        }
+        assert!(Arc::strong_count(&cfg) >= 1);
     }
 
     // The compile-fail demo: keep commented; uncomment to see rustc reject it.
