@@ -1,0 +1,19 @@
+---
+title: Waiver Wire Weekly
+desc: Fantasy football waiver priorities, researched from a dozen sources every Tuesday night and posted here before your league's claims lock.
+date: 2026-09-22
+---
+
+Every Tuesday around 7pm CT, an agent wanders the fantasy football press —
+FantasyPros, Yahoo, PFF, RotoBaller, PlayerProfiler, FanDuel Research, CBS,
+Dynasty Nerdz, Yardbarker, r/fantasyfootball — reads the Monday injury
+fallout, and distills the week's waiver wire into tiers: must-adds, high-value
+adds, stashes, drops, and streams. Rostered percentages are Yahoo-based; FAAB
+suggestions assume a $100 budget. Adjust for your league's scoring and depth.
+
+The wire is driven by injuries, and injuries break mid-week — check practice
+report news before you actually spend the bid.
+
+## Weeks
+
+- [Week 3, 2026](/waiver-wire/week-3-2026.md) — the Broncos backfield coup and the Boston boom
