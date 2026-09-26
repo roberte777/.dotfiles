@@ -1,15 +1,15 @@
 {
   description = "Nix configurations";
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
     nixpkgs-master.url = "github:NixOS/nixpkgs/master";
     home-manager = {
-      url = "github:nix-community/home-manager/release-25.11";
+      url = "github:nix-community/home-manager/release-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     nix-darwin = {
-      url = "github:nix-darwin/nix-darwin/nix-darwin-25.11";
+      url = "github:nix-darwin/nix-darwin/nix-darwin-26.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     noctalia = {
@@ -41,18 +41,20 @@
     # to main may break the packages, so a failed rebuild here is expected
     # maintenance rather than a bug -- roll back by pinning a rev in this url.
     #
-    # Follows nixpkgs-unstable, not our nixpkgs: Hermes builds against
-    # nodejs_26, which exists in unstable but not in the 25.11 release we pin,
-    # and following the latter fails evaluation outright. Note this couples two
-    # moving targets -- updating nixpkgs-unstable can break Hermes even when
-    # Hermes itself has not changed.
+    # Still follows nixpkgs-unstable, which couples two moving targets --
+    # updating nixpkgs-unstable can break Hermes even when Hermes itself has
+    # not changed. The original reason no longer applies: Hermes needs
+    # nodejs_26, absent from the 25.11 we used to pin but present in 26.05, so
+    # this could now follow nixpkgs. Left alone in the 26.05 bump to keep that
+    # change separately revertible.
     hermes-agent = {
       url = "github:NousResearch/hermes-agent";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
       inputs.home-manager.follows = "home-manager";
     };
-    # Follows nixpkgs-unstable for the same reason as hermes-agent above: its
-    # sops-install-secrets needs Go >= 1.26, and our 25.11 pin ships 1.25.
+    # Follows nixpkgs-unstable for the same reason as hermes-agent above, and
+    # is likewise no longer forced to: sops-install-secrets needs Go >= 1.26,
+    # which 25.11 could not supply (1.25) but 26.05 can (1.26.7).
     sops-nix = {
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs-unstable";
