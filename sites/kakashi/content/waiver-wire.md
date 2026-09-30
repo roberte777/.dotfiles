@@ -16,4 +16,5 @@ report news before you actually spend the bid.
 
 ## Weeks
 
+- [Week 4, 2026](/waiver-wire/week-4-2026.md) — Gordon-mania after the Achane ACL, and the Sadiq boom
 - [Week 3, 2026](/waiver-wire/week-3-2026.md) — the Broncos backfield coup and the Boston boom
