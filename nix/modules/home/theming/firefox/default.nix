@@ -232,6 +232,9 @@ in {
   config = lib.mkIf cfg.enable {
     programs.firefox = {
       enable = true;
+      # The 26.05 XDG default. Existing hosts need ~/.mozilla/firefox moved
+      # here before switching, or Firefox starts with an empty profile.
+      configPath = "${config.xdg.configHome}/mozilla/firefox";
       profiles.default = {
         id = 0;
         isDefault = true;
