@@ -34,7 +34,7 @@
     };
 
     home.packages = [
-      inputs.claude-code-nix.packages.${pkgs.system}.default
+      inputs.claude-code-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
     ];
     home.stateVersion = "25.11";
   };
