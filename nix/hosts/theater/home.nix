@@ -13,6 +13,7 @@
       ../../modules/home/theming/noctalia.nix
       ../../modules/home/media.nix
       ../../modules/home/zen-browser.nix
+      ../../modules/home/hermes.nix
     ];
 
     gtk = {
