@@ -32,6 +32,10 @@
     # through wrapper args instead so the providers still get set and the
     # file stays ours.
     sideloadInitLua = true;
+    # No plugins use the ruby/python3 remote-plugin hosts; opt into the
+    # 26.05 default instead of the legacy one stateVersion would pin.
+    withRuby = false;
+    withPython3 = false;
     viAlias = true;
     vimAlias = true;
   };
@@ -70,7 +74,7 @@
     gcc
     pkg-config
     cargo-release
-    inputs.claude-code-nix.packages.${pkgs.system}.default
+    inputs.claude-code-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
     sesh
     stow
     tmux
