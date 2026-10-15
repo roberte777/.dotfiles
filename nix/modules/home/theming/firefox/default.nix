@@ -232,8 +232,12 @@ in {
   config = lib.mkIf cfg.enable {
     programs.firefox = {
       enable = true;
-      # The 26.05 XDG default. Existing hosts need ~/.mozilla/firefox moved
-      # here before switching, or Firefox starts with an empty profile.
+      # The same directory as the 26.05 default, but spelled out on purpose:
+      # home-manager only sets MOZ_APP_DATA in the Firefox wrapper when this
+      # differs from the default string, and that is what pins Firefox here
+      # rather than leaving it to choose a profile directory itself. Existing
+      # hosts need ~/.mozilla/firefox moved here before switching, or Firefox
+      # starts with an empty profile.
       configPath = "${config.xdg.configHome}/mozilla/firefox";
       profiles.default = {
         id = 0;

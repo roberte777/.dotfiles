@@ -13,7 +13,7 @@
 
     home.username = "roberte777";
     home.homeDirectory = "/Users/roberte777";
-    home.stateVersion = "25.11";
+    home.stateVersion = "26.05";
 
     # Host-specific packages
     home.packages = with pkgs; [

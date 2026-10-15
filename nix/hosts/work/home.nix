@@ -7,7 +7,7 @@
 
   home.username = "ethan.wilkes";
   home.homeDirectory = "/Users/ethan.wilkes";
-  home.stateVersion = "25.11";
+  home.stateVersion = "26.05";
 
   # Work-only plugins (the flock-espresso marketplace) can't go in the public
   # repo, so this host keeps its own settings.json.
