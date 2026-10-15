@@ -41,23 +41,16 @@
     # to main may break the packages, so a failed rebuild here is expected
     # maintenance rather than a bug -- roll back by pinning a rev in this url.
     #
-    # Still follows nixpkgs-unstable, which couples two moving targets --
-    # updating nixpkgs-unstable can break Hermes even when Hermes itself has
-    # not changed. The original reason no longer applies: Hermes needs
-    # nodejs_26, absent from the 25.11 we used to pin but present in 26.05, so
-    # this could now follow nixpkgs. Left alone in the 26.05 bump to keep that
-    # change separately revertible.
+    # Follows the stable nixpkgs so that updating nixpkgs-unstable cannot
+    # break Hermes on its own. It needs nodejs_26, which 26.05 ships.
     hermes-agent = {
       url = "github:NousResearch/hermes-agent";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.nixpkgs.follows = "nixpkgs";
       inputs.home-manager.follows = "home-manager";
     };
-    # Follows nixpkgs-unstable for the same reason as hermes-agent above, and
-    # is likewise no longer forced to: sops-install-secrets needs Go >= 1.26,
-    # which 25.11 could not supply (1.25) but 26.05 can (1.26.7).
     sops-nix = {
       url = "github:Mic92/sops-nix";
-      inputs.nixpkgs.follows = "nixpkgs-unstable";
+      inputs.nixpkgs.follows = "nixpkgs";
     };
   };
   outputs = {
