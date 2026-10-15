@@ -8,6 +8,7 @@
       ../../modules/home/dev.nix
       ../../modules/home/shell.nix
       ../../modules/home/zen-browser.nix
+      ../../modules/home/claude.nix
     ];
 
     home.username = "roberte777";
