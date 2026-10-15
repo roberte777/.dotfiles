@@ -27,15 +27,11 @@
     enable = true;
     defaultEditor = true;
     # home-manager 26.05 started writing its generated init.lua (just the
-    # ruby/python3/node provider paths) to $XDG_CONFIG_HOME/nvim/init.lua,
-    # which is the stow symlink to our own handwritten config. Sideload it
-    # through wrapper args instead so the providers still get set and the
-    # file stays ours.
+    # lines that disable the ruby/python3/node/perl providers) to
+    # $XDG_CONFIG_HOME/nvim/init.lua, which is the stow symlink to our own
+    # handwritten config. Sideload it through wrapper args instead so the
+    # providers still get set and the file stays ours.
     sideloadInitLua = true;
-    # No plugins use the ruby/python3 remote-plugin hosts; opt into the
-    # 26.05 default instead of the legacy one stateVersion would pin.
-    withRuby = false;
-    withPython3 = false;
     viAlias = true;
     vimAlias = true;
   };
