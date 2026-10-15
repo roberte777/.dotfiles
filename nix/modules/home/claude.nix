@@ -25,14 +25,23 @@
     lib.attrNames (lib.filterAttrs (_: type: type == "directory") (builtins.readDir (src + "/skills")))
   );
 in {
-  options.programs.claude-config.checkout = lib.mkOption {
-    type = lib.types.str;
-    default = "${config.home.homeDirectory}/.dotfiles";
-    description = "Path of the dotfiles checkout the links point at";
+  options.programs.claude-config = {
+    checkout = lib.mkOption {
+      type = lib.types.str;
+      default = "${config.home.homeDirectory}/.dotfiles";
+      description = "Path of the dotfiles checkout the links point at";
+    };
+
+    exclude = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
+      default = [];
+      example = ["settings.json" "skills/ship-pr"];
+      description = "Paths under ~/.claude that this host keeps as its own unmanaged files instead of linking";
+    };
   };
 
   config.home.file = lib.listToAttrs (
     map (rel: lib.nameValuePair ".claude/${rel}" {source = link rel;})
-    (topLevel ++ map (name: "skills/${name}") skills)
+    (lib.subtractLists cfg.exclude (topLevel ++ map (name: "skills/${name}") skills))
   );
 }
