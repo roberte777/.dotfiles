@@ -58,6 +58,11 @@
   system.primaryUser = "roberte777";
   nix.settings.experimental-features = ["nix-command" "flakes"];
 
+  # SSH. Turns on macOS's built-in sshd (System Settings > Sharing > Remote
+  # Login) rather than building one; the NixOS hosts get this from
+  # modules/nixos/common.nix.
+  services.openssh.enable = true;
+
   # Automatic Nix garbage collection. theater/dualb already do this; without it
   # the store here grew to 335G, 300G of which was unreachable.
   # nix-darwin uses `interval` (a launchd calendar spec) — `dates` is removed.

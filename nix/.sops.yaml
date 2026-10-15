@@ -1,0 +1,22 @@
+# Which keys may decrypt which secrets.
+#
+# `personal` is a standalone age identity living at
+# ~/.config/sops/age/keys.txt -- deliberately NOT in this repo. Back it up
+# somewhere safe (password manager): lose it and every secret here is
+# unrecoverable, leak it and every secret here is compromised. Copy it to other
+# machines by hand to manage these secrets from them.
+#
+# Not the SSH host key: that ties secrets to one machine, needs sudo for every
+# edit, and dies with a host key rotation.
+#
+# To add another recipient, add its key below and run
+# `sops updatekeys secrets/theater.yaml` -- adding a key does NOT re-encrypt
+# existing files on its own.
+keys:
+  - &personal age1wfwerzat3h4kunspntyepm2607qtmeg2grjmfzaqfq4h6uxl230qsgmzwd
+
+creation_rules:
+  - path_regex: secrets/theater\.yaml$
+    key_groups:
+      - age:
+          - *personal

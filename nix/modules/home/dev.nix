@@ -68,8 +68,8 @@
     sesh
     stow
     tmux
-    nodePackages.typescript
-    nodePackages.typescript-language-server
+    typescript
+    typescript-language-server
     lua-language-server
     stylua
     # Python: uv owns interpreters and project envs; ruff lints/formats and
@@ -77,7 +77,7 @@
     pkgs-unstable.uv
     ruff
     pyright
-    nodePackages.prettier
+    prettier
     prettierd
     tree-sitter
     pkgs-unstable.opencode
