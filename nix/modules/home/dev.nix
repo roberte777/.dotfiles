@@ -6,6 +6,7 @@
   ...
 }: {
   imports = [
+    ./mcap.nix
     ./worktrunk-sync.nix
   ];
 
