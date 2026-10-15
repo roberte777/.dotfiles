@@ -34,18 +34,6 @@
     # into the misleading "identity did not match any of the recipients".
     age.sshKeyPaths = [];
 
-    # The module defaults to building sops-install-secrets from the *host*
-    # pkgs, ignoring the flake input's own nixpkgs -- so the follows= above
-    # does not reach it. Upstream now needs Go >= 1.26 and our 25.11 pin ships
-    # 1.25, which fails the build outright. Override just the toolchain rather
-    # than pulling the whole package from unstable.
-    package =
-      (import "${inputs.sops-nix}" {
-        pkgs = pkgs.extend (_: prev: {
-          buildGoModule = prev.buildGoModule.override {go = prev.go_1_26;};
-        });
-      }).sops-install-secrets;
-
     # Owned by theater, not root: Hermes runs as a home-manager user service
     # and reads this file itself during activation.
     secrets.hermes-env = {
