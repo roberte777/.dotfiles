@@ -57,7 +57,7 @@
     ]
   },
   "attribution": {
-    "commit": false,
-    "pr": false
+    "commit": "",
+    "pr": ""
   }
 }
