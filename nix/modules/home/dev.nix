@@ -26,6 +26,12 @@
     package = pkgs-unstable.neovim-unwrapped;
     enable = true;
     defaultEditor = true;
+    # home-manager 26.05 started writing its generated init.lua (just the
+    # ruby/python3/node provider paths) to $XDG_CONFIG_HOME/nvim/init.lua,
+    # which is the stow symlink to our own handwritten config. Sideload it
+    # through wrapper args instead so the providers still get set and the
+    # file stays ours.
+    sideloadInitLua = true;
     viAlias = true;
     vimAlias = true;
   };
