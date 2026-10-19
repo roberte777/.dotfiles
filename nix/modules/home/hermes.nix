@@ -22,11 +22,14 @@
   };
 
   # The upstream unit sets NoNewPrivileges=true, which kernel-blocks sudo/doas
-  # in the entire agent process tree (the password check is never even
-  # reached). Deliberately lifted so the agent can perform admin tasks —
-  # theater is in wheel, so sudo auth is the remaining gate.
-  systemd.user.services.hermes-agent.serviceConfig.NoNewPrivileges =
-    pkgs.lib.mkForce false;
+  # in the entire agent process tree. Left in place on purpose: the gateway is
+  # promptable by anyone on the allowlists above, so the kernel block -- not
+  # the sudo password -- is what keeps a crafted message away from root.
+  #
+  # If you ever do need to lift it, the home-manager spelling is
+  # `systemd.user.services.<name>.Service.<Key>`, NOT NixOS's `serviceConfig`;
+  # a `serviceConfig` attr here is emitted as a literal [serviceConfig] section
+  # that systemd ignores with only a warning, so the override silently no-ops.
 
   services.hermes-agent = {
     enable = true;
