@@ -21,7 +21,7 @@ Establish the repo-wide facts once, from any worktree of it:
 
 ```bash
 REPO=$(git -C "$PWD" remote get-url origin | sed -E 's#(git@|https://)github\.com[:/]##; s#\.git$##')
-DEFAULT=$(gh repo view -R "$REPO" --json defaultBranchRef --jq .defaultBranchRef.name)
+DEFAULT=$(gh repo view "$REPO" --json defaultBranchRef --jq .defaultBranchRef.name)  # positional: `repo view` has no -R
 ```
 
 Don't hardcode `main` for `$DEFAULT`, and don't reach for `origin/HEAD` instead — it's unset in
