@@ -18,6 +18,12 @@ darwin config:
 bootstrap config:
     nix run home-manager -- switch --flake .#{{config}}
 
+# The key path is pinned because macOS sops otherwise looks under
+# ~/Library/Application Support instead of ~/.config.
+# Edit a host's encrypted secrets in $EDITOR; sops re-encrypts on save
+secrets host="theater":
+    SOPS_AGE_KEY_FILE="${SOPS_AGE_KEY_FILE:-$HOME/.config/sops/age/keys.txt}" sops secrets/{{host}}.yaml
+
 # Install the Claude Code plugins enabled in claude/.claude/settings.json.
 # Settings only enable plugins; a fresh machine still has to install them.
 claude-plugins:
