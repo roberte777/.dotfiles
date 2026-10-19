@@ -176,7 +176,20 @@ is a design problem, not a triage one.
 gh pr checks <pr> -R "$REPO" --watch --fail-fast
 ```
 
-- Exit `0` means every required check passed.
+The **verdict** is this command's own exit status, so run it as the entire command, in the
+background when the wait is long: the status the harness reports back is then gh's. Anything
+chained after it (`; echo`, `| tail`, a log redirect) reports *its* success instead, and turns a
+red run green. Green is both of:
+
+- the watch exited `0`, and
+- this listing is empty:
+
+  ```bash
+  gh pr checks <pr> -R "$REPO" | awk -F'\t' '$2=="fail" || $2=="pending"'
+  ```
+
+Anything else is red or unfinished; the same listing names the jobs to read.
+
 - **A `SKIPPED` required check is not a pass** when the diff is in its scope — it means a gating
   label is missing. Add it (which re-triggers the workflow), then re-watch.
 - **On a red check**, read the failure (`gh run view <run-id> -R "$REPO" --log-failed`). A
