@@ -16,5 +16,7 @@ report news before you actually spend the bid.
 
 ## Weeks
 
+- [Week 6, 2026](/waiver-wire/week-6-2026.md) — the Eagles are out of running backs, the Steelers out of receivers, and the wire itself gets a D
+- [Week 5, 2026](/waiver-wire/week-5-2026.md) — the Eagles' backfield graveyard crowns Shipley, and Burrow's next men up are free
 - [Week 4, 2026](/waiver-wire/week-4-2026.md) — Gordon-mania after the Achane ACL, and the Sadiq boom
 - [Week 3, 2026](/waiver-wire/week-3-2026.md) — the Broncos backfield coup and the Boston boom
