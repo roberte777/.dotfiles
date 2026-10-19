@@ -21,6 +21,13 @@
     desktop.enable = false; # headless box, no Electron app
   };
 
+  # The upstream unit sets NoNewPrivileges=true, which kernel-blocks sudo/doas
+  # in the entire agent process tree (the password check is never even
+  # reached). Deliberately lifted so the agent can perform admin tasks —
+  # theater is in wheel, so sudo auth is the remaining gate.
+  systemd.user.services.hermes-agent.serviceConfig.NoNewPrivileges =
+    pkgs.lib.mkForce false;
+
   services.hermes-agent = {
     enable = true;
     gateway.enable = true; # the long-running Discord/Telegram listener
@@ -55,6 +62,11 @@
         provider = "custom:opencode";
       };
 
+      # Think as hard as the model allows on every turn. Hermes defaults to
+      # "medium"; "max" is the top of the ladder (none..medium..xhigh..max..ultra)
+      # and gets clamped to the highest level the active route supports.
+      agent.reasoning_effort = "max";
+
       # In servers Hermes answers only when @mentioned; DMs always get a reply.
       # Session history is kept per-user inside shared channels.
       group_sessions_per_user = true;
@@ -67,6 +79,36 @@
         roles = false;
         users = true;
         replied_user = true;
+      };
+
+      # MCP servers. Hermes spawns these at startup and registers their tools
+      # as mcp_<server>_<tool>, available on every platform (Telegram included).
+      #
+      # The omnibus entry is the read-only stdio MCP server from the omnibus
+      # repo (mcp/ crate), built once from ~/omnibus-src and installed to
+      # ~/.local/bin. It logs into the local Omnibus instance over REST with a
+      # real account -- the binary holds the credentials so it can re-login
+      # unattended when the bearer token idles out, hence username+password
+      # rather than a token.
+      #
+      # Absolute path, not a bare command name: the gateway unit's PATH does
+      # not include ~/.local/bin. Credentials are ${VAR} placeholders resolved
+      # from ~/.hermes/.env, which environmentFiles merges from the sops secret
+      # -- nothing credential-shaped lands in the Nix store.
+      #
+      # Wrapped in mcp-schema-sanitizer (also ~/.local/bin): omnibus-mcp emits
+      # array-typed outputSchema / structuredContent for its list-returning
+      # tools, which the strict MCP python SDK rejects at discovery. The proxy
+      # drops the non-conformant fields; the text result is untouched.
+      mcp_servers.omnibus = {
+        command = "/home/theater/.local/bin/mcp-schema-sanitizer";
+        args = [ "/home/theater/.local/bin/omnibus-mcp" ];
+        env = {
+          OMNIBUS_MCP_URL = "http://localhost:3000";
+          OMNIBUS_MCP_USERNAME = "\${OMNIBUS_MCP_USERNAME}";
+          OMNIBUS_MCP_PASSWORD = "\${OMNIBUS_MCP_PASSWORD}";
+        };
+        timeout = 30;
       };
     };
 
