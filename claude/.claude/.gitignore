@@ -1,0 +1,13 @@
+# Allowlist. Everything else Claude Code keeps in ~/.claude -- transcripts,
+# history, caches, installed plugins, skills synced from the claude.ai account
+# -- is machine-local and must never land here, even if this directory is ever
+# linked wholesale. Add a `!/<name>` line to version another entry; every
+# tracked entry is linked into ~/.claude by nix/modules/home/claude.nix.
+/*
+!/.gitignore
+!/CLAUDE.md
+!/settings.json
+!/agents/
+!/skills/
+/skills/synced/
+/skills/.trash/
