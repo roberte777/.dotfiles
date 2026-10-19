@@ -14,7 +14,7 @@ The orchestrator gives you `$WT`, the scope (a git range), and a ledger of findi
 
 ## Method
 
-Invoke `/code-review` through the Skill tool on the scope. If the Skill tool cannot run it here, review the diff yourself across correctness (logic, edge cases, error paths), tests (coverage of new logic at the lowest applicable level), conventions (the repo's CLAUDE.md and `.claude/rules/`), and security when the diff touches auth, uploads, or user input. Say in your report which path you took.
+Invoke `/code-review` through the Skill tool on the scope, naming the repo's `CODING_STANDARDS.md` in the args when it has one. If the Skill tool cannot run it here, review the diff yourself across correctness (logic, edge cases, error paths), tests (coverage of new logic at the lowest applicable level), conventions (the repo's CLAUDE.md, `.claude/rules/` and `CODING_STANDARDS.md`), and security when the diff touches auth, uploads, or user input. Say in your report which path you took.
 
 ## Findings
 

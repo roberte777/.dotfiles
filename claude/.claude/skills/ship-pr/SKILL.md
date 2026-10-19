@@ -32,7 +32,7 @@ Establish the repo-wide facts, then enumerate:
 
 ```bash
 REPO=$(git -C "$PWD" remote get-url origin | sed -E 's#(git@|https://)github\.com[:/]##; s#\.git$##')
-DEFAULT=$(gh repo view -R "$REPO" --json defaultBranchRef --jq .defaultBranchRef.name)
+DEFAULT=$(gh repo view "$REPO" --json defaultBranchRef --jq .defaultBranchRef.name)  # positional: `repo view` has no -R
 wt list 2>/dev/null || git worktree list           # every worktree of this repo
 ```
 
@@ -106,13 +106,15 @@ runs more than once — Copilot reviews at open and never again, so from here on
 every commit the pipeline pushes. Round 1 reviews **the PR's full diff against the default
 branch**, not just the last commit; step 4's later rounds review only their own increment.
 
-- Prefer the built-in `/code-review` (Skill tool) scoped to `$WT`. **Never** invoke
+- Prefer the built-in `/code-review` (Skill tool) scoped to `$WT`. When the repo has a
+  `CODING_STANDARDS.md`, name it in the args so its judgement rules are applied. **Never** invoke
   `/code-review ultra` — that variant is user-triggered and billed, and can't be launched by an
   agent.
 - If it's unavailable, fan out review subagents over the diff, one per dimension, and merge
   their findings: **correctness** (logic, edge cases, error paths), **tests** (does the new logic
-  have coverage at the lowest applicable level), **conventions** (the repo's CLAUDE.md and
-  `.claude/rules/`), and **security** if the diff touches auth, uploads, or user input.
+  have coverage at the lowest applicable level), **conventions** (the repo's CLAUDE.md,
+  `.claude/rules/` and `CODING_STANDARDS.md`), and **security** if the diff touches auth, uploads,
+  or user input.
 - Each finding needs a file:line anchor and a concrete failure scenario. A finding that can't
   name how it breaks is speculation — drop it before triage.
 
@@ -206,7 +208,13 @@ Anything else is red or unfinished; the same listing names the jobs to read.
 
 Merge when CI is green **and** step 4 escalated nothing **and** `$REVIEWED` equals the pushed tip
 (`git -C "$WT" rev-parse HEAD` — every commit has been through a review round or was exempt under
-4b) **and** the user didn't say not to:
+4b) **and** nothing new has been posted since the last triage **and** the user didn't say not to.
+
+**The last look is its own command.** Collect the three comment surfaces again (step 2 of
+`resolve-pr-comments`), read the result, and only then run the merge. A human can comment during
+the CI wait, and a check chained into the merge command reports after the merge has happened.
+Anything posted since the last round goes through step 4a first. A bot report that asks for
+nothing (a coverage summary, a deploy preview) needs no action; name it in the report.
 
 ```bash
 gh pr merge <pr> -R "$REPO" --squash --delete-branch
@@ -215,12 +223,21 @@ gh pr merge <pr> -R "$REPO" --squash --delete-branch
 Squash is the default (one commit per PR, matching the conventional-commit-title convention).
 Use `--merge` / `--rebase` only if step 0 said so.
 
-Then sync local state so the next change starts from the merged tip:
+Then sync local state so the next change starts from the merged tip. A squash merge leaves the
+branch's own commits off the default branch, so `wt remove` reports the branch as unmerged and
+keeps it. The branch is safe to force-delete once the PR is `MERGED`, its head is the local tip,
+and the worktree is clean: everything local then reached the merge.
 
 ```bash
-wt remove <branch>          # drop the merged worktree and its local branch
+gh pr view <pr> -R "$REPO" --json state,headRefOid --jq '"\(.state) \(.headRefOid)"'  # want: MERGED <tip>
+git -C "$WT" rev-parse HEAD                                    # must equal headRefOid
+git -C "$WT" status --porcelain                                # must be empty
+wt remove -D <branch>       # drop the merged worktree and its local branch
 wt switch ^ && git pull     # default-branch worktree, updated
 ```
+
+Any of the three checks failing means local work the merge didn't carry: keep the branch and say
+so in the report.
 
 Do **not** remove a worktree while another target still needs it, and don't `wt switch` away
 mid-pipeline — every other target's commands are pinned with `-C`, but the shell's cwd is shared.
