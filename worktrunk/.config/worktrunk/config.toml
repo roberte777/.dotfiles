@@ -1,2 +1,9 @@
 worktree-path = "~/worktrees/{{ repo }}/{{ branch | sanitize }}"
 pre-start = "wt step copy-ignored --require-include"
+
+# omnibus: stop a worktree's iOS scratch server and delete its test simulator
+# with it. A user hook rather than the repo's own .config/wt.toml: project hooks
+# need approval, and an unapproved one aborts a non-interactive `wt remove`.
+# `|| true` because a failing pre-remove hook aborts the removal too.
+[projects."github.com/omnibus-library/omnibus"]
+pre-remove = "scripts/ios-validate.sh cleanup || true"
