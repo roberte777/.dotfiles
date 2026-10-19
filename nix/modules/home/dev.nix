@@ -6,6 +6,7 @@
   ...
 }: {
   imports = [
+    ./mcap.nix
     ./worktrunk-sync.nix
   ];
 
@@ -25,6 +26,12 @@
     package = pkgs-unstable.neovim-unwrapped;
     enable = true;
     defaultEditor = true;
+    # home-manager 26.05 started writing its generated init.lua (just the
+    # lines that disable the ruby/python3/node/perl providers) to
+    # $XDG_CONFIG_HOME/nvim/init.lua, which is the stow symlink to our own
+    # handwritten config. Sideload it through wrapper args instead so the
+    # providers still get set and the file stays ours.
+    sideloadInitLua = true;
     viAlias = true;
     vimAlias = true;
   };
@@ -63,12 +70,12 @@
     gcc
     pkg-config
     cargo-release
-    inputs.claude-code-nix.packages.${pkgs.system}.default
+    inputs.claude-code-nix.packages.${pkgs.stdenv.hostPlatform.system}.default
     sesh
     stow
     tmux
-    nodePackages.typescript
-    nodePackages.typescript-language-server
+    typescript
+    typescript-language-server
     lua-language-server
     stylua
     # Python: uv owns interpreters and project envs; ruff lints/formats and
@@ -76,7 +83,7 @@
     pkgs-unstable.uv
     ruff
     pyright
-    nodePackages.prettier
+    prettier
     prettierd
     tree-sitter
     pkgs-unstable.opencode

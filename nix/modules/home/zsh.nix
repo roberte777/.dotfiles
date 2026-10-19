@@ -135,8 +135,8 @@
       [ -f "$HOME/.secrets" ] && source "$HOME/.secrets"
 
       # NVM
-      # [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-      # [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+      [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+      [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
 
       # Bun completions
       [ -s "/home/roberte777/.bun/_bun" ] && source "/home/roberte777/.bun/_bun"
