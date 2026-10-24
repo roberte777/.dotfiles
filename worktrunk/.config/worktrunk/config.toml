@@ -1,6 +1,32 @@
 worktree-path = "~/worktrees/{{ repo }}/{{ branch | sanitize }}"
 pre-start = "wt step copy-ignored --require-include"
 
+# Rex: give each new worktree its own session, named `<repo>:<branch>` so a
+# script can split it on the first `:` (git forbids `:` in branch names). One
+# tab: claude on the left, nvim on the right, each dropping to a shell on exit.
+# Skipped when `rex` isn't on PATH, i.e. outside a Rex terminal.
+post-start = '''
+command -v rex >/dev/null || exit 0
+label='{{ repo }}:{{ branch }}'
+dir='{{ worktree_path }}'
+rex ls --json | jq -e --arg l "$label" 'any(.sessions[]; .label == $l)' >/dev/null && exit 0
+created=$(rex new "$label" -c "$dir" --window dev --json -- sh -c 'claude; exec "$SHELL" -l') || exit 1
+sid=$(printf '%s' "$created" | jq -er .session_id) || exit 1
+left=$(printf '%s' "$created" | jq -er '.initial_windows[0].block_ids[0]') || exit 1
+rex split -s "$sid" -b "$left" --split=right -c "$dir" --focus=false -- sh -c 'nvim; exec "$SHELL" -l'
+'''
+
+# Rex: close the worktree's session once the worktree is gone, unless the remove
+# ran from inside that session — killing it would kill whoever ran `wt remove`.
+post-remove = '''
+command -v rex >/dev/null || exit 0
+label='{{ repo }}:{{ branch }}'
+rex ls --json | jq -r --arg l "$label" '.sessions[] | select(.label == $l) | .session_id' |
+  while read -r sid; do
+    [ "$sid" = "${REX_SESSION:-}" ] || rex kill "$sid"
+  done
+'''
+
 # omnibus: stop a worktree's iOS scratch server and delete its test simulator
 # with it. A user hook rather than the repo's own .config/wt.toml: project hooks
 # need approval, and an unapproved one aborts a non-interactive `wt remove`.
