@@ -129,6 +129,10 @@
       path+="/home/roberte777/.fly/bin"
       # path+="$PNPM_HOME"
       # path+="$BUN_INSTALL/bin"
+
+      # Rex puts its CLI at the front of PATH, but nix-darwin's set-environment
+      # (sourced from /etc/zshenv) resets PATH; restore it.
+      [[ -n "$REX_BIN_DIR" ]] && path=("$REX_BIN_DIR" $path)
       export PATH
 
       # Source secrets from ~/.secrets (not version controlled)
