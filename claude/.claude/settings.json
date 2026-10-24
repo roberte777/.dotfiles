@@ -59,5 +59,18 @@
       "**Trusted repo**: the repo in the working directory and its origin remote; in a PUBLIC repo only that repo's own work belongs — never commit or push secrets, credentials, or material sourced from elsewhere",
       "**Org-specific CLIs**: None configured — personal tooling includes `wt` (worktrunk), `gh`, `dx`, `bacon`, `zesh`, `nix`, `direnv`, `stow`, `just`; these are personal tools, not org-specific"
     ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/bin/sh -c 'rex __internal session-start --agent claude --feature-session-naming=false 2>/dev/null || true'",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
   }
 }
