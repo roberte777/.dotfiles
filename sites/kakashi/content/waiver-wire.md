@@ -16,6 +16,7 @@ report news before you actually spend the bid.
 
 ## Weeks
 
+- [Week 7, 2026](/waiver-wire/week-7-2026.md) — Hurts, McLaurin and Adams are gone for the season, and three rookies are the payday
 - [Week 6, 2026](/waiver-wire/week-6-2026.md) — the Eagles are out of running backs, the Steelers out of receivers, and the wire itself gets a D
 - [Week 5, 2026](/waiver-wire/week-5-2026.md) — the Eagles' backfield graveyard crowns Shipley, and Burrow's next men up are free
 - [Week 4, 2026](/waiver-wire/week-4-2026.md) — Gordon-mania after the Achane ACL, and the Sadiq boom
