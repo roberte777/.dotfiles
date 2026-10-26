@@ -11,24 +11,13 @@ The loop lives in three agents (`~/.claude/agents/`): `local-review-orchestrator
 
 ## 1. Resolve the target
 
-The current directory is a hint. Enumerate the worktrees and pick the one holding the work.
+The current directory is a hint. List the worktrees holding work and pick the target:
 
 ```bash
-git fetch origin
-DEFAULT=$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's#^origin/##')
-[ -z "$DEFAULT" ] && DEFAULT=$(git remote show origin | sed -n 's/.*HEAD branch: //p')
-wt list 2>/dev/null || git worktree list
+~/.claude/scripts/worktree-targets    # REPO, DEFAULT, then per target: path ($WT), branch ($BRANCH), ahead, dirty, pr, base
 ```
 
-For each candidate `$WT` that is not the default branch:
-
-```bash
-git -C "$WT" branch --show-current
-git -C "$WT" status --porcelain
-git -C "$WT" log --oneline "origin/$DEFAULT..HEAD"
-```
-
-A target has commits ahead of `origin/$DEFAULT` or uncommitted changes. Zero targets → say so and stop. One → proceed. Several → honour a named one, otherwise list them and ask.
+Zero targets → say so and stop. One → proceed. Several → honour a named one, otherwise list them and ask.
 
 ## 2. Commit the user's work
 
@@ -36,7 +25,7 @@ Uncommitted changes in `$WT` become a commit before review, so the loop sees eve
 
 ## 3. Launch the orchestrator
 
-Spawn `local-review-orchestrator` (Agent tool, `subagent_type: local-review-orchestrator`) with `$WT`, `$DEFAULT`, and the step-2 commit subject. It runs the whole loop and returns the handoff.
+Spawn `local-review-orchestrator` (Agent tool, `subagent_type: local-review-orchestrator`), briefed as its description lists, with step 2's commit subject. It runs the whole loop and returns the handoff.
 
 ## 4. Relay the handoff
 

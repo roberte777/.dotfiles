@@ -30,40 +30,22 @@ These pass through to the coordinator's brief:
 main checkout while the actual change lives in a `wt` worktree created mid-session, and more
 than one may be in flight at once.
 
-Establish the repo-wide facts, then enumerate:
-
 ```bash
-REPO=$(git -C "$PWD" remote get-url origin | sed -E 's#(git@|https://)github\.com[:/]##; s#\.git$##')
-DEFAULT=$(gh repo view "$REPO" --json defaultBranchRef --jq .defaultBranchRef.name)  # positional: `repo view` has no -R
-wt list 2>/dev/null || git worktree list           # every worktree of this repo
+~/.claude/scripts/worktree-targets    # REPO, DEFAULT, then per target: path ($WT), branch ($BRANCH), ahead, dirty, pr, base
 ```
 
-For each candidate path `$WT`:
-
-```bash
-git -C "$WT" branch --show-current                 # branch (empty ⇒ detached HEAD)
-git -C "$WT" status --porcelain                    # uncommitted work
-git -C "$WT" log --oneline "origin/$DEFAULT..HEAD" # commits not on the default branch
-gh pr list -R "$REPO" --head "<branch>" --json number,baseRefName   # open PR, and what it's based on
-```
-
-A candidate is a **ship target** if it is not the default branch **and** has commits ahead of
-the default branch or uncommitted changes. A **stack** (PRs based on one another, `-1`, `-2`, …)
-is one target. Then:
+Rows whose PR is based on another row's branch form a **stack** (`-1`, `-2`, …), which is one
+target. Then:
 
 - **Zero targets** → say so and stop. Don't invent work.
 - **Exactly one** → ship it without asking.
 - **More than one** → if the user named one (or said "all"), honour it. Otherwise list them
   (path, branch, commit subjects, PR if one exists) and ask which to ship. Never guess.
 
-`$DEFAULT` is looked up, never hardcoded to `main`, and never taken from `origin/HEAD` — that's
-unset in plenty of clones.
-
 ## 2. Launch one coordinator per target
 
-Launch every target's `ship-pr-coordinator` in one message, in the background. Each brief
-carries `$REPO`, `$DEFAULT`, `$WT`, `$BRANCH`, the PR number if one is open (for a stack: every
-PR, bottom first, with its worktree), the issue number, and step 0's overrides.
+Launch every target's `ship-pr-coordinator` in one message, in the background, briefed as its
+description lists, with step 0's overrides.
 
 The coordinator starts without this conversation. When it knows something the commits and PR
 body don't (why the change is shaped the way it is, a trade-off already settled with the user),

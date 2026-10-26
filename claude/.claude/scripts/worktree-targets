@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+#
+# Lists the worktrees of a repo that hold work not yet on its default branch:
+# commits ahead of origin/<default>, uncommitted changes, or both. These are
+# the "targets" the open-pr, ship-pr, local-review and resolve-pr-comments
+# skills act on, so the lookup lives here once instead of in each skill.
+#
+# Usage: worktree-targets [path-inside-the-repo]   (defaults to $PWD)
+#
+# Output: REPO= and DEFAULT= lines, then one tab-separated row per target with
+# its path, branch, commits ahead, uncommitted paths, and open PR number and
+# base ("-" when there is no PR). A PR whose base is another target's branch
+# is part of a stack.
+
+set -uo pipefail
+
+dir="${1:-$PWD}"
+
+REPO="$(git -C "$dir" remote get-url origin | sed -E 's#(git@|https://)github\.com[:/]##; s#\.git$##')"
+[ -n "$REPO" ] || { echo "worktree-targets: no origin remote in $dir" >&2; exit 1; }
+
+# Asked of GitHub rather than read from origin/HEAD, which is unset in plenty
+# of clones. `repo view` takes the repo positionally; it has no -R.
+DEFAULT="$(gh repo view "$REPO" --json defaultBranchRef --jq .defaultBranchRef.name)"
+[ -n "$DEFAULT" ] || { echo "worktree-targets: no default branch for $REPO" >&2; exit 1; }
+
+# A stale origin/<default> would count already-merged commits as ahead.
+git -C "$dir" fetch -q origin "$DEFAULT" || echo "worktree-targets: fetch failed; ahead counts may be stale" >&2
+
+# One call for every open PR, joined to the worktrees by head branch below.
+prs="$(gh pr list -R "$REPO" --state open --limit 200 \
+  --json number,headRefName,baseRefName --jq '.[] | [.headRefName, .number, .baseRefName] | @tsv')"
+
+printf 'REPO=%s\nDEFAULT=%s\n' "$REPO" "$DEFAULT"
+printf 'path\tbranch\tahead\tdirty\tpr\tbase\n'
+
+found=0
+while IFS=$'\t' read -r path branch; do
+  [ -d "$path" ] || continue                 # pruned or missing worktree
+  [ "$branch" = "$DEFAULT" ] && continue
+  ahead="$(git -C "$path" rev-list --count "origin/$DEFAULT..HEAD" 2>/dev/null || echo '?')"
+  dirty="$(git -C "$path" status --porcelain | wc -l | tr -d ' ')"
+  [ "$ahead" = 0 ] && [ "$dirty" = 0 ] && continue
+  pr="$(awk -F'\t' -v b="$branch" '$1 == b { print $2 "\t" $3; exit }' <<<"$prs")"
+  printf '%s\t%s\t%s\t%s\t%s\n' "$path" "${branch:-(detached)}" "$ahead" "$dirty" "${pr:-$'-\t-'}"
+  found=1
+done < <(git -C "$dir" worktree list --porcelain | awk '
+  /^worktree / { if (p != "") print p "\t" b; p = substr($0, 10); b = "" }
+  /^branch /   { b = substr($0, 19) }      # strip "branch refs/heads/"
+  /^bare$/     { p = "" }
+  END          { if (p != "") print p "\t" b }')
+
+[ "$found" = 1 ] || echo "(no targets)"
