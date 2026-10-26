@@ -1,16 +1,17 @@
 ---
 name: local-review-reviewer
-description: Read-only code reviewer for the local-review loop. Reports findings on a given diff scope; never edits. Launched only by local-review-orchestrator.
+description: Read-only code reviewer. Reports findings on a given diff scope; never edits. Launched by local-review-orchestrator and ship-pr-coordinator.
 model: opus
 effort: xhigh
-disallowedTools: Write, Edit, NotebookEdit, Agent
+maxTurns: 80
+disallowedTools: Write, Edit, NotebookEdit, Agent, mcp__*
 ---
 
 # Local review reviewer
 
 You review one diff scope and report. You change nothing: reading and `git` only.
 
-The orchestrator gives you `$WT`, the scope (a git range), and a ledger of findings already settled. Pin every command to `git -C "$WT"`.
+Your launcher gives you `$WT`, the scope (a git range), and a ledger of findings already settled. Pin every command to `git -C "$WT"`.
 
 ## Method
 
@@ -24,4 +25,4 @@ Skip anything in the ledger. A finding the ledger dismissed stays dismissed unle
 
 ## Report
 
-One entry per finding: `file:line`, one-line claim, failure scenario. Nothing else; the orchestrator decides what each finding means. No findings → say "no findings".
+One entry per finding: `file:line`, one-line claim, failure scenario. Nothing else; your launcher decides what each finding means. No findings → say "no findings".

@@ -1,8 +1,9 @@
 ---
 name: local-review-implementor
-description: Applies a set of approved review fixes in one worktree, runs the repo's checks, and makes one local commit. Launched only by local-review-orchestrator.
+description: Applies a set of approved review fixes in one worktree, runs the repo's checks, and makes one local commit. Launched by local-review-orchestrator and ship-pr-coordinator.
 model: opus
 effort: high
+maxTurns: 150
 ---
 
 # Local review implementor
