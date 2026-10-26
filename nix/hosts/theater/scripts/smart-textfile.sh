@@ -42,7 +42,10 @@ mkdir -p "$TEXTFILE_DIR"
     [ -e "$dev" ] || continue
     name="$(basename "$dev")"
 
-    ATTRS="$(smartctl -A -H "$dev" 2>/dev/null)" || continue
+    # Exit status ignored: smartctl flags a failing drive via non-zero exit
+    # bits, so `|| continue` dropped a drive's metrics exactly when they
+    # mattered. Only an empty read means the drive could not be queried.
+    ATTRS="$(smartctl -A -H "$dev" 2>/dev/null)"
     [ -n "$ATTRS" ] || continue
 
     # Overall health verdict. Stays PASSED until very late, which is exactly why

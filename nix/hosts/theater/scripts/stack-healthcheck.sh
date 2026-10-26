@@ -179,7 +179,11 @@ fi
 if command -v smartctl >/dev/null 2>&1; then
   for disk in /dev/sd?; do
     [ -b "$disk" ] || continue
-    SMART="$(timeout 30 smartctl -A -H "$disk" 2>/dev/null)" || continue
+    # Exit status deliberately ignored: smartctl reports "disk failing" and
+    # "attribute past threshold" as non-zero exit bits, so `|| continue` here
+    # skipped a drive at exactly the moment it was failing. Only an empty read
+    # means the drive could not be queried.
+    SMART="$(timeout 30 smartctl -A -H "$disk" 2>/dev/null)"
     [ -n "$SMART" ] || continue
 
     if printf '%s' "$SMART" | grep -qE "SMART overall-health.*(FAILED|FAILING)"; then
@@ -192,6 +196,32 @@ if command -v smartctl >/dev/null 2>&1; then
       RAW="$(printf '%s' "$SMART" | awk -v a="$attr" '$2 == a {print $10; exit}')"
       if [ -n "$RAW" ] && [ "$RAW" -gt 0 ] 2>/dev/null; then
         fail "$disk has $RAW $attr -- drive is degrading"
+      fi
+    done
+  done
+
+  # Self-test results, from the smartd schedule in default.nix (daily short,
+  # monthly long). smartd only writes these to the journal, so this is what
+  # gets a failed test to the phone. Checks the newest entry and the newest
+  # extended test separately: a passing short test the next morning must not
+  # hide a long test that hit a read failure. Any failure status contains
+  # "fail" ("read failure", "failed segments") -- aborted or interrupted tests
+  # do not, and are not drive faults.
+  for disk in /dev/sd? /dev/nvme?n?; do
+    [ -e "$disk" ] || continue
+    # Exit status ignored for the same reason as above.
+    TESTS="$(timeout 30 smartctl -l selftest "$disk" 2>/dev/null \
+      | grep -E '^ *#? *[0-9]+ +(Short|Extended)')"
+    [ -n "$TESTS" ] || continue
+    for which in latest extended; do
+      if [ "$which" = latest ]; then
+        LINE="$(printf '%s\n' "$TESTS" | head -n1)"
+      else
+        LINE="$(printf '%s\n' "$TESTS" | grep -m1 'Extended')"
+      fi
+      if printf '%s' "$LINE" | grep -qi 'fail'; then
+        fail "$disk self-test failed: $(printf '%s' "$LINE" | tr -s ' ')"
+        break
       fi
     done
   done

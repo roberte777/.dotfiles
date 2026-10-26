@@ -178,6 +178,25 @@
     };
   };
 
+  # Drive self-tests. The two scripts above only READ SMART attributes, and a
+  # sector is only flagged pending once something tries to read it -- so a bad
+  # patch under a file nobody has played stays invisible until playback fails.
+  # The long test reads every sector to surface those early.
+  #
+  # The drive's own firmware runs the tests; host I/O takes priority, so Plex
+  # and imports are not starved. The 16TB long test takes ~22h (smartctl -c:
+  # 1318 min) and keeps the disk spinning, which the 5-min smart-textfile poll
+  # already does anyway.
+  #
+  # Schedule: short daily at 03:00 (~1 min), long on the 1st at 02:00. smartd
+  # skips a test that comes due while another is running. Failures reach ntfy via
+  # stack-healthcheck.sh, which reads the self-test log; smartd's own wall
+  # notifications only reach logged-in terminals.
+  services.smartd = {
+    enable = true;
+    defaults.autodetected = "-a -o on -s (S/../.././03|L/../01/./02)";
+  };
+
   systemd.timers.smart-textfile = {
     description = "Refresh SMART metrics every 5 minutes";
     wantedBy = ["timers.target"];
@@ -229,9 +248,6 @@
     6868 # profilarr
     7575 # homarr
     3000 # omnibus
-    443 # kasm browser sessions
-    3001 # kasm https
-    3002 # kasm http
     3003 # uptime kuma
     3004 # grafana
     8085 # ntfy

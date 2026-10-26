@@ -356,26 +356,12 @@ services:
     environment:
       - TZ=${TZ}
       - SECRET_ENCRYPTION_KEY=${HOMARR_SECRET_ENCRYPTION_KEY}
+    # No docker.sock: homarr is published at home.<domain>, and the socket is
+    # root on the host -- a homarr auth bug would hand that out. `:ro` does not
+    # help; a read-only bind of a socket still accepts every API call. No widget
+    # uses it; container management lives in portainer.
     volumes:
       - ${APPDATA_DIR}/homarr:/appdata
-      - /var/run/docker.sock:/var/run/docker.sock
-    restart: unless-stopped
-
-  kasm:
-    image: lscr.io/linuxserver/kasm:latest
-    container_name: kasm
-    privileged: true
-    ports:
-      - "3001:3000"
-      - "3002:3001"
-      - "443:443"
-    environment:
-      - PUID=${PUID}
-      - PGID=${PGID}
-      - TZ=${TZ}
-    volumes:
-      - ${APPDATA_DIR}/kasm:/config
-      - /dev/shm:/dev/shm
     restart: unless-stopped
 
   portainer:
@@ -477,9 +463,11 @@ services:
   # Decides WHEN to notify: runs the HTTP probes and calls ntfy when one fails.
   # The docker socket is only for the "Docker Container" monitor type, and is
   # read-only -- it never needs to start or stop anything.
-  # Host port 3003 because omnibus owns 3000 and kasm owns 3001/3002.
+  # Host port 3003: omnibus owns 3000 (3001/3002 were kasm, since removed).
   uptime-kuma:
-    image: louislam/uptime-kuma:1
+    # :2, not :latest -- v1 -> v2 was a one-way DB migration, and the next major
+    # likely will be too. Backup of the v1 data: appdata/uptime-kuma.v1-backup-20261026
+    image: louislam/uptime-kuma:2
     container_name: uptime-kuma
     environment:
       - TZ=${TZ}
@@ -668,7 +656,7 @@ services:
     # Image defaults to uid 472, which cannot write a PUID-owned appdata dir.
     user: "${PUID}:${PGID}"
     ports:
-      # 3000-3003 are omnibus, kasm x2, uptime-kuma.
+      # 3000 is omnibus, 3003 uptime-kuma.
       - "3004:3000"
     environment:
       - TZ=${TZ}

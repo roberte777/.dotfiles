@@ -1,6 +1,6 @@
 #!/bin/sh
 sudo mkdir -p /mnt/storage/{torrents/{movies,tv,books,audiobooks,shelfarr,completed,incomplete},usenet/{complete/{movies,tv,books,audiobooks},incomplete},media/{movies,tv,books,audiobooks}}
-sudo mkdir -p /docker/appdata/{gluetun,qbittorrent,qbittorrent-mam,mousehole,prowlarr,radarr,sonarr,flaresolverr,jellyfin,plex,seerr,seerr-plex,bazarr,kasm,audiobookshelf,calibre,calibre-web,sabnzbd,shelfarr,profilarr,homarr,portainer,vaultwarden,tautulli,uptime-kuma,ntfy/{cache,etc},omnibus/{config,cache}}
+sudo mkdir -p /docker/appdata/{gluetun,qbittorrent,qbittorrent-mam,mousehole,prowlarr,radarr,sonarr,flaresolverr,jellyfin,plex,seerr,seerr-plex,bazarr,audiobookshelf,calibre,calibre-web,sabnzbd,shelfarr,profilarr,homarr,portainer,vaultwarden,tautulli,uptime-kuma,ntfy/{cache,etc},omnibus/{config,cache}}
 
 # Observability. These dirs are only half the story -- the services also need
 # config files, which live in observability/ in this repo. After running this:
