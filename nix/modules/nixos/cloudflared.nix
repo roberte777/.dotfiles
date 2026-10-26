@@ -1,4 +1,16 @@
-{...}: let
+{pkgs, ...}: let
+  # Cloudflare emails hard-version deadlines; nixpkgs (even master) lags, so
+  # pin the official binary. To bump: change version + fetch the new sha256
+  # with `nix hash file` after downloading the amd64 release from GitHub.
+  cloudflaredPinned = pkgs.runCommand "cloudflared-2026.10.4" {} ''
+    mkdir -p $out/bin
+    cp ${pkgs.fetchurl {
+      url = "https://github.com/cloudflare/cloudflared/releases/download/2026.10.4/cloudflared-linux-amd64";
+      sha256 = "sha256-rl6K3XiEsFMdZrvKRXDR3kkf9tpR5Ovn6xYM3yQdnkI=";
+    }} $out/bin/cloudflared
+    chmod +x $out/bin/cloudflared
+  '';
+
   # === Fill these in ===
   # Tunnel UUID from `cloudflared tunnel create theater`
   tunnelId = "0f176346-8e25-4b26-82ff-89b2b94b8fcf";
@@ -12,6 +24,7 @@
 in {
   services.cloudflared = {
     enable = true;
+    package = cloudflaredPinned;
     tunnels.${tunnelId} = {
       inherit credentialsFile;
 
