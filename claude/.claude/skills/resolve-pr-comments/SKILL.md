@@ -9,7 +9,7 @@ Handles **one PR** end to end at the comment level: collect every surface, sort 
 exactly one bucket, act, reply, resolve, report. Knows nothing about other PRs in flight — a
 caller shipping several runs this once per PR.
 
-Invoked directly, or by [`ship-pr`](../ship-pr/SKILL.md) as step 4.
+Invoked directly, or by [`ship-pr-coordinator`](../../agents/ship-pr-coordinator.md) as step 3a.
 
 ## 1. Resolve the PR and its worktree
 
@@ -36,10 +36,13 @@ address the wrong PR.
 Three GitHub surfaces, and they don't overlap — missing one silently drops comments:
 
 ```bash
-gh api "repos/$REPO/pulls/<pr>/reviews"   --paginate   # review bodies
-gh api "repos/$REPO/pulls/<pr>/comments"  --paginate   # inline diff comments
-gh api "repos/$REPO/issues/<pr>/comments" --paginate   # PR conversation comments
+gh api "repos/$REPO/pulls/<pr>/reviews"   --paginate --jq '.[] | {id, user: .user.login, state, body}'
+gh api "repos/$REPO/pulls/<pr>/comments"  --paginate --jq '.[] | {id, user: .user.login, path, line: (.line // .original_line), in_reply_to_id, body}'
+gh api "repos/$REPO/issues/<pr>/comments" --paginate --jq '.[] | {id, user: .user.login, body}'
 ```
+
+The `--jq` filters keep the raw payloads (diff hunks, URLs, reactions) out of context; read the
+file at `path:line` when a comment needs its surroundings.
 
 A caller may also hand you **local review findings** (from `/code-review` or review subagents).
 Triage those in the same three buckets, but they have no GitHub thread — never reply to or
@@ -67,6 +70,9 @@ The comment is right, or right enough that acting is cheaper than arguing. Apply
 
 Batch all the fixes into **one fresh commit** on top (never an amend) and push once. A dozen
 one-line fix commits is noise; so is a force-push that rewrites the tip Copilot reviewed.
+
+Inside `ship-pr-coordinator`, whose tools cannot edit files, the batch goes through its
+*Delegating a fix* section, which ends in that same single commit and push.
 
 ### Dismiss — not relevant
 
@@ -116,10 +122,11 @@ gh api graphql -f query='mutation($id:ID!){resolveReviewThread(input:{threadId:$
 **Copilot reviews only once per PR** — it does not re-review the fix commits — so one invocation
 is **one round of GitHub comments**. Don't wait for a second review that will never come.
 
-That's a bound on waiting, not on being called again: a caller running a review loop (`ship-pr`
-step 4) invokes this repeatedly, each time with fresh **local** findings against the commit the
-previous round pushed. Treat each invocation as its own round — collect the GitHub surfaces again
-(a human may have commented meanwhile) and triage the supplied findings alongside them.
+That's a bound on waiting, not on being called again: a caller running a review loop
+(`ship-pr-coordinator` step 3) invokes this repeatedly, each time with fresh **local** findings
+against the commit the previous round pushed. Treat each invocation as its own round — collect
+the GitHub surfaces again (a human may have commented meanwhile) and triage the supplied findings
+alongside them.
 
 ## 5. Report
 

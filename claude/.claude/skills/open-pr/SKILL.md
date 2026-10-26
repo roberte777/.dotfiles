@@ -7,7 +7,7 @@ description: Resolve which worktree holds the work, commit and push it, then ope
 
 Takes one worktree's work from unpushed (or uncommitted) to an open, well-formed PR. **Stops
 there** — no review wait, no CI wait, no merge. Invoked directly, or by
-[`ship-pr`](../ship-pr/SKILL.md) as step 2.
+[`ship-pr-coordinator`](../../agents/ship-pr-coordinator.md) as step 1.
 
 ## 1. Resolve the work context — do this first, always
 
