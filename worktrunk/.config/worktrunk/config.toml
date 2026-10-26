@@ -4,16 +4,20 @@ pre-start = "wt step copy-ignored --require-include"
 # Rex: give each new worktree its own session, named `<repo>:<branch>` so a
 # script can split it on the first `:` (git forbids `:` in branch names). One
 # tab: claude on the left, nvim on the right, each dropping to a shell on exit.
+# With WT_REX_OPEN set (see `wt start` below), also switch the Rex app to it.
 # Skipped when `rex` isn't on PATH, i.e. outside a Rex terminal.
 post-start = '''
 command -v rex >/dev/null || exit 0
 label='{{ repo }}:{{ branch }}'
 dir='{{ worktree_path }}'
-rex ls --json | jq -e --arg l "$label" 'any(.sessions[]; .label == $l)' >/dev/null && exit 0
-created=$(rex new "$label" -c "$dir" --window dev --json -- sh -c 'claude; exec "$SHELL" -l') || exit 1
-sid=$(printf '%s' "$created" | jq -er .session_id) || exit 1
-left=$(printf '%s' "$created" | jq -er '.initial_windows[0].block_ids[0]') || exit 1
-rex split -s "$sid" -b "$left" --split=right -c "$dir" --focus=false -- sh -c 'nvim; exec "$SHELL" -l'
+sid=$(rex ls --json | jq -r --arg l "$label" 'first(.sessions[] | select(.label == $l) | .session_id) // empty') || exit 1
+if [ -z "$sid" ]; then
+  created=$(rex new "$label" -c "$dir" --window dev --json -- sh -c 'claude; exec "$SHELL" -l') || exit 1
+  sid=$(printf '%s' "$created" | jq -er .session_id) || exit 1
+  left=$(printf '%s' "$created" | jq -er '.initial_windows[0].block_ids[0]') || exit 1
+  rex split -s "$sid" -b "$left" --split=right -c "$dir" --focus=false -- sh -c 'nvim; exec "$SHELL" -l'
+fi
+if [ -n "${WT_REX_OPEN:-}" ]; then rex do session.select session_id="$sid"; fi
 '''
 
 # Rex: close the worktree's session once the worktree is gone, unless the remove
@@ -26,6 +30,13 @@ rex ls --json | jq -r --arg l "$label" '.sessions[] | select(.label == $l) | .se
     [ "$sid" = "${REX_SESSION:-}" ] || rex kill "$sid"
   done
 '''
+
+# `wt create <branch>`: a new worktree off the freshly fetched default branch
+# (not the possibly stale local one), without cd-ing — post-start gives it a Rex
+# session to work in. `wt start <branch>` also switches the Rex app to it.
+[aliases]
+create = "git fetch origin && wt switch --create {{ args }} --base origin/{{ default_branch }} --no-cd"
+start = "git fetch origin && WT_REX_OPEN=1 wt switch --create {{ args }} --base origin/{{ default_branch }} --no-cd"
 
 # omnibus: stop a worktree's iOS scratch server and delete its test simulator
 # with it. A user hook rather than the repo's own .config/wt.toml: project hooks
