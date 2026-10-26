@@ -16,3 +16,10 @@ keys.txt
 id_ed25519
 id_rsa
 *.pem
+
+# Compose env files hold live secrets (VPN keys, app encryption keys). Only the
+# templates are tracked -- a stray .env or .env.bak.* once leaked to this public
+# repo and had to be purged from history.
+.env
+.env.*
+!.env.example
