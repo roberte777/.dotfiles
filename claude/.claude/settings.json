@@ -1,4 +1,8 @@
 {
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
   "model": "opus[1m]",
   "enabledPlugins": {
     "frontend-design@claude-plugins-official": true,
@@ -56,8 +60,17 @@
       "**Org-specific CLIs**: None configured — personal tooling includes `wt` (worktrunk), `gh`, `dx`, `bacon`, `zesh`, `nix`, `direnv`, `stow`, `just`; these are personal tools, not org-specific"
     ]
   },
-  "attribution": {
-    "commit": "",
-    "pr": ""
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/bin/sh -c 'rex __internal session-start --agent claude --feature-session-naming=false 2>/dev/null || true'",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
   }
 }

@@ -6,12 +6,13 @@
 - Always use git + worktrunk (`wt`) for all version control.
   - You should always check what's currently modified via `git status`
     - **Before ANY Edit/Write tool call, run `git status` and `git branch --show-current` first.** If you are on `main` (or any branch you don't intend to add commits to), create the branch *before* the first edit, not after.
-    - **Never rewrite published history.** No `git commit --amend`, `git rebase`, or `git push --force` on a commit that has already been pushed. Add a new commit on top instead. This includes follow-up commits on a PR branch.
+    - **Never rewrite published history.** No `git commit --amend`, `git rebase`, or `git push --force` on a commit that has already been pushed. Add a new commit on top instead. This includes follow-up commits on a PR branch. A non-fast-forward rejection on push means this rule was broken: recover with `git reset --soft origin/<branch>` and redo the commit.
     - `git add .` and `git commit` only affect the current worktree — each worktree has its own index and HEAD. The stash, however, is shared across every worktree of a repo.
   - Use `git fetch origin` to get the latest changes.
   - Start any new piece of work with `wt switch --create <branch_name>` — this creates the branch and its worktree together and cds into it. Use `-b <base>` to base it on something other than the default branch.
     - **Always base a new worktree on `origin/<default>`, not the local ref: `wt switch -c <branch> -b origin/main`.** `git fetch origin` updates `origin/main` but leaves local `main` wherever it was, and a bare `wt switch -c` branches from that stale local ref — which silently produces a branch N commits behind and a conflicted PR later. Fetch, then pass `-b origin/main`.
     - `wt switch -c` only `cd`s its own subprocess, so the session stays in the old checkout — work in the new worktree via absolute paths (`~/worktrees/<repo>/<branch>`).
+    - Pin every command to the worktree it acts on: `git -C "$WT"`, and `gh -R "$REPO"` with an explicit PR number or `--head "$BRANCH"`. A bare `gh pr view` reads cwd and silently addresses the wrong PR.
     - `wt switch <branch>` returns to an existing worktree; bare `wt switch` opens a picker
     - `wt list` shows every worktree and its status
     - `wt remove` deletes the worktree, and the branch if it has been merged
