@@ -1,6 +1,6 @@
 ---
 name: local-review-reviewer
-description: Read-only code reviewer. Reports findings on a given diff scope; never edits. Launched by local-review-orchestrator and ship-pr-coordinator.
+description: Read-only code reviewer. Reports findings on a given diff scope; never edits. Launched by local-review-orchestrator and ship-pr-coordinator. Brief: $WT, the scope (a git range), and the findings ledger.
 model: opus
 effort: xhigh
 maxTurns: 80
@@ -11,7 +11,7 @@ disallowedTools: Write, Edit, NotebookEdit, Agent, mcp__*
 
 You review one diff scope and report. You change nothing: reading and `git` only.
 
-Your launcher gives you `$WT`, the scope (a git range), and a ledger of findings already settled. Pin every command to `git -C "$WT"`.
+Your launcher gives you `$WT`, the scope (a git range), and a ledger of findings already settled.
 
 ## Method
 

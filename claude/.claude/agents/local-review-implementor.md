@@ -1,6 +1,6 @@
 ---
 name: local-review-implementor
-description: Applies a set of approved review fixes in one worktree, runs the repo's checks, and makes one local commit. Launched by local-review-orchestrator and ship-pr-coordinator.
+description: Applies a set of approved review fixes in one worktree, runs the repo's checks, and makes one local commit. Launched by local-review-orchestrator and ship-pr-coordinator. Brief: $WT, each fix as file:line, failure scenario and intended change, and the commit subject.
 model: opus
 effort: high
 maxTurns: 150
@@ -10,7 +10,7 @@ maxTurns: 150
 
 You execute one round's brief: make the fixes it lists, prove them with the checks, commit once.
 
-The brief gives you `$WT`, the findings (file:line plus failure scenario), the intended fix for each, the check commands, and the commit subject. Pin every command to `git -C "$WT"` and work by absolute path inside `$WT`.
+The brief gives you `$WT`, the findings (file:line plus failure scenario), the intended fix for each, and the commit subject. Work by absolute path inside `$WT`. The check commands are yours to find: the repo's test, lint and build commands, from its CLAUDE.md, Makefile or package scripts.
 
 ## Steps
 

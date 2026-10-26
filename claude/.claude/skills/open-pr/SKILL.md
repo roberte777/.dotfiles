@@ -17,45 +17,14 @@ the wrong directory produces an empty PR or, worse, pushes the main checkout.
 
 Skip this step if a caller already handed you a resolved `$WT` / `$BRANCH` / `$REPO`.
 
-Establish the repo-wide facts once, from any worktree of it:
-
 ```bash
-REPO=$(git -C "$PWD" remote get-url origin | sed -E 's#(git@|https://)github\.com[:/]##; s#\.git$##')
-DEFAULT=$(gh repo view "$REPO" --json defaultBranchRef --jq .defaultBranchRef.name)  # positional: `repo view` has no -R
+~/.claude/scripts/worktree-targets    # REPO, DEFAULT, then per target: path ($WT), branch ($BRANCH), ahead, dirty, pr, base
 ```
-
-Don't hardcode `main` for `$DEFAULT`, and don't reach for `origin/HEAD` instead — it's unset in
-plenty of clones. Then enumerate candidates:
-
-```bash
-wt list 2>/dev/null || git worktree list           # every worktree of this repo
-```
-
-For each candidate path `$WT`, gather the facts that decide whether it has shippable work:
-
-```bash
-git -C "$WT" branch --show-current                 # branch (empty ⇒ detached HEAD)
-git -C "$WT" status --porcelain                    # uncommitted work
-git -C "$WT" log --oneline "origin/$DEFAULT..HEAD" # commits not on the default branch
-```
-
-A candidate is a **target** if it is not the default branch **and** has commits ahead of the
-default branch or uncommitted changes. Then:
 
 - **Zero targets** → say so and stop. Don't invent work.
 - **Exactly one** → that's the target; proceed without asking.
 - **More than one** → if the user named one, honour it. Otherwise list them (path, branch,
   commit subjects, PR if one exists) and ask. Never guess.
-
-Pin every later command to the resolved target — no `cd`, no cwd inference:
-
-```bash
-WT=~/worktrees/<repo>/<branch>
-BRANCH=$(git -C "$WT" branch --show-current)
-```
-
-`git` takes `-C "$WT"`. `gh` takes `-R "$REPO"` plus an explicit PR number or `--head "$BRANCH"`
-— a bare `gh pr view` reads the cwd and will silently address the wrong PR.
 
 ## 2. Already open?
 
@@ -71,8 +40,7 @@ commits, push them to that PR first (step 3), then report.
 1. **Commit anything outstanding** in `$WT` with a conventional-commit subject (`feat:`, `fix:`,
    `chore:`). Match the repo's allowed prefixes — some repos enforce a narrow set via a
    `commit-msg` hook.
-2. **Never amend or force-push a commit that is already on the remote.** New work goes on top.
-3. **Push** — `git -C "$WT" push`. Upstream auto-sets on first push; never pass `--force`.
+2. **Push** — `git -C "$WT" push`.
 
 ## 4. Compose the PR
 
@@ -111,10 +79,5 @@ Report the PR number and URL. A caller records them; a direct invocation prints 
 
 ## Hard rules
 
-- **Resolve the work context before anything else.** cwd is a hint, not the answer.
-- **Never amend or force-push a pushed commit.** A non-fast-forward rejection means this rule
-  was broken — recover with `git reset --soft origin/<branch>` and redo.
-- **Never open a second PR for a branch that already has one.**
-- **Never request Copilot as a reviewer** — it's auto-attached.
 - **No AI attribution anywhere** — not in commit messages, PR bodies, or issue comments. The
   work is the user's.

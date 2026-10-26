@@ -17,19 +17,12 @@ Take the PR number from the invocation. If the user didn't name one, find it fro
 branch — and if that's the default branch, list the session's open PRs and ask rather than
 guessing.
 
-Once you have the PR, its worktree is **derivable** — no discovery heuristics needed:
-
-```bash
-REPO=$(git -C "$PWD" remote get-url origin | sed -E 's#(git@|https://)github\.com[:/]##; s#\.git$##')
-BRANCH=$(gh pr view <pr> -R "$REPO" --json headRefName --jq .headRefName)
-WT=$(git worktree list --porcelain | awk -v b="refs/heads/$BRANCH" '
-  /^worktree /{p=$2} $0=="branch "b{print p}')
-```
+Once you have the PR, its worktree is **derivable** — no discovery heuristics needed. Run
+`~/.claude/scripts/worktree-targets` for `REPO`; `$WT` is the path on the row whose branch is
+the PR's head (`gh pr view <pr> -R "$REPO" --json headRefName --jq .headRefName`).
 
 If no worktree holds that branch, check one out before touching code — never apply fixes in a
-worktree that isn't on the PR's head branch. Pin everything after this: `git -C "$WT"`,
-`gh -R "$REPO"` with the explicit PR number. A bare `gh pr view` reads cwd and will silently
-address the wrong PR.
+worktree that isn't on the PR's head branch.
 
 ## 2. Collect every surface
 
@@ -139,9 +132,6 @@ any), then:
 
 ## Hard rules
 
-- **Never amend or force-push a pushed commit.** Fixes land as a fresh commit on top. A
-  non-fast-forward rejection means this rule was broken — recover with
-  `git reset --soft origin/<branch>` and redo.
 - **Never dismiss a human's comment**, and never dismiss anything you couldn't verify.
 - **Never resolve a thread you escalated.** Leaving it open is the signal.
 - **Never apply fixes in a worktree that isn't on the PR's head branch.**
