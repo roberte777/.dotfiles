@@ -48,7 +48,7 @@
 - Stacked branches should be denoted so other developers can tell which one is the head of the train
   - The branch that everything is based off of should be `-1`
   - The next branch and the branch after that would be `-2` and `-3` respectively
-  - As branches are code complete, the branches should be pushed up and follow @skills/open-pr/SKILL.md
+  - Open each branch's PR with the `open-pr` skill once the branch is code complete
 - PR descriptions follow the repo's PR template, filled with terse bullets — never prose paragraphs.
   - Every bullet is **80 characters or less**, and no section has more than **4 bullets**. No sub-bullets, intro sentences, or bold lead-ins.
   - Never hard-wrap: each sentence or paragraph, including text kept from the template, goes on one line.
