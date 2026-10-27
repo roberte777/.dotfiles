@@ -52,6 +52,15 @@
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    # Rex (superlogical.com), prebuilt binary flake. The channel URL requires the
+    # pre-release token in a netrc that Nix reads (root: /etc/nix/netrc, managed
+    # via sops; user: ~/.netrc). No stable release exists yet; preview is the
+    # tagged channel the installer falls back to. flake.lock pins the exact
+    # release, so upgrades are explicit: `nix flake update rex` (as a user with
+    # the netrc).
+    rex = {
+      url = "https://pkgs.superlogical.com/rex/nix/preview.tar.gz";
+    };
   };
   outputs = {
     self,

@@ -11,6 +11,7 @@
     ../../modules/nixos/niri.nix
     ../../modules/nixos/cloudflared.nix
     inputs.noctalia.nixosModules.default
+    inputs.rex.nixosModules.default
     inputs.sops-nix.nixosModules.sops
   ];
 
@@ -39,6 +40,28 @@
     secrets.hermes-env = {
       owner = "theater";
       mode = "0400";
+    };
+
+    # Pre-release token for pkgs.superlogical.com (Rex flake fetches).
+    # Root-only: consumed solely by the nix-netrc template below.
+    secrets.rex-package-token = {
+      owner = "root";
+      mode = "0400";
+    };
+
+    # Nix reads its HTTP logins from /etc/nix/netrc. Fetching the Rex flake
+    # (pkgs.superlogical.com) needs the pre-release token until the first
+    # public release, and nix-daemon -- which does the fetches -- reads that
+    # file as root. The template renders the sops secret into place at boot;
+    # the token itself lives encrypted in secrets/theater.yaml.
+    #
+    # Drop this once Rex leaves the token-gated preview channel.
+    templates.nix-netrc = {
+      path = "/etc/nix/netrc";
+      mode = "0600";
+      content = ''
+        machine pkgs.superlogical.com login rex password ${config.sops.secrets.rex-package-token.path}
+      '';
     };
   };
 
@@ -329,6 +352,27 @@
   services.noctalia-shell.enable = true;
   services.power-profiles-daemon.enable = true;
   services.tailscale.enable = true;
+
+  # Rex (superlogical.com) login server: one root process that identifies
+  # callers by their Tailscale login and runs a per-account Rex server via
+  # PAM. Remote access goes through Tailscale Serve (HTTPS on tailnet port
+  # 7297), so connect from any Rex client with
+  #   rex -S https://theater.tail4d5f23.ts.net ls
+  # The CLI tries 443 then 7297, so the bare hostname also works.
+  #
+  # rex.nixosModules.default comes from the `rex` flake input (preview
+  # channel, token-gated fetch -- see the flake comment and nix-netrc above).
+  # rex.homeManagerModules.default also exists for non-NixOS hosts.
+  services.rex.loginServer = {
+    enable = true;
+    accounts = {
+      theater.principals = ["tailscale:rewilkes0041@gmail.com"];
+      # Remove this line if you don't want tailnet access to root.
+      root.principals = ["tailscale:rewilkes0041@gmail.com"];
+    };
+    defaults."tailscale:rewilkes0041@gmail.com" = "theater";
+    tailscaleServe.enable = true;
+  };
 
   system.stateVersion = "25.11";
 }
