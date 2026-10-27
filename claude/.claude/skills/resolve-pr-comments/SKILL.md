@@ -72,7 +72,8 @@ Inside `ship-pr-coordinator`, whose tools cannot edit files, the batch goes thro
 You are trusted to judge this. Dismiss when you can state a concrete reason from one of these:
 
 - **Factually wrong about the code** — cite the line that disproves it.
-- **Out of scope** — pre-existing behaviour, or an unrelated file the diff merely touched.
+- **Out of scope** — pre-existing behaviour other than the PR's **root cause** (see *Escalate*),
+  or an unrelated file the diff merely touched.
 - **Contradicts a repo convention** — cite the rule file or the surrounding pattern.
 - **Already handled** — point at where in the diff.
 - **Stale** — the thread is outdated against code the diff replaced.
@@ -91,9 +92,13 @@ override per-PR ("dismiss whatever you're sure about").
 
 ### Escalate
 
-A product or design decision, a comment whose correctness you can't determine, a real problem
-better handled in a follow-up, or any human comment you disagree with. Reply if you have
-something useful to say, and **leave the thread unresolved**.
+A product or design decision, the PR's **root cause**, a comment whose correctness you can't
+determine, a real problem better handled in a follow-up, or any human comment you disagree with.
+Reply if you have something useful to say, and **leave the thread unresolved**.
+
+The **root cause** is a pre-existing defect that the bug the PR fixes comes from. Fixing it at
+its source can replace the PR's own fix, so carry the finding's proposed source fix into the
+escalation: whether to switch to it is the user's call.
 
 An escalation is a **blocking** outcome: report it and let the user decide. A caller must not
 merge over it.
