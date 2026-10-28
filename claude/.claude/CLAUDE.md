@@ -55,4 +55,4 @@
   - This applies to every section, including template sections that look like they want prose.
   - Nothing but the change and how to verify it: review rounds, finding tallies, test-run narration, and other process notes are reported to me in chat, never put in the PR.
   - **Before rewriting an existing PR description, show me the current one and ask before overwriting** — someone may have edited it since you wrote it.
-- Replies to PR review comments are minimal: a fixed comment gets just the commit SHA, then the thread is resolved (see `resolve-pr-comments`).
+- Replies to PR review comments are minimal: a fixed comment gets just the commit SHA, then the thread is resolved (see `~/.claude/review-loop/github.md`).

@@ -2,8 +2,8 @@
 #
 # Lists the worktrees of a repo that hold work not yet on its default branch:
 # commits ahead of origin/<default>, uncommitted changes, or both. These are
-# the "targets" the open-pr, ship-pr, local-review and resolve-pr-comments
-# skills act on, so the lookup lives here once instead of in each skill.
+# the "targets" the open-pr, ship-pr and local-review skills act on, so the
+# lookup lives here once instead of in each skill.
 #
 # Usage: worktree-targets [path-inside-the-repo]   (defaults to $PWD)
 #

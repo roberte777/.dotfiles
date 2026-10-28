@@ -21,6 +21,7 @@ These pass through to the coordinator's brief:
 - **A named merge method** ("rebase merge", "merge commit") → that method instead of squash.
 - **"PR is already open" / a PR number or URL** → the PR number, so it skips opening.
 - **"skip the local review" / "Copilot only"** → no local review in round 1.
+- **"dismiss what you're sure of"** → a person's comment may be dismissed like a bot's.
 - **An issue** ("ship #1186", a pasted issue URL) → the issue number, so the merge closes it.
 - **A named branch, worktree, or "all of them"** → feeds step 1's target selection.
 
