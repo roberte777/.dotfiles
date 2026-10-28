@@ -16,6 +16,7 @@ report news before you actually spend the bid.
 
 ## Weeks
 
+- [Week 8, 2026](/waiver-wire/week-8-2026.md) — Coleman is the true gem in 65% of benches, and Cooper is still somehow a waiver claim
 - [Week 7, 2026](/waiver-wire/week-7-2026.md) — Hurts, McLaurin and Adams are gone for the season, and three rookies are the payday
 - [Week 6, 2026](/waiver-wire/week-6-2026.md) — the Eagles are out of running backs, the Steelers out of receivers, and the wire itself gets a D
 - [Week 5, 2026](/waiver-wire/week-5-2026.md) — the Eagles' backfield graveyard crowns Shipley, and Burrow's next men up are free
