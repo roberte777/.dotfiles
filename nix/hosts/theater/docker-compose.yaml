@@ -178,6 +178,15 @@ services:
     labels:
       # See sabnzbd -- recreates this alongside gluetun rather than stranding it.
       - com.centurylinklabs.watchtower.depends-on=gluetun
+    # See qbittorrent-mam. The depends-on label only covers watchtower; a manual
+    # `docker restart gluetun` strands this silently, and Prowlarr's Cloudflare
+    # indexers then fail with "Connection refused (gluetun:8191)".
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-m", "5", "-o", "/dev/null", "http://127.0.0.1:8191"]
+      interval: 60s
+      timeout: 10s
+      start_period: 60s
+      retries: 3
     restart: unless-stopped
 
   # radarr/sonarr remain normal (no VPN), as before:
@@ -497,6 +506,7 @@ services:
       - EBOOK_LIBRARY_PATH=/books
       - AUDIOBOOK_LIBRARY_PATH=/audiobooks
       - RUST_LOG=omnibus=debug,tower_http=debug,info
+      - OMNIBUS_REACT=1
     volumes:
       - ${APPDATA_DIR}/omnibus/config:/config
       - ${APPDATA_DIR}/omnibus/cache:/cache
