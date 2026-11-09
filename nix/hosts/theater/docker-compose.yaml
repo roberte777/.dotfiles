@@ -506,10 +506,13 @@ services:
       - EBOOK_LIBRARY_PATH=/books
       - AUDIOBOOK_LIBRARY_PATH=/audiobooks
       - RUST_LOG=omnibus=debug,tower_http=debug,info
-      - OMNIBUS_REACT=1
+      - OMNIBUS_BOOK_REQUESTS=1
     volumes:
       - ${APPDATA_DIR}/omnibus/config:/config
       - ${APPDATA_DIR}/omnibus/cache:/cache
+      # Book requests import finished downloads from here. Same container path
+      # as qbittorrent/qbittorrent-mam so the save paths they report resolve.
+      - ${DATA_DIR}/torrents:/data/torrents:ro
       - ${DATA_DIR}/media/books:/books
       - ${DATA_DIR}/media/audiobooks:/audiobooks
     restart: unless-stopped
