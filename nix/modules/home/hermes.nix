@@ -105,7 +105,7 @@
       # drops the non-conformant fields; the text result is untouched.
       mcp_servers.omnibus = {
         command = "/home/theater/.local/bin/mcp-schema-sanitizer";
-        args = [ "/home/theater/.local/bin/omnibus-mcp" ];
+        args = ["/home/theater/.local/bin/omnibus-mcp"];
         env = {
           OMNIBUS_MCP_URL = "http://localhost:3000";
           OMNIBUS_MCP_USERNAME = "\${OMNIBUS_MCP_USERNAME}";

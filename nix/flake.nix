@@ -125,7 +125,7 @@
           home-manager.darwinModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
+            home-manager.useUserPackages = false;
             home-manager.extraSpecialArgs = {inherit inputs pkgs-unstable pkgs-master;};
           }
         ];
@@ -157,6 +157,9 @@
     darwinConfigurations = {
       lorien = mkDarwinHost {
         hostname = "lorien";
+      };
+      garlic-flakes = mkDarwinHost {
+        hostname = "garlic-flakes";
       };
     };
     nixosConfigurations = {
