@@ -3,7 +3,6 @@ return {
 		"neovim/nvim-lspconfig",
 		event = { "BufReadPre", "BufNewFile" },
 		dependencies = {
-			"jose-elias-alvarez/typescript.nvim",
 			"p00f/clangd_extensions.nvim",
 			"saghen/blink.cmp",
 			{
